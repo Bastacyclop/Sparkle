@@ -15,7 +15,7 @@ pub trait System: 'static + EntityObserver {
 }
 
 pub trait Processor: 'static {
-    fn before_processing(&mut self);
+    fn before_processing(&mut self) {}
     fn process(&mut self, em: &mut EntityManager, entities: &HashSet<Entity>);
-    fn after_processing(&mut self);
+    fn after_processing(&mut self) {}
 }
