@@ -1,0 +1,1687 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ma",
+				"manager"
+			],
+			[
+				"st",
+				"stores"
+			],
+			[
+				"get",
+				"get_type_index"
+			],
+			[
+				"type",
+				"type_index"
+			],
+			[
+				"box",
+				"boxed_component"
+			],
+			[
+				"ty",
+				"type_index"
+			],
+			[
+				"inse",
+				"insert_new_store_with"
+			],
+			[
+				"ne",
+				"new_store"
+			],
+			[
+				"Stor",
+				"StoreMap"
+			],
+			[
+				"met",
+				"method"
+			],
+			[
+				"Co",
+				"ComponentTest"
+			],
+			[
+				"Com",
+				"Component"
+			],
+			[
+				"CO",
+				"ComponentTest"
+			],
+			[
+				"com",
+				"component_trait_def"
+			],
+			[
+				"Li",
+				"LifetimeBounds"
+			],
+			[
+				"att",
+				"attrs"
+			],
+			[
+				"re",
+				"ret_uint"
+			],
+			[
+				"Met",
+				"MethodDef"
+			],
+			[
+				"It",
+				"Item"
+			],
+			[
+				"p",
+				"plugin_registrar"
+			],
+			[
+				"ass",
+				"assert_hello"
+			],
+			[
+				"te",
+				"test2"
+			],
+			[
+				"A",
+				"AtomicUint"
+			],
+			[
+				"tt",
+				"trait_def"
+			],
+			[
+				"tr",
+				"trait_span"
+			],
+			[
+				"Compo",
+				"ComponentDecorator"
+			],
+			[
+				"co",
+				"component_trait_def"
+			],
+			[
+				"ex",
+				"expand_trait"
+			],
+			[
+				"me",
+				"meta_item"
+			],
+			[
+				"ind",
+				"index_counter"
+			],
+			[
+				"COm",
+				"ComponentType"
+			],
+			[
+				"Ar",
+				"ArcStore"
+			],
+			[
+				"Ind",
+				"Indexer"
+			],
+			[
+				"Inde",
+				"IndexPool"
+			],
+			[
+				"as",
+				"assert_eq"
+			],
+			[
+				"g",
+				"get_for"
+			],
+			[
+				"inde",
+				"indexer"
+			],
+			[
+				"in",
+				"indexed"
+			],
+			[
+				"In",
+				"IndexPool"
+			],
+			[
+				"id",
+				"id_pool"
+			],
+			[
+				"ent",
+				"entity_id"
+			],
+			[
+				"component",
+				"component_bits"
+			],
+			[
+				"get_",
+				"get_mut"
+			],
+			[
+				"Ent",
+				"EntityId"
+			],
+			[
+				"en",
+				"entity_id"
+			],
+			[
+				"enti",
+				"entity"
+			],
+			[
+				"Entity",
+				"EntityId"
+			],
+			[
+				"En",
+				"EntityId"
+			],
+			[
+				"whi",
+				"white"
+			],
+			[
+				"curr",
+				"current_piece"
+			],
+			[
+				"p2",
+				"p2_pieces_count"
+			],
+			[
+				"p1",
+				"p1_pieces_count"
+			],
+			[
+				"cur",
+				"current_player"
+			],
+			[
+				"mov",
+				"movenb1"
+			],
+			[
+				"move",
+				"movenb2"
+			],
+			[
+				"nb",
+				"nbcoup1"
+			],
+			[
+				"_",
+				"_"
+			],
+			[
+				"cou",
+				"coup"
+			],
+			[
+				"N",
+				"Nombre"
+			],
+			[
+				"pla",
+				"player"
+			],
+			[
+				"dis",
+				"display_header"
+			],
+			[
+				"ini",
+				"init_grid"
+			],
+			[
+				"player",
+				"player_choice"
+			],
+			[
+				"pl",
+				"player_choice"
+			],
+			[
+				"wh",
+				"white"
+			],
+			[
+				"chec",
+				"check_right_diagonal"
+			],
+			[
+				"s",
+				"start_left"
+			],
+			[
+				"row",
+				"row_pos"
+			],
+			[
+				"che",
+				"check_lines"
+			],
+			[
+				"col",
+				"column_pos"
+			],
+			[
+				"pi",
+				"piece_column"
+			],
+			[
+				"d",
+				"direction"
+			],
+			[
+				"colu",
+				"column"
+			],
+			[
+				"c",
+				"current_player"
+			],
+			[
+				"displ",
+				"display_header"
+			],
+			[
+				"gri",
+				"grid_name"
+			],
+			[
+				"COn",
+				"Contact_destroy"
+			],
+			[
+				"Con",
+				"ContactList"
+			],
+			[
+				"con",
+				"contact"
+			],
+			[
+				"ContactLi",
+				"ContactList_appendAt"
+			],
+			[
+				"ContactList_app",
+				"ContactList_appendLast"
+			],
+			[
+				"ContactList_apped",
+				"ContactList_appendAt"
+			],
+			[
+				"Cont",
+				"Contact"
+			],
+			[
+				"li",
+				"list_len"
+			],
+			[
+				"Bi",
+				"Bilbo"
+			],
+			[
+				"Contact_d",
+				"Contact_display"
+			],
+			[
+				"C",
+				"ContactList"
+			],
+			[
+				"n",
+				"next"
+			],
+			[
+				"pr",
+				"prenom"
+			],
+			[
+				"H",
+				"HashSet"
+			],
+			[
+				"up",
+				"update_systems_with"
+			],
+			[
+				"Sy",
+				"SystemWrapper"
+			],
+			[
+				"upd",
+				"update"
+			],
+			[
+				"sys",
+				"system"
+			],
+			[
+				"mut",
+				"mut_iter"
+			],
+			[
+				"sy",
+				"system"
+			],
+			[
+				"cr",
+				"create_observer"
+			],
+			[
+				"S",
+				"SystemManager"
+			],
+			[
+				"entity",
+				"entity_manager"
+			],
+			[
+				"dest",
+				"destroy"
+			],
+			[
+				"no",
+				"notify_action_to_systems"
+			],
+			[
+				"em",
+				"em_observer"
+			],
+			[
+				"entit",
+				"entity_manager"
+			],
+			[
+				"ob",
+				"observers"
+			],
+			[
+				"per",
+				"performed_actions"
+			],
+			[
+				"EN",
+				"EntityManagerAction"
+			],
+			[
+				"E",
+				"EntityManagerAction"
+			],
+			[
+				"ENTI",
+				"EntityManager"
+			],
+			[
+				"Hah",
+				"HashSet"
+			],
+			[
+				"Sys",
+				"SystemManager"
+			],
+			[
+				"Syst",
+				"SystemManager"
+			],
+			[
+				"Enti",
+				"Entity"
+			],
+			[
+				"De",
+				"Destroyed"
+			],
+			[
+				"pro",
+				"perfomed_updates"
+			],
+			[
+				"e",
+				"entity"
+			],
+			[
+				"Ha",
+				"HashMap"
+			],
+			[
+				"find_mut",
+				"find_mut_component<'a"
+			],
+			[
+				"fin",
+				"find_component<'a"
+			],
+			[
+				"de",
+				"detach_component"
+			],
+			[
+				"cre",
+				"create_entity_with_components"
+			],
+			[
+				"Entit",
+				"Entity"
+			],
+			[
+				"destroy",
+				"destroy_entity"
+			],
+			[
+				"command",
+				"command_recv"
+			],
+			[
+				"pendi",
+				"pending_actions"
+			],
+			[
+				"comp",
+				"component"
+			],
+			[
+				"Entt",
+				"EntityManager"
+			],
+			[
+				"ComponentMap",
+				"ComponentMap::new"
+			],
+			[
+				"Comp",
+				"Component"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/lib.rs",
+			"settings":
+			{
+				"buffer_size": 147,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/utils/mod.rs",
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/component/mod.rs",
+			"settings":
+			{
+				"buffer_size": 169,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/component/store.rs",
+			"settings":
+			{
+				"buffer_size": 1579,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/entity/mod.rs",
+			"settings":
+			{
+				"buffer_size": 188,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "use entity::{Entity, MetaEntity};\n\npub struct Manager {\n    \n}",
+			"file": "src/entity/manager.rs",
+			"file_size": 0,
+			"file_write_time": 130643456093041380,
+			"settings":
+			{
+				"buffer_size": 62,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/component/deriving.rs",
+			"settings":
+			{
+				"buffer_size": 2200,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Cargo.toml",
+			"settings":
+			{
+				"buffer_size": 166,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/Rust/Cargo.sublime-build",
+	"command_palette":
+	{
+		"height": 400.0,
+		"selected_items":
+		[
+			[
+				"instl",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"rust",
+				"Set Syntax: Rust"
+			],
+			[
+				"upd",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"syntc",
+				"Set Syntax: C"
+			],
+			[
+				"pus",
+				"Git: Push"
+			],
+			[
+				"remo",
+				"Git: Add Remote"
+			],
+			[
+				"gitin",
+				"Git: Init"
+			],
+			[
+				"push",
+				"Git: Push"
+			],
+			[
+				"stat",
+				"Git: Status"
+			],
+			[
+				"remov",
+				"Package Control: Remove Package"
+			],
+			[
+				"statsu",
+				"Git: Status"
+			],
+			[
+				"git pu",
+				"Git: Pull"
+			],
+			[
+				"diff",
+				"Git: Diff"
+			],
+			[
+				"pu",
+				"Git: Push"
+			],
+			[
+				"new",
+				"Git: Checkout New Branch"
+			],
+			[
+				"remote",
+				"Git: Remote"
+			]
+		],
+		"width": 529.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/liaud/Documents/Sparkle",
+		"/home/liaud/Documents/Sparkle/src",
+		"/home/liaud/Documents/Sparkle/src/utils",
+		"/home/liaud/Documents/Sparkle/tests"
+	],
+	"file_history":
+	[
+		"/home/liaud/Documents/Sparkle/tests/deriving.rs",
+		"/home/liaud/Documents/Sparkle/src/component/deriving.rs",
+		"/home/liaud/Documents/Sparkle/src/component/type.rs",
+		"/home/liaud/Documents/Sparkle/.gitignore",
+		"/home/liaud/Documents/Sparkle/Cargo.toml",
+		"/home/liaud/Documents/Sparkle/.travis.yml",
+		"/home/liaud/Documents/Sparkle/src/utils/index.rs",
+		"/home/liaud/Documents/Macros/Cargo.toml",
+		"/home/liaud/Documents/Test/src/main.rs",
+		"/home/liaud/Documents/Macros/src/lib.rs",
+		"/home/liaud/Documents/Macros/Cargo.lock",
+		"/home/liaud/Documents/Sparkle/src/component/mod.rs",
+		"/home/liaud/Documents/component.rs",
+		"/home/liaud/Documents/test.rs",
+		"/home/liaud/Documents/component_macro.rs",
+		"/home/liaud/Documents/Sparkle/src/lib.rs",
+		"/home/liaud/Documents/Sparkle/src/component/store.rs",
+		"/home/liaud/Documents/Sparkle_old/src/component/mod.rs",
+		"/home/liaud/Documents/Sparkle/src/entity/mod.rs",
+		"/home/liaud/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/liaud/Documents/Sparkle_old/src/utils/indexer.rs",
+		"/home/liaud/Documents/Sparkle/src/utils/mod.rs",
+		"/home/liaud/Documents/Sparkle/src/utils/pool.rs",
+		"/home/liaud/Documents/Sparkle/src/utils/indexer.rs",
+		"/home/liaud/Documents/Sparkle_old/src/utils/identifier_pool.rs",
+		"/home/liaud/Documents/Sparkle/src/entity/builder.rs",
+		"/home/liaud/Documents/Sparkle/src/entity/manager.rs",
+		"/home/liaud/Documents/Sparkle/src/component/store_map.rs",
+		"/home/liaud/Documents/Sparkle/src/space.rs",
+		"/home/liaud/Documents/Polynomial/bin/Debug/multiplication.poly",
+		"/home/liaud/Documents/Polynomial/bin/Debug/other.poly",
+		"/home/liaud/Documents/Polynomial/bin/Debug/addition.poly",
+		"/home/liaud/Documents/Polynomial/bin/Debug/script.poly",
+		"/home/liaud/Documents/connect4.sh",
+		"/home/liaud/.cache/.fr-QZQw8K/projet_sdd_versionX.3/main.c",
+		"/home/liaud/Téléchargements/projet_sdd_versionX.3/projet_sdd_versionX.3/projet_sdd_versionX.c",
+		"/home/liaud/Téléchargements/projet_sdd_versionX.3/projet_sdd_versionX.3/main.c",
+		"/home/liaud/.cache/.fr-aPWoBt/projet_sdd_versionX.3/projet_sdd_versionX.c",
+		"/home/liaud/Téléchargements/operations.c",
+		"/home/liaud/Documents/test.txt",
+		"/home/liaud/Téléchargements/ProjetPolynome/ProjetPolyome.pro",
+		"/home/liaud/Documents/Polynomial/bin/Debug/Waow.txt",
+		"/home/liaud/Documents/Polynomial/bin/Debug/Demonstration.txt",
+		"/home/liaud/Documents/Polynomial/bin/Debug/Test.txt",
+		"/home/liaud/Documents/Polynomial/bin/Debug/OP.txt",
+		"/home/liaud/Documents/Polynomial/bin/Debug/test.txt\n",
+		"/home/liaud/Documents/Polynomial/bin/Debug/test2.txt\n",
+		"/home/liaud/Documents/Polynomial/bin/Debug/sauvegarde.txt",
+		"/home/liaud/Desktop/build-projet1-Desktop-Debug/test.polynomials.txt",
+		"/home/liaud/Desktop/ProjetSDD/projet1.pro",
+		"/home/liaud/Desktop/build-projet1-Desktop-Debug/rien.txt.polynomials.txt",
+		"/home/liaud/Documents/Polynomial/bin/Debug/Test\n",
+		"/home/liaud/Documents/quartz/src/test.rs",
+		"/home/liaud/Documents/quartz/src/entity/manager.rs",
+		"/home/liaud/Documents/list_contact.c",
+		"/home/liaud/Documents/quartz/src/system.rs",
+		"/home/liaud/Documents/quartz/src/component.rs",
+		"/home/liaud/Documents/quartz/src/entity_manager.rs",
+		"/home/liaud/Documents/quartz/src/system_manager.rs",
+		"/home/liaud/Téléchargements/A_bernard_vaillant_09092014.txt",
+		"/F/Users/Liotitch/Desktop/Quartz/src/system.rs",
+		"/F/Users/Liotitch/Desktop/Quartz/src/utils/bag.rs",
+		"/F/Users/Liotitch/Desktop/Quartz/src/utils/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/pool.rs",
+		"/F/Users/Liotitch/Desktop/Quartz/src/entity.rs",
+		"/F/Users/Liotitch/Documents/Quartz/.gitignore",
+		"/F/Users/Liotitch/Documents/Quartz/src/space/entities/state_observer.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/system/processor.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/system/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/space/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/space/entities/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/space/systems.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/lib.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/world.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/space.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/collection.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/map.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/table.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/state_tracker.rs",
+		"/F/Users/Liotitch/Documents/Quartz/target/libquartz-d2aca6188444c41e.rlib",
+		"/F/Users/Liotitch/Documents/Quartz/src/system/system_processor.rs",
+		"/F/Users/Liotitch/Documents/Quartz_old/src/system.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/component_map.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/component_table.rs",
+		"/F/Users/Liotitch/Documents/Quartz_old/src/space.rs",
+		"/F/Users/Liotitch/AppData/Local/Ankama/Dofus2/app/data/binds/binds_frBE.xml",
+		"/F/Users/Liotitch/Documents/Quartz/src/utils/mod.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/system/system_container.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/entity_pool.rs",
+		"/F/Users/Liotitch/Documents/Quartz/Cargo.toml",
+		"/F/Users/Liotitch/Documents/Quartz/src/utils/type_vec.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/component/component.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity/entity.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/entity.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/managers/entity_manager.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/tag_manager.rs",
+		"/F/Users/Liotitch/Documents/Quartz/src/current.racertmp",
+		"/F/Users/Liotitch/AppData/Roaming/Sublime Text 3/Packages/User/RustAutoComplete.sublime-settings",
+		"/F/Users/Liotitch/Documents/Quartz/src/system.rs",
+		"/F/Users/Liotitch/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/F/Users/Liotitch/AppData/Roaming/Sublime Text 3/Packages/User/cargo_lib.sublime-build",
+		"/F/Users/Liotitch/.ssh/id_rsa.pub",
+		"/F/Users/Liotitch/Documents/New Unity Project/ProjectSettings/TagManager.asset",
+		"/F/Users/Liotitch/Downloads/cargo-nightly-i686-pc-mingw32.tar/cargo-nightly-i686-pc-mingw32/cargo-nightly-i686-pc-mingw32/install.sh",
+		"/F/Users/Liotitch/Downloads/hosts",
+		"/C/Windows/System32/drivers/etc/hosts",
+		"/F/TEMP/Temp1_PolyFract.zip/PolyFract/src/Generator/FractalFunctions.h",
+		"/F/TEMP/Temp1_PolyFract.zip/PolyFract/src/Generator/Generator.h",
+		"/F/TEMP/Temp1_PolyFract.zip/PolyFract/src/Complex/complex.c",
+		"/F/Users/Liotitch/Downloads/test.rs",
+		"/F/Users/Liotitch/Downloads/isometric/isometric/bin/scripts/Class.lua",
+		"/F/Users/Liotitch/Downloads/isometric/isometric/bin/grassdecal.tga"
+	],
+	"find":
+	{
+		"height": 42.0
+	},
+	"find_in_files":
+	{
+		"height": 115.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			" \n",
+			";\n",
+			"create_entity",
+			"Player_choice",
+			"choice",
+			"ContactList_append",
+			"ComponentTable",
+			"mut_iter",
+			"requirements",
+			"destroyed",
+			"active",
+			"Nothing",
+			"test"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"player_choice",
+			"ContactList_appendLast",
+			"get_requirements",
+			"available",
+			"used"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 4,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/lib.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 147,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								128,
+								128
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/utils/mod.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/component/mod.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 169,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								168,
+								168
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/component/store.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1579,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1577,
+								1577
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 540.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/entity/mod.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 188,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								62,
+								62
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/entity/manager.rs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 62,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								60,
+								60
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"open_with_edit": true,
+							"syntax": "Packages/Rust/Rust.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "src/component/deriving.rs",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 2200,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							],
+							[
+								701,
+								701
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Rust/Rust.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 60.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "Cargo.toml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 166,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								166,
+								166
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/TOML/TOML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 41.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 130.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git-commit":
+	{
+		"height": 146.0
+	},
+	"output.git-init":
+	{
+		"height": 152.0
+	},
+	"output.git-pull":
+	{
+		"height": 146.0
+	},
+	"output.git-push":
+	{
+		"height": 146.0
+	},
+	"project": "sparkle.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 270.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

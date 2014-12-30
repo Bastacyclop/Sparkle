@@ -1,0 +1,11 @@
+[package]
+
+name = "Sparkle"
+version = "0.0.1"
+authors = ["Liaud <rph.vaillant@gmail.com>"]
+
+[lib]
+
+name = "sparkle"
+path = "src/lib.rs"
+crate-type = ["dylib", "rlib"]
