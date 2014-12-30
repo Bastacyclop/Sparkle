@@ -23,7 +23,6 @@ impl Manager{
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
 
-
         self.actives.insert(entity, meta_entity);
         self.updates_record.add(Update::new_created(entity));
         entity

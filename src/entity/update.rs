@@ -58,6 +58,10 @@ impl Record {
         self.updates.insert(update);
     }
 
+    pub fn get_update_count(&self) -> uint {
+        self.updates.len()
+    }
+
     pub fn notify_and_flush<T>(&mut self, mentities: &VecMap<MetaEntity>, observer: &mut T) where T: Observer {
         for update in self.updates.drain() {
             mentities.get(&update.entity).map(|mentity| Record::notify_with(mentity, update, observer));
@@ -68,7 +72,7 @@ impl Record {
         match update.update_type {
             Type::Created => observer.on_created(mentity),
             Type::Removed => observer.on_removed(mentity),
-            Type::Changed => observer.on_removed(mentity)
+            Type::Changed => observer.on_changed(mentity)
         }
     }
 }
