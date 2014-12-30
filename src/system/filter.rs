@@ -23,6 +23,7 @@ impl Filter {
     }
 }
 
+#[macro_export]
 macro_rules! filter(
     ($($component_type:ident),*) => ({
         let mut filter = Filter::new();
