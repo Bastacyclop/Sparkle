@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicUint, SeqCst};
 #[doc(hidden)]
 pub fn plugin_registrar(reg: &mut plugin::Registry) {
     reg.register_syntax_extension(
-        token::intern("component"),
+        token::intern("SparkleComponent"),
         SyntaxExtension::Decorator(box ComponentDecorator { index_counter: AtomicUint::new(0u) })
     )
 }
