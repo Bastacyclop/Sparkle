@@ -3,11 +3,12 @@ Sparkle
 
 ## TODO
 
-- [ ] Provide more systems type
-- [ ] Create custom pointer/container for improving performance ?
+- [ ] Provide more system types
+- [ ] Create custom pointers/containers for improving performances ?
 - [ ] Simplified interface
-- [ ] Blackboard for communications between spaces/systems
+- [ ] Blackboard for communication between spaces/systems
 - [ ] World struct for managing spaces ?
 - [ ] Entity template / JSON serialisation
+- [ ] Parallel component processing support
 - [ ] Unit tests
 - [ ] Benches
