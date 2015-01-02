@@ -21,7 +21,7 @@ impl Manager{
         }
     }
 
-    pub fn create_entity(&mut self) -> Entity {
+    pub fn create(&mut self) -> Entity {
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
 
@@ -30,7 +30,7 @@ impl Manager{
         entity
     }
 
-    pub fn remove_entity(&mut self, entity: &Entity) {
+    pub fn remove(&mut self, entity: &Entity) {
         self.removed.push_back(*entity);
         self.updates_record.add(Update::new_removed(*entity));
     }
