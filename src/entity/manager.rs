@@ -1,11 +1,12 @@
 use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentType, StoreMap};
-use entity::{Pool, Entity, MetaEntity, Update, Observer, Record};
+use entity::{GroupMap, Pool, Entity, MetaEntity, Update, Observer, Record};
 
 struct Entities {
     pub pool: Pool,
     pub actives: VecMap<MetaEntity>,
-    pub removed: RingBuf<Entity>
+    pub removed: RingBuf<Entity>,
+    pub groups: GroupMap
 }
 
 impl Entities {
@@ -13,7 +14,8 @@ impl Entities {
         Entities {
             pool: Pool::new(),
             actives: VecMap::new(),
-            removed: RingBuf::new()
+            removed: RingBuf::new(),
+            groups: GroupMap::new()
         }
     }
 }
@@ -73,6 +75,23 @@ impl Manager{
         self.components.get_mut_component::<T>(entity)
     }
 
+    pub fn set_group(&mut self, group: &str, entity: &Entity) {
+        self.entities.actives.get_mut(entity).map(|mentity| mentity.groups.insert(group.to_string()));
+        self.entities.groups.insert(group, entity);
+
+        self.updates_record.add(Update::new_changed(*entity));
+    }
+
+    pub fn unset_group(&mut self, group: &str, entity: &Entity) {
+        self.entities.groups.remove_from(group, entity);
+
+        self.updates_record.add(Update::new_changed(*entity));
+    }
+
+    pub fn get_from_group(&mut self, group: &str) -> Vec<Entity> {
+        self.entities.groups.get(group)
+    }
+
     pub fn notify_observer_and_flush<T>(&mut self, observer: &mut T) where T: Observer {
         self.updates_record.notify_and_flush(&self.entities.actives, observer);
     }
@@ -80,6 +99,7 @@ impl Manager{
     pub fn flush_removed(&mut self) {
         while let Some(removed) = self.entities.removed.pop_back() {
             self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
+            self.entities.groups.clear_entity(&removed);
             self.components.detach_components(&removed);
         }
     }
