@@ -2,10 +2,24 @@ use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentType, StoreMap};
 use entity::{Pool, Entity, MetaEntity, Update, Observer, Record};
 
+struct Entities {
+    pub pool: Pool,
+    pub actives: VecMap<MetaEntity>,
+    pub removed: RingBuf<Entity>
+}
+
+impl Entities {
+    pub fn new() -> Entities {
+        Entities {
+            pool: Pool::new(),
+            actives: VecMap::new(),
+            removed: RingBuf::new()
+        }
+    }
+}
+
 pub struct Manager {
-    pool: Pool,
-    actives: VecMap<MetaEntity>,
-    removed: RingBuf<Entity>,
+    entities: Entities,
     components: StoreMap,
     updates_record: Record
 }
@@ -13,25 +27,23 @@ pub struct Manager {
 impl Manager{
     pub fn new() -> Manager {
         Manager {
-            pool: Pool::new(),
-            actives: VecMap::new(),
-            removed: RingBuf::new(),
+            entities: Entities::new(),
             components: StoreMap::new(),
             updates_record: Record::new()
         }
     }
 
     pub fn create(&mut self) -> Entity {
-        let meta_entity = self.pool.get();
+        let meta_entity = self.entities.pool.get();
         let entity = meta_entity.entity;
 
-        self.actives.insert(entity, meta_entity);
+        self.entities.actives.insert(entity, meta_entity);
         self.updates_record.add(Update::new_created(entity));
         entity
     }
 
     pub fn remove(&mut self, entity: &Entity) {
-        self.removed.push_back(*entity);
+        self.entities.removed.push_back(*entity);
         self.updates_record.add(Update::new_removed(*entity));
     }
 
@@ -39,7 +51,7 @@ impl Manager{
         let type_index = ComponentType::get_index_of::<T>();
 
         self.components.attach_component(entity, component);
-        self.actives.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
+        self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
         self.updates_record.add(Update::new_changed(*entity));
     }
 
@@ -47,7 +59,7 @@ impl Manager{
         let type_index = ComponentType::get_index_of::<T>();
 
         self.components.detach_component::<T>(entity);
-        self.actives.get_mut(entity).map(|mentity| mentity.component_bits.remove(&type_index));
+        self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.remove(&type_index));
         self.updates_record.add(Update::new_changed(*entity));
     }
 
@@ -62,12 +74,12 @@ impl Manager{
     }
 
     pub fn notify_observer_and_flush<T>(&mut self, observer: &mut T) where T: Observer {
-        self.updates_record.notify_and_flush(&self.actives, observer);
+        self.updates_record.notify_and_flush(&self.entities.actives, observer);
     }
 
     pub fn flush_removed(&mut self) {
-        while let Some(removed) = self.removed.pop_back() {
-            self.actives.remove(&removed).map(|mentity| self.pool.put(mentity));
+        while let Some(removed) = self.entities.removed.pop_back() {
+            self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
             self.components.detach_components(&removed);
         }
     }
