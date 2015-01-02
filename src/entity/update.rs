@@ -1,4 +1,4 @@
-use std::collections::{VecMap, HashSet};
+use std::collections::{VecMap, RingBuf};
 use entity::{Entity, MetaEntity};
 
 #[deriving(Hash, PartialEq, Eq, Copy)]
@@ -44,18 +44,18 @@ pub trait Observer {
 }
 
 pub struct Record {
-    updates: HashSet<Update>
+    updates: RingBuf<Update>
 }
 
 impl Record {
     pub fn new() -> Record {
         Record {
-            updates: HashSet::new()
+            updates: RingBuf::new()
         }
     }
 
     pub fn add(&mut self, update: Update) {
-        self.updates.insert(update);
+        self.updates.push_back(update);
     }
 
     pub fn get_update_count(&self) -> uint {
