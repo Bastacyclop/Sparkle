@@ -27,15 +27,3 @@ fn test_unique_updates_with_one_entity() {
     let expected_update_count = 3;
     assert_eq!(expected_update_count, record.get_update_count());
 }
-
-#[test]
-fn test_update_uniqueness() {
-    let mut record = Record::new();
-
-    let entity = 0u;
-    record.add(Update::new_changed(entity));
-    record.add(Update::new_changed(entity));
-
-    let expected_update_count = 1;
-    assert_eq!(expected_update_count, record.get_update_count());
-}
