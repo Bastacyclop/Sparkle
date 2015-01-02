@@ -1,12 +1,13 @@
 use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentType, StoreMap};
-use entity::{GroupMap, Pool, Entity, MetaEntity, Update, Observer, Record};
+use entity::{TagMap, GroupMap, Pool, Entity, MetaEntity, Update, Observer, Record};
 
 struct Entities {
     pub pool: Pool,
     pub actives: VecMap<MetaEntity>,
     pub removed: RingBuf<Entity>,
-    pub groups: GroupMap
+    pub groups: GroupMap,
+    pub tags: TagMap
 }
 
 impl Entities {
@@ -15,7 +16,8 @@ impl Entities {
             pool: Pool::new(),
             actives: VecMap::new(),
             removed: RingBuf::new(),
-            groups: GroupMap::new()
+            groups: GroupMap::new(),
+            tags: TagMap::new()
         }
     }
 }
@@ -92,6 +94,18 @@ impl Manager{
         self.entities.groups.get(group)
     }
 
+    pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
+        self.entities.tags.set_tag(tag, entity);
+    }
+
+    pub fn unset_tag(&mut self, entity: &Entity) {
+        self.entities.tags.unset_tag(entity);
+    }
+
+    pub fn get_with_tag(&mut self, tag: &str) -> Option<Entity> {
+        self.entities.tags.get_with_tag(tag)
+    }
+
     pub fn notify_observer_and_flush<T>(&mut self, observer: &mut T) where T: Observer {
         self.updates_record.notify_and_flush(&self.entities.actives, observer);
     }
@@ -100,6 +114,7 @@ impl Manager{
         while let Some(removed) = self.entities.removed.pop_back() {
             self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
             self.entities.groups.clear_entity(&removed);
+            self.entities.tags.unset_tag(&removed);
             self.components.detach_components(&removed);
         }
     }

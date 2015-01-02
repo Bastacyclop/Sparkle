@@ -2,11 +2,13 @@ use std::collections::{HashSet, BitvSet};
 pub use self::pool::Pool;
 pub use self::update::{Update, Record, Observer};
 pub use self::group::GroupMap;
+pub use self::tag::TagMap;
 pub use self::manager::Manager;
 
 pub mod pool;
 pub mod update;
 pub mod group;
+pub mod tag;
 pub mod manager;
 
 pub type Entity = uint;
