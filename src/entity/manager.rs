@@ -1,10 +1,11 @@
-use std::collections::VecMap;
+use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentType, StoreMap};
 use entity::{Pool, Entity, MetaEntity, Update, Observer, Record};
 
 pub struct Manager {
     pool: Pool,
     actives: VecMap<MetaEntity>,
+    removed: RingBuf<Entity>,
     components: StoreMap,
     updates_record: Record
 }
@@ -14,6 +15,7 @@ impl Manager{
         Manager {
             pool: Pool::new(),
             actives: VecMap::new(),
+            removed: RingBuf::new(),
             components: StoreMap::new(),
             updates_record: Record::new()
         }
@@ -29,8 +31,7 @@ impl Manager{
     }
 
     pub fn remove_entity(&mut self, entity: &Entity) {
-        self.actives.remove(entity).map(|mentity| self.pool.put(mentity));
-        self.components.detach_components(entity);
+        self.removed.push_back(*entity);
         self.updates_record.add(Update::new_removed(*entity));
     }
 
@@ -62,5 +63,12 @@ impl Manager{
 
     pub fn notify_observer_and_flush<T>(&mut self, observer: &mut T) where T: Observer {
         self.updates_record.notify_and_flush(&self.actives, observer);
+    }
+
+    pub fn flush_removed(&mut self) {
+        while let Some(removed) = self.removed.pop_back() {
+            self.actives.remove(&removed).map(|mentity| self.pool.put(mentity));
+            self.components.detach_components(&removed);
+        }
     }
 }
