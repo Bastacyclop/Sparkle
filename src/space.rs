@@ -15,7 +15,6 @@ impl Space {
     }
 
     pub fn update(&mut self) {
-        self.entities.notify_observer_and_flush(&mut self.systems);
         self.entities.flush_removed();
         
         self.systems.process_systems(&mut self.entities);
