@@ -1,12 +1,11 @@
 use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentIndex, StoreMap};
-use entity::{TagMap, Pool, Entity, MetaEntity, Event, Observer, Queue};
+use entity::{Pool, Entity, MetaEntity, Event, Observer, Queue};
 
 struct Entities {
     pub pool: Pool,
     pub actives: VecMap<MetaEntity>,
     pub removed: RingBuf<Entity>,
-    pub tags: TagMap
 }
 
 impl Entities {
@@ -15,7 +14,6 @@ impl Entities {
             pool: Pool::new(),
             actives: VecMap::new(),
             removed: RingBuf::new(),
-            tags: TagMap::new()
         }
     }
 }
@@ -83,22 +81,9 @@ impl Manager{
         self.components.get_mut_component::<T>(entity)
     }
 
-    pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
-        self.entities.tags.set_tag(tag, entity);
-    }
-
-    pub fn unset_tag(&mut self, entity: &Entity) {
-        self.entities.tags.unset_tag(entity);
-    }
-
-    pub fn get_with_tag(&mut self, tag: &str) -> Option<Entity> {
-        self.entities.tags.get_with_tag(tag)
-    }
-
     pub fn flush_removed(&mut self) {
         while let Some(removed) = self.entities.removed.pop_back() {
             self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
-            self.entities.tags.unset_tag(&removed);
             self.components.detach_components(&removed);
         }
     }

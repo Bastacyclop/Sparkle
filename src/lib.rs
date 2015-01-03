@@ -14,5 +14,6 @@ pub use space::Space;
 pub mod entity;
 pub mod component;
 pub mod group;
+pub mod tag;
 pub mod system;
 pub mod space;

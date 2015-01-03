@@ -4,12 +4,10 @@ use std::cell::RefCell;
 
 pub use self::pool::Pool;
 pub use self::event::{Event, Queue, Observer};
-pub use self::tag::TagMap;
 pub use self::manager::Manager;
 
 pub mod pool;
 pub mod event;
-pub mod tag;
 pub mod manager;
 
 pub type Entity = uint;
