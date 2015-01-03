@@ -11,28 +11,28 @@ pub enum Type {
 #[derive(Hash, PartialEq, Eq, Copy)]
 pub struct Event {
     pub entity: Entity,
-    pub update_type: Type
+    pub event_type: Type
 }
 
 impl Event {
     pub fn new_created(entity: Entity) -> Event {
         Event {
             entity: entity,
-            update_type: Type::Created
+            event_type: Type::Created
         }
     }
 
     pub fn new_removed(entity: Entity) -> Event {
         Event {
             entity: entity,
-            update_type: Type::Removed
+            event_type: Type::Removed
         }
     }
 
     pub fn new_changed(entity: Entity) -> Event {
         Event {
             entity: entity,
-            update_type: Type::Changed
+            event_type: Type::Changed
         }
     }
 }
@@ -62,9 +62,7 @@ impl Queue {
         self.events.len()
     }
 
-    pub fn poll_events(&mut self, func: |Event|) {
-        for event in self.events.drain() {
-            func(event);
-        }
+    pub fn poll_event(&mut self) -> Option<Event> {
+        self.events.pop_back()
     }
 }

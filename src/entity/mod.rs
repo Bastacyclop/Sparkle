@@ -1,6 +1,6 @@
 use std::collections::{VecMap, HashSet, BitvSet};
 use std::rc::Rc;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 
 pub use self::pool::Pool;
 pub use self::event::{Event, Queue, Observer};
@@ -49,6 +49,24 @@ impl MetaEntityMap {
 
     pub fn apply_to(&self, entity: &Entity, func: |&mut MetaEntity|) {
         self.0.borrow_mut().get_mut(entity).map(|mentity| func(mentity));
+    }
+
+    pub fn get<'a>(&'a self, entity: &Entity) -> MetaEntityRef<'a> {
+        MetaEntityRef {
+            map: self.0.borrow(),
+            entity: *entity
+        }
+    }
+}
+
+pub struct MetaEntityRef<'a> {
+    map: Ref<'a, VecMap<MetaEntity>>,
+    entity: Entity
+}
+
+impl<'a> MetaEntityRef<'a> {
+    pub fn unwrap(&self) -> &MetaEntity {
+        self.map.get(&self.entity).unwrap()
     }
 }
 

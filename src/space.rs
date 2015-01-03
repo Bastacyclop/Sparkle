@@ -1,7 +1,9 @@
 use component::{Component, ComponentIndex};
 use entity::{Entity, Event};
+use entity::event::Type as EventType;
 use entity::Queue as EventQueue;
 use entity::Manager as EntityManager;
+use entity::Observer;
 use group::Manager as GroupManager;
 use tag::Manager as TagManager;
 use system::Manager as SystemManager;
@@ -57,8 +59,19 @@ impl Space {
     fn poll_events(&mut self) {
         let mentities = self.entities.get_meta_entities();
 
-        self.events.poll_events(|_event| {
-        });
+        while let Some(event) = self.events.poll_event() {
+            let mentity = mentities.get(&event.entity);
+
+            match event.event_type {
+                EventType::Created => self.systems.on_created(mentity.unwrap()),
+                EventType::Changed => self.systems.on_changed(mentity.unwrap()),
+                EventType::Removed => {
+                    self.systems.on_removed(mentity.unwrap());
+                    self.entities.remove(&event.entity);
+                }
+            }
+            
+        }
     }
 }
 
