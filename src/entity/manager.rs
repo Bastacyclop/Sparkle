@@ -1,6 +1,6 @@
 use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentIndex, StoreMap};
-use entity::{TagMap, GroupMap, Pool, Entity, MetaEntity, Event, Observer, Queue};
+use entity::{TagMap, Pool, Entity, MetaEntity, Event, Observer, Queue};
 
 struct Entities {
     pub pool: Pool,
