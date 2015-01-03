@@ -1,5 +1,5 @@
 #![crate_name = "sparkle"]
-#![feature(plugin_registrar, macro_rules)]
+#![feature(plugin_registrar, macro_rules, unboxed_closures)]
 #![unstable]
 
 extern crate rustc;

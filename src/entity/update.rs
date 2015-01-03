@@ -1,14 +1,14 @@
 use std::collections::{VecMap, RingBuf};
 use entity::{Entity, MetaEntity};
 
-#[deriving(Hash, PartialEq, Eq, Copy)]
+#[derive(Hash, PartialEq, Eq, Copy)]
 pub enum Type {
     Created,
     Removed,
     Changed
 }
 
-#[deriving(Hash, PartialEq, Eq, Copy)]
+#[derive(Hash, PartialEq, Eq, Copy)]
 pub struct Update {
     pub entity: Entity,
     pub update_type: Type

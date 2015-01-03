@@ -13,7 +13,7 @@ pub mod manager;
 
 pub type Entity = uint;
 
-#[deriving(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct MetaEntity {
     pub entity: Entity,
     pub groups: HashSet<String>,

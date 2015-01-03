@@ -23,19 +23,24 @@ struct ComponentDecorator {
 }
 
 impl ItemDecorator for ComponentDecorator {
-    fn expand(&self, cx: &mut ExtCtxt, span: Span, mitem: &MetaItem, item: &Item, push: |P<Item>|) {
+    fn expand(&self, cx: &mut ExtCtxt, 
+                     span: Span, 
+                     mitem: &MetaItem, 
+                     item: &Item, 
+                     mut push: Box<FnMut(P<Item>)>) 
+    {
         let inline = cx.meta_word(span, token::InternedString::new("inline"));
         let attrs = vec!(cx.attribute(span, inline));
 
-        let component_trait_def = TraitDef {
+        let component_type_trait_def = TraitDef {
             span: span,
             attributes: Vec::new(),
-            path: Path::new(vec!("sparkle", "component", "Component")),
+            path: Path::new(vec!("sparkle", "component", "ComponentType")),
             additional_bounds: Vec::new(),
             generics: LifetimeBounds::empty(),
             methods: vec!(
                 MethodDef {
-                    name: "get_type_index",
+                    name: "get_index_of",
                     generics: LifetimeBounds::empty(),
                     explicit_self: None,
                     args: vec!(
@@ -55,6 +60,16 @@ impl ItemDecorator for ComponentDecorator {
             )
         };
 
-        component_trait_def.expand(cx, mitem, item, |p| push(p));
+        let component_trait_def = TraitDef {
+            span: span,
+            attributes: Vec::new(),
+            path: Path::new(vec!("sparkle", "component", "Component")),
+            additional_bounds: Vec::new(),
+            generics: LifetimeBounds::empty(),
+            methods: Vec::new()
+        };
+
+        component_type_trait_def.expand(cx, mitem, item, |p| push.call_mut((p,)));
+        component_trait_def.expand(cx, mitem, item, |p| push.call_mut((p,)));
     }
 }

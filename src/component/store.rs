@@ -15,8 +15,8 @@ impl StoreMap {
         }
     }
 
-    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
         let boxed_component = box component;
 
         if let Some(store) = self.stores.get_mut(&type_index) {
@@ -33,8 +33,8 @@ impl StoreMap {
         self.stores.insert(index, new_store);
     }
 
-    pub fn detach_component<T>(&mut self, entity: &Entity) where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn detach_component<T>(&mut self, entity: &Entity) where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
         self.stores.get_mut(&type_index).map(|store| store.remove(entity));
     }
 
@@ -44,14 +44,14 @@ impl StoreMap {
         }
     }
 
-    pub fn has_component<T>(&self, entity: &Entity) -> bool where T: Component {
-        let type_index = Component::get_type_index(None::<T>);
+    pub fn has_component<T>(&self, entity: &Entity) -> bool where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
         self.stores.get(&type_index).map(|store| store.get(entity)).is_some()
     }
 
     #[inline]
-    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
 
         self.stores.get(&type_index).and_then(|store| {
             store.get(entity)
@@ -59,8 +59,8 @@ impl StoreMap {
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
 
         self.stores.get_mut(&type_index).and_then(|store| {
             store.get_mut(entity)

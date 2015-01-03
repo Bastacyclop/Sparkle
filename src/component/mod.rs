@@ -5,9 +5,7 @@ pub use self::store::{Store, StoreMap};
 pub mod deriving;
 pub mod store;
 
-pub trait Component: 'static + Send + Sync {
-    fn get_type_index(_: Option<Self>) -> uint;
-}
+pub trait Component: 'static + Send + Sync {}
 
 pub trait ComponentRefExt<'a> {
     unsafe fn downcast_ref<T: 'static>(self) -> &'a T;
@@ -31,12 +29,6 @@ impl<'a> ComponentMutRefExt<'a> for &'a mut Component {
     }
 }
 
-#[deriving(Copy)]
-pub struct ComponentType;
-
-impl ComponentType {
-    #[inline]
-    pub fn get_index_of<T>() -> uint where T: Component {
-        Component::get_type_index(None::<T>)
-    }
+pub trait ComponentType: Component {
+    fn get_index_of(_: Option<Self>) -> uint;
 }

@@ -1,5 +1,5 @@
 use std::collections::BitvSet;
-use component::{Component, ComponentType};
+use component::ComponentType;
 use entity::MetaEntity;
 
 pub struct Filter {
@@ -13,8 +13,8 @@ impl Filter {
         }
     }
 
-    pub fn insert_mandatory<T>(&mut self) where T: Component {
-        let index = ComponentType::get_index_of::<T>();
+    pub fn insert_mandatory<T>(&mut self) where T: ComponentType {
+        let index = ComponentType::get_index_of(None::<T>);
         self.mandatory_components.insert(index);
     }
 

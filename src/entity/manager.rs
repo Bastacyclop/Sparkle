@@ -1,5 +1,5 @@
 use std::collections::{VecMap, RingBuf};
-use component::{Component, ComponentType, StoreMap};
+use component::{ComponentType, StoreMap};
 use entity::{TagMap, GroupMap, Pool, Entity, MetaEntity, Update, Observer, Record};
 
 struct Entities {
@@ -51,16 +51,16 @@ impl Manager{
         self.updates_record.add(Update::new_removed(*entity));
     }
 
-    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
 
         self.components.attach_component(entity, component);
         self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
         self.updates_record.add(Update::new_changed(*entity));
     }
 
-    pub fn detach_component<T>(&mut self, entity: &Entity) where T: Component {
-        let type_index = ComponentType::get_index_of::<T>();
+    pub fn detach_component<T>(&mut self, entity: &Entity) where T: ComponentType {
+        let type_index = ComponentType::get_index_of(None::<T>);
 
         self.components.detach_component::<T>(entity);
         self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.remove(&type_index));
@@ -68,12 +68,12 @@ impl Manager{
     }
 
     #[inline]
-    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> where T: Component {
+    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> where T: ComponentType {
         self.components.get_component::<T>(entity)
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> where T: Component {
+    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> where T: ComponentType {
         self.components.get_mut_component::<T>(entity)
     }
 
