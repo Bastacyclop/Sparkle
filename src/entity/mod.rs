@@ -39,6 +39,7 @@ impl MetaEntity {
     }
 }
 
+#[derive(Clone)]
 pub struct MetaEntityMap(Rc<RefCell<VecMap<MetaEntity>>>);
 
 impl MetaEntityMap {

@@ -12,11 +12,11 @@ impl Manager {
         Manager {
             tags_to_entity: HashMap::new(),
             entity_to_tag: HashMap::new(),
-            mentities: MetaEntityMap::new()
+            mentities: mentities
         }
     }
 
-    pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
+    pub fn set(&mut self, tag: &str, entity: &Entity) {
         if !self.tags_to_entity.contains_key(tag) {
             self.tags_to_entity.insert(tag.to_string(), *entity);
             self.entity_to_tag.insert(*entity, tag.to_string());
@@ -27,7 +27,7 @@ impl Manager {
         }
     }
 
-    pub fn unset_tag(&mut self, entity: &Entity) {
+    pub fn unset(&mut self, entity: &Entity) {
         if let Some(tag) = self.entity_to_tag.remove(entity) {
             self.tags_to_entity.remove(&tag);
         }

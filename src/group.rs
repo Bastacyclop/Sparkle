@@ -16,7 +16,7 @@ impl Manager {
         }
     }
 
-    pub fn insert(&mut self, group_name: &str, entity: &Entity) {
+    pub fn set_group(&mut self, group_name: &str, entity: &Entity) {
         if let Some(group) = self.groups.get_mut(group_name) {
             group.insert(*entity);
             return;

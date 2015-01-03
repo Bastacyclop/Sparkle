@@ -19,6 +19,10 @@ impl Manager{
         }
     }
 
+    pub fn get_meta_entities(&self) -> MetaEntityMap {
+        self.mentities.clone()
+    }
+
     pub fn create(&mut self) -> Entity {
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
