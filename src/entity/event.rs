@@ -1,5 +1,5 @@
 use std::collections::{VecMap, RingBuf};
-use entity::{Entity, MetaEntity};
+use entity::{Entity, MetaEntity, MetaEntityMap};
 
 #[derive(Hash, PartialEq, Eq, Copy)]
 pub enum Type {
@@ -44,21 +44,27 @@ pub trait Observer {
 }
 
 pub struct Queue {
-    updates: RingBuf<Event>
+    events: RingBuf<Event>
 }
 
 impl Queue {
     pub fn new() -> Queue {
         Queue {
-            updates: RingBuf::new()
+            events: RingBuf::new()
         }
     }
 
     pub fn add(&mut self, update: Event) {
-        self.updates.push_back(update);
+        self.events.push_back(update);
     }
 
     pub fn get_update_count(&self) -> uint {
-        self.updates.len()
+        self.events.len()
+    }
+
+    pub fn poll_events(&mut self, func: |Event|) {
+        for event in self.events.drain() {
+            func(event);
+        }
     }
 }

@@ -5,7 +5,6 @@ use entity::{Pool, Entity, MetaEntityMap};
 pub struct Manager {
     pool: Pool,
     mentities: MetaEntityMap,
-    removed: RingBuf<Entity>,
     components: StoreMap
 }
 
@@ -14,7 +13,6 @@ impl Manager{
         Manager {
             pool: Pool::new(),
             mentities: MetaEntityMap::new(),
-            removed: RingBuf::new(),
             components: StoreMap::new()
         }
     }
@@ -32,7 +30,9 @@ impl Manager{
     }
 
     pub fn remove(&mut self, entity: &Entity) {
-        self.removed.push_back(*entity);
+        self.mentities.0.borrow_mut().remove(entity).map(|mentity| {
+            self.pool.put(mentity);
+        });
     }
 
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
@@ -69,12 +69,5 @@ impl Manager{
         where T: Component + ComponentIndex 
     {
         self.components.get_mut_component::<T>(entity)
-    }
-
-    pub fn flush_removed(&mut self) {
-        while let Some(removed) = self.removed.pop_back() {
-            self.mentities.0.borrow_mut().remove(&removed).map(|mentity| self.pool.put(mentity));
-            self.components.detach_components(&removed);
-        }
     }
 }

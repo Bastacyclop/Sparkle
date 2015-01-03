@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use entity::{Entity, MetaEntity};
 use entity::Observer as EntityObserver;
-use entity::Manager as EntityManager;
+use space::SpaceProxy;
 use system::{Filter, System, Processor};
 
 pub struct FramerateSystem<T> where T: Processor {
@@ -21,9 +21,9 @@ impl<T> FramerateSystem<T> where T: Processor {
 }
 
 impl<T> System for FramerateSystem<T> where T: Processor {
-    fn process(&mut self, em: &mut EntityManager) {
+    fn process(&mut self, space: &mut SpaceProxy) {
         self.processor.before_processing();
-        self.processor.process(em, &self.entities);
+        self.processor.process(space, &self.entities);
         self.processor.after_processing();
     }
 }

@@ -4,11 +4,15 @@ use entity::Queue as EventQueue;
 use entity::Manager as EntityManager;
 use group::Manager as GroupManager;
 use tag::Manager as TagManager;
+use system::Manager as SystemManager;
+use system::System;
 
 pub struct Space {
+    events: EventQueue,
     entities: EntityManager,
     groups: GroupManager,
-    tags: TagManager
+    tags: TagManager,
+    systems: SystemManager
 }
 
 impl Space {
@@ -17,24 +21,49 @@ impl Space {
         let mentities = entities.get_meta_entities();
 
         Space {
+            events: EventQueue::new(),
             entities: entities,
             groups: GroupManager::new(mentities.clone()),
-            tags: TagManager::new(mentities.clone())
+            tags: TagManager::new(mentities.clone()),
+            systems: SystemManager::new()
         }
     }
 
     pub fn get_proxy<'a>(&'a mut self) -> SpaceProxy<'a> {
         SpaceProxy {
-            events: EventQueue::new(),
+            events: &mut self.events,
             entities: &mut self.entities,
             groups: &mut self.groups,
             tags: &mut self.tags
         }
     }
+
+    pub fn insert_system<T>(&mut self, name: &str, system: T) where T: System {
+        self.systems.insert_system(name, system);
+    }
+
+    pub fn update(&mut self) {
+        self.poll_events();
+
+        let mut proxy = SpaceProxy {
+            events: &mut self.events,
+            entities: &mut self.entities,
+            groups: &mut self.groups,
+            tags: &mut self.tags
+        };
+        self.systems.process_systems(&mut proxy);
+    }
+
+    fn poll_events(&mut self) {
+        let mentities = self.entities.get_meta_entities();
+
+        self.events.poll_events(|_event| {
+        });
+    }
 }
 
 pub struct SpaceProxy<'a> {
-    events: EventQueue,
+    events: &'a mut EventQueue,
     entities: &'a mut EntityManager,
     groups: &'a mut GroupManager,
     tags: &'a mut TagManager
