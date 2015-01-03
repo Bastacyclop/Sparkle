@@ -1,22 +1,13 @@
 use entity::Manager as EntityManager;
-use system::Manager as SystemManager;
 
 pub struct Space {
-    pub entities: EntityManager,
-    pub systems: SystemManager
+    entities: EntityManager
 }
 
 impl Space {
     pub fn new() -> Space {
         Space {
-            entities: EntityManager::new(),
-            systems: SystemManager::new()
+            entities: EntityManager::new()
         }
-    }
-
-    pub fn update(&mut self) {
-        self.entities.flush_removed();
-        
-        self.systems.process_systems(&mut self.entities);
     }
 }

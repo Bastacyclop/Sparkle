@@ -1,15 +1,17 @@
 use std::collections::{HashMap, HashSet};
-use entity::Entity;
+use entity::{Entity, MetaEntityMap};
 
 pub type Group = HashSet<Entity>;
 
-pub struct GroupMap {
+pub struct GroupManager {
+    mentities: MetaEntityMap,
     groups: HashMap<String, Group>
 }
     
-impl GroupMap {
-    pub fn new() -> GroupMap {
-        GroupMap {
+impl GroupManager {
+    pub fn new(mentities: MetaEntityMap) -> GroupManager {
+        GroupManager {
+            mentities: mentities,
             groups: HashMap::new()
         }
     }

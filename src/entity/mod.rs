@@ -1,4 +1,7 @@
 use std::collections::{HashSet, BitvSet};
+use std::rc::Rc;
+use std::cell::RefCell;
+
 pub use self::pool::Pool;
 pub use self::event::{Event, Queue, Observer};
 pub use self::group::GroupMap;
@@ -36,6 +39,8 @@ impl MetaEntity {
         self
     }
 }
+
+pub type MetaEntityMap = Rc<RefCell<HashSet<MetaEntity>>>;
 
 #[macro_export]
 macro_rules! entity(

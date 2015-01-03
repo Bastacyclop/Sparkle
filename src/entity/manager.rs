@@ -6,7 +6,6 @@ struct Entities {
     pub pool: Pool,
     pub actives: VecMap<MetaEntity>,
     pub removed: RingBuf<Entity>,
-    pub groups: GroupMap,
     pub tags: TagMap
 }
 
@@ -16,7 +15,6 @@ impl Entities {
             pool: Pool::new(),
             actives: VecMap::new(),
             removed: RingBuf::new(),
-            groups: GroupMap::new(),
             tags: TagMap::new()
         }
     }
@@ -85,23 +83,6 @@ impl Manager{
         self.components.get_mut_component::<T>(entity)
     }
 
-    pub fn set_group(&mut self, group: &str, entity: &Entity) {
-        self.entities.actives.get_mut(entity).map(|mentity| mentity.groups.insert(group.to_string()));
-        self.entities.groups.insert(group, entity);
-
-        self.events_record.add(Event::new_changed(*entity));
-    }
-
-    pub fn unset_group(&mut self, group: &str, entity: &Entity) {
-        self.entities.groups.remove_from(group, entity);
-
-        self.events_record.add(Event::new_changed(*entity));
-    }
-
-    pub fn get_from_group(&mut self, group: &str) -> Vec<Entity> {
-        self.entities.groups.get(group)
-    }
-
     pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
         self.entities.tags.set_tag(tag, entity);
     }
@@ -113,11 +94,10 @@ impl Manager{
     pub fn get_with_tag(&mut self, tag: &str) -> Option<Entity> {
         self.entities.tags.get_with_tag(tag)
     }
-    
+
     pub fn flush_removed(&mut self) {
         while let Some(removed) = self.entities.removed.pop_back() {
             self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
-            self.entities.groups.clear_entity(&removed);
             self.entities.tags.unset_tag(&removed);
             self.components.detach_components(&removed);
         }
