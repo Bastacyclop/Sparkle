@@ -7,6 +7,11 @@ pub mod store;
 
 pub trait Component: 'static + Send + Sync {}
 
+// FIXME: Change this to a more generic trait
+pub trait ComponentIndex: Component {
+    fn of(_: Option<Self>) -> uint;
+}
+
 pub trait ComponentRefExt<'a> {
     unsafe fn downcast_ref<T: 'static>(self) -> &'a T;
 }
@@ -27,8 +32,4 @@ impl<'a> ComponentMutRefExt<'a> for &'a mut Component {
         let to: TraitObject = mem::transmute(self);
         mem::transmute(to.data)
     }
-}
-
-pub trait ComponentType: Component {
-    fn get_index_of(_: Option<Self>) -> uint;
 }

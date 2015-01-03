@@ -35,12 +35,12 @@ impl ItemDecorator for ComponentDecorator {
         let component_type_trait_def = TraitDef {
             span: span,
             attributes: Vec::new(),
-            path: Path::new(vec!("sparkle", "component", "ComponentType")),
+            path: Path::new(vec!("sparkle", "component", "ComponentIndex")),
             additional_bounds: Vec::new(),
             generics: LifetimeBounds::empty(),
             methods: vec!(
                 MethodDef {
-                    name: "get_index_of",
+                    name: "of",
                     generics: LifetimeBounds::empty(),
                     explicit_self: None,
                     args: vec!(
