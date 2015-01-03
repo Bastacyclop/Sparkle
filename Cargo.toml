@@ -9,7 +9,3 @@ authors = ["Liaud <rph.vaillant@gmail.com>"]
 name = "sparkle"
 path = "src/lib.rs"
 crate-type = ["dylib", "rlib"]
-
-[[test]]
-
-name = "tests"

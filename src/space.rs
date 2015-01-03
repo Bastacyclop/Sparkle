@@ -1,4 +1,6 @@
 use entity::Manager as EntityManager;
+use group::Manager as GroupManager;
+use tag::Manager as TagManager;
 
 pub struct Space {
     entities: EntityManager

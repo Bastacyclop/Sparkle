@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 use entity::{Entity, MetaEntityMap};
 
-pub struct TagManager {
+pub struct Manager {
     tags_to_entity: HashMap<String, Entity>,
     entity_to_tag: HashMap<Entity, String>,
     mentities: MetaEntityMap
 }
 
-impl TagManager {
-    pub fn new(mentities: MetaEntityMap) -> TagManager {
-        TagManager {
+impl Manager {
+    pub fn new(mentities: MetaEntityMap) -> Manager {
+        Manager {
             tags_to_entity: HashMap::new(),
             entity_to_tag: HashMap::new(),
             mentities: MetaEntityMap::new()

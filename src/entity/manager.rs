@@ -1,70 +1,56 @@
 use std::collections::{VecMap, RingBuf};
 use component::{Component, ComponentIndex, StoreMap};
-use entity::{Pool, Entity, MetaEntity, Event, Observer, Queue};
-
-struct Entities {
-    pub pool: Pool,
-    pub actives: VecMap<MetaEntity>,
-    pub removed: RingBuf<Entity>,
-}
-
-impl Entities {
-    pub fn new() -> Entities {
-        Entities {
-            pool: Pool::new(),
-            actives: VecMap::new(),
-            removed: RingBuf::new(),
-        }
-    }
-}
+use entity::{Pool, Entity, MetaEntityMap};
 
 pub struct Manager {
-    entities: Entities,
-    components: StoreMap,
-    events_record: Queue
+    pool: Pool,
+    mentities: MetaEntityMap,
+    removed: RingBuf<Entity>,
+    components: StoreMap
 }
 
 impl Manager{
     pub fn new() -> Manager {
         Manager {
-            entities: Entities::new(),
-            components: StoreMap::new(),
-            events_record: Queue::new()
+            pool: Pool::new(),
+            mentities: MetaEntityMap::new(),
+            removed: RingBuf::new(),
+            components: StoreMap::new()
         }
     }
 
     pub fn create(&mut self) -> Entity {
-        let meta_entity = self.entities.pool.get();
+        let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
 
-        self.entities.actives.insert(entity, meta_entity);
-        self.events_record.add(Event::new_created(entity));
+        self.mentities.0.borrow_mut().insert(entity, meta_entity);
         entity
     }
 
     pub fn remove(&mut self, entity: &Entity) {
-        self.entities.removed.push_back(*entity);
-        self.events_record.add(Event::new_removed(*entity));
+        self.removed.push_back(*entity);
     }
 
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
         where T: Component + ComponentIndex 
     {
         let type_index = ComponentIndex::of(None::<T>);
-
         self.components.attach_component(entity, component);
-        self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
-        self.events_record.add(Event::new_changed(*entity));
+
+        self.mentities.apply_to(entity, |mentity| { 
+            mentity.component_bits.insert(type_index); 
+        });
     }
 
     pub fn detach_component<T>(&mut self, entity: &Entity) 
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
-
         self.components.detach_component::<T>(entity);
-        self.entities.actives.get_mut(entity).map(|mentity| mentity.component_bits.remove(&type_index));
-        self.events_record.add(Event::new_changed(*entity));
+
+        self.mentities.apply_to(entity, |mentity| {
+            mentity.component_bits.remove(&type_index);
+        });
     }
 
     #[inline]
@@ -82,8 +68,8 @@ impl Manager{
     }
 
     pub fn flush_removed(&mut self) {
-        while let Some(removed) = self.entities.removed.pop_back() {
-            self.entities.actives.remove(&removed).map(|mentity| self.entities.pool.put(mentity));
+        while let Some(removed) = self.removed.pop_back() {
+            self.mentities.0.borrow_mut().remove(&removed).map(|mentity| self.pool.put(mentity));
             self.components.detach_components(&removed);
         }
     }

@@ -3,14 +3,14 @@ use entity::{Entity, MetaEntityMap};
 
 pub type Group = HashSet<Entity>;
 
-pub struct GroupManager {
+pub struct Manager {
     mentities: MetaEntityMap,
     groups: HashMap<String, Group>
 }
     
-impl GroupManager {
-    pub fn new(mentities: MetaEntityMap) -> GroupManager {
-        GroupManager {
+impl Manager {
+    pub fn new(mentities: MetaEntityMap) -> Manager {
+        Manager {
             mentities: mentities,
             groups: HashMap::new()
         }
