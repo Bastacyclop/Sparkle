@@ -1,5 +1,5 @@
-use std::collections::{VecMap, RingBuf};
-use entity::{Entity, MetaEntity, MetaEntityMap};
+use std::collections::RingBuf;
+use entity::{Entity, MetaEntity};
 
 #[derive(Hash, PartialEq, Eq, Copy)]
 pub enum Type {

@@ -1,10 +1,10 @@
-use std::collections::{VecMap, RingBuf};
+use std::collections::VecMap;
 use component::{Component, ComponentIndex, StoreMap};
-use entity::{Pool, Entity, MetaEntityMap};
+use entity::{Pool, Entity, MetaEntity};
 
 pub struct Manager {
     pool: Pool,
-    mentities: MetaEntityMap,
+    mentities: VecMap<MetaEntity>,
     components: StoreMap
 }
 
@@ -12,27 +12,29 @@ impl Manager{
     pub fn new() -> Manager {
         Manager {
             pool: Pool::new(),
-            mentities: MetaEntityMap::new(),
+            mentities: VecMap::new(),
             components: StoreMap::new()
         }
     }
 
-    pub fn get_meta_entities(&self) -> MetaEntityMap {
-        self.mentities.clone()
+    pub fn get_mentity(&self, entity: &Entity) -> Option<&MetaEntity> {
+        self.mentities.get(entity)
+    }
+
+    pub fn get_mut_mentity(&mut self, entity: &Entity) -> Option<&mut MetaEntity> {
+        self.mentities.get_mut(entity)
     }
 
     pub fn create(&mut self) -> Entity {
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
+        self.mentities.insert(entity, meta_entity);
 
-        self.mentities.0.borrow_mut().insert(entity, meta_entity);
         entity
     }
 
     pub fn remove(&mut self, entity: &Entity) {
-        self.mentities.0.borrow_mut().remove(entity).map(|mentity| {
-            self.pool.put(mentity);
-        });
+        self.mentities.remove(entity);
     }
 
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
@@ -40,10 +42,7 @@ impl Manager{
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.components.attach_component(entity, component);
-
-        self.mentities.apply_to(entity, |mentity| { 
-            mentity.component_bits.insert(type_index); 
-        });
+        self.mentities.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
     }
 
     pub fn detach_component<T>(&mut self, entity: &Entity) 
@@ -51,10 +50,7 @@ impl Manager{
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.components.detach_component::<T>(entity);
-
-        self.mentities.apply_to(entity, |mentity| {
-            mentity.component_bits.remove(&type_index);
-        });
+        self.mentities.get_mut(entity).map(|mentity| mentity.component_bits.remove(&type_index));
     }
 
     #[inline]

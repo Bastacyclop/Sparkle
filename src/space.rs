@@ -19,14 +19,11 @@ pub struct Space {
 
 impl Space {
     pub fn new() -> Space {
-        let entities = EntityManager::new();
-        let mentities = entities.get_meta_entities();
-
         Space {
             events: EventQueue::new(),
-            entities: entities,
-            groups: GroupManager::new(mentities.clone()),
-            tags: TagManager::new(mentities.clone()),
+            entities: EntityManager::new(),
+            groups: GroupManager::new(),
+            tags: TagManager::new(),
             systems: SystemManager::new()
         }
     }
@@ -57,21 +54,25 @@ impl Space {
     }
 
     fn poll_events(&mut self) {
-        let mentities = self.entities.get_meta_entities();
-
         while let Some(event) = self.events.poll_event() {
-            let mentity = mentities.get(&event.entity);
-
-            match event.event_type {
-                EventType::Created => self.systems.on_created(mentity.unwrap()),
-                EventType::Changed => self.systems.on_changed(mentity.unwrap()),
-                EventType::Removed => {
-                    self.systems.on_removed(mentity.unwrap());
-                    self.entities.remove(&event.entity);
-                }
-            }
-            
+            let remove_flag = self.handle_event(event);
+            if remove_flag { self.entities.remove(&event.entity); }
         }
+    }
+
+    fn handle_event(&mut self, event: Event) -> bool {
+        let mentity = self.entities.get_mentity(&event.entity).unwrap();
+                
+        match event.event_type {
+            EventType::Created => self.systems.on_created(mentity),
+            EventType::Changed => self.systems.on_changed(mentity),
+            EventType::Removed => {
+                self.systems.on_removed(mentity);
+                return true;
+            }
+        }
+
+        false
     }
 }
 
@@ -124,22 +125,30 @@ impl<'a> SpaceProxy<'a> {
     }
 
     pub fn set_group(&mut self, group: &str, entity: &Entity) {
-        self.groups.set_group(group, entity);
+        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+
+        self.groups.set_group(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn remove_from_group(&mut self, group: &str, entity: &Entity) {
-        self.groups.remove_from(group, entity);
+        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+
+        self.groups.remove_from(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
-        self.tags.set(tag, entity);
+        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+
+        self.tags.set(tag, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn unset_tag(&mut self, entity: &Entity) {
-        self.tags.unset(entity);
+        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+
+        self.tags.unset(mentity);
         self.events.add(Event::new_changed(*entity));
     }
 }
