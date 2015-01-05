@@ -3,18 +3,18 @@ use entity::{Entity, MetaEntity};
 
 pub type Group = HashSet<Entity>;
 
-pub struct Manager {
+pub struct GroupMap {
     groups: HashMap<String, Group>
 }
     
-impl Manager {
-    pub fn new() -> Manager {
-        Manager {
+impl GroupMap {
+    pub fn new() -> GroupMap {
+        GroupMap {
             groups: HashMap::new()
         }
     }
 
-    pub fn set_group(&mut self, group_name: &str, mentity: &mut MetaEntity) {
+    pub fn insert(&mut self, group_name: &str, mentity: &mut MetaEntity) {
         let entity = mentity.entity;
 
         if let Some(group) = self.groups.get_mut(group_name) {

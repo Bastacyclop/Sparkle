@@ -2,7 +2,6 @@ use std::raw::TraitObject;
 use std::mem;
 pub use self::store::{Store, StoreMap};
 
-pub mod deriving;
 pub mod store;
 
 pub trait Component: 'static + Send + Sync {}

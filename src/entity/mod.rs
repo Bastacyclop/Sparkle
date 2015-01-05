@@ -37,14 +37,3 @@ impl MetaEntity {
     }
 }
 
-#[macro_export]
-macro_rules! entity(
-    ($em:expr, [$($component:expr),+]) => ({
-        let entity = $em.create();
-        $(
-            $em.attach_component(&entity, $component);
-        )+
-
-        entity
-    })
-);

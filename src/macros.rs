@@ -73,3 +73,27 @@ impl ItemDecorator for ComponentDecorator {
         component_trait_def.expand(cx, mitem, item, |p| push.call_mut((p,)));
     }
 }
+
+#[macro_export]
+macro_rules! entity(
+    ($em:expr, [$($component:expr),+]) => ({
+        let entity = $em.create();
+        $(
+            $em.attach_component(&entity, $component);
+        )+
+
+        entity
+    })
+);
+
+#[macro_export]
+macro_rules! filter(
+    ($($component_type:ident),*) => ({
+        let mut filter = sparkle::system::Filter::new();
+        $(
+            filter.insert_mandatory::<$component_type>();
+        )*
+
+        filter
+    })
+);

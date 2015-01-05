@@ -4,16 +4,16 @@ use entity::event::Type as EventType;
 use entity::Queue as EventQueue;
 use entity::Manager as EntityManager;
 use entity::Observer;
-use group::Manager as GroupManager;
-use tag::Manager as TagManager;
+use group::GroupMap;
+use tag::TagMap;
 use system::Manager as SystemManager;
 use system::System;
 
 pub struct Space {
     events: EventQueue,
     entities: EntityManager,
-    groups: GroupManager,
-    tags: TagManager,
+    groups: GroupMap,
+    tags: TagMap,
     systems: SystemManager
 }
 
@@ -22,8 +22,8 @@ impl Space {
         Space {
             events: EventQueue::new(),
             entities: EntityManager::new(),
-            groups: GroupManager::new(),
-            tags: TagManager::new(),
+            groups: GroupMap::new(),
+            tags: TagMap::new(),
             systems: SystemManager::new()
         }
     }
@@ -79,8 +79,8 @@ impl Space {
 pub struct SpaceProxy<'a> {
     events: &'a mut EventQueue,
     entities: &'a mut EntityManager,
-    groups: &'a mut GroupManager,
-    tags: &'a mut TagManager
+    groups: &'a mut GroupMap,
+    tags: &'a mut TagMap
 }
 
 impl<'a> SpaceProxy<'a> {
@@ -127,7 +127,7 @@ impl<'a> SpaceProxy<'a> {
     pub fn set_group(&mut self, group: &str, entity: &Entity) {
         let mentity = self.entities.get_mut_mentity(entity).unwrap();
 
-        self.groups.set_group(group, mentity);
+        self.groups.insert(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
@@ -138,17 +138,25 @@ impl<'a> SpaceProxy<'a> {
         self.events.add(Event::new_changed(*entity));
     }
 
+    pub fn get_entities_from_group(&self, group: &str) -> Vec<Entity> {
+        self.groups.get(group)
+    }
+
     pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
         let mentity = self.entities.get_mut_mentity(entity).unwrap();
 
-        self.tags.set(tag, mentity);
+        self.tags.insert(tag, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn unset_tag(&mut self, entity: &Entity) {
         let mentity = self.entities.get_mut_mentity(entity).unwrap();
 
-        self.tags.unset(mentity);
+        self.tags.remove(mentity);
         self.events.add(Event::new_changed(*entity));
+    }
+
+    pub fn get_entity_with_tag(&self, tag: &str) -> Option<Entity> {
+        self.tags.get(tag)
     }
 }

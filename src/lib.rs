@@ -5,15 +5,11 @@
 extern crate rustc;
 extern crate syntax;
 
-pub use entity::{Entity, MetaEntity};
-pub use entity::Manager as EntityManager;
-pub use system::{System, Processor, FramerateSystem};
-pub use system::Manager as SystemManager;
-pub use space::Space;
-
 pub mod entity;
 pub mod component;
 pub mod group;
 pub mod tag;
 pub mod system;
 pub mod space;
+
+pub mod macros;
