@@ -1,7 +1,6 @@
 use std::collections::HashMap;
-use entity::MetaEntity;
-use entity::Manager as EntityManager;
-use entity::Observer as EntityObserver;
+use entity::{self, MetaEntity};
+use space::SpaceProxy;
 use system::System;
 
 pub struct Manager {
@@ -23,14 +22,14 @@ impl Manager {
         self.systems.remove(name);
     }
 
-    pub fn process_systems(&mut self, em: &mut EntityManager) {
+    pub fn process_systems<'a>(&mut self, space: &mut SpaceProxy<'a>) {
         for (_name, system) in self.systems.iter_mut() {
-            system.process(em);
+            system.process(space);
         }
     }
 }
 
-impl EntityObserver for Manager {
+impl entity::Observer for Manager {
     fn on_created(&mut self, mentity: &MetaEntity) {
         for (_name, system) in self.systems.iter_mut() {
             system.on_created(mentity);

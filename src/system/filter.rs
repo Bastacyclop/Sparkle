@@ -25,14 +25,3 @@ impl Filter {
     }
 }
 
-#[macro_export]
-macro_rules! filter(
-    ($($component_type:ident),*) => ({
-        let mut filter = sparkle::system::Filter::new();
-        $(
-            filter.insert_mandatory::<$component_type>();
-        )*
-
-        filter
-    })
-);

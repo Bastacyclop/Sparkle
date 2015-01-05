@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use entity::Entity;
+use entity::{Entity, MetaEntity};
 
 pub type Group = HashSet<Entity>;
 
@@ -14,12 +14,15 @@ impl GroupMap {
         }
     }
 
-    pub fn insert(&mut self, group_name: &str, entity: &Entity) {
+    pub fn insert(&mut self, group_name: &str, mentity: &mut MetaEntity) {
+        let entity = mentity.entity;
+
         if let Some(group) = self.groups.get_mut(group_name) {
-            group.insert(*entity);
+            group.insert(entity);
             return;
         }
-        self.insert_new_group_with(group_name, *entity); 
+        self.insert_new_group_with(group_name, entity); 
+        mentity.groups.insert(group_name.to_string());
     }
 
     fn insert_new_group_with(&mut self, group_name: &str, entity: Entity) {
@@ -29,18 +32,20 @@ impl GroupMap {
         self.groups.insert(group_name.to_string(), group);
     }
 
-    pub fn remove(&mut self, group_name: &str) {
-        self.groups.remove(group_name);
+    pub fn remove_from(&mut self, group_name: &str, mentity: &mut MetaEntity) {
+        let entity = mentity.entity;
+
+        self.groups.get_mut(group_name).map(|group| group.remove(&entity));
+        mentity.groups.remove(group_name);
     }
 
-    pub fn remove_from(&mut self, group_name: &str, entity: &Entity) {
-        self.groups.get_mut(group_name).map(|group| group.remove(entity));
-    }
+    pub fn clear_entity(&mut self, mentity: &mut MetaEntity) {
+        let entity = mentity.entity;
 
-    pub fn clear_entity(&mut self, entity: &Entity) {
         for (_name, group) in self.groups.iter_mut() {
-            group.remove(entity);
+            group.remove(&entity);
         }
+        mentity.groups.clear();
     }
 
     pub fn get(&self, group_name: &str) -> Vec<Entity> {
