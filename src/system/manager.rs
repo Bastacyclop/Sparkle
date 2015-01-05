@@ -1,6 +1,5 @@
 use std::collections::HashMap;
-use entity::MetaEntity;
-use entity::Observer as EntityObserver;
+use entity::{self, MetaEntity};
 use space::SpaceProxy;
 use system::System;
 
@@ -30,7 +29,7 @@ impl Manager {
     }
 }
 
-impl EntityObserver for Manager {
+impl entity::Observer for Manager {
     fn on_created(&mut self, mentity: &MetaEntity) {
         for (_name, system) in self.systems.iter_mut() {
             system.on_created(mentity);

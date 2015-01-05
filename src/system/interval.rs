@@ -1,6 +1,5 @@
 use std::collections::HashSet;
-use entity::{Entity, MetaEntity};
-use entity::Observer as EntityObserver;
+use entity::{self, Entity, MetaEntity};
 use space::SpaceProxy;
 use system::{Filter, System, Processor};
 
@@ -28,7 +27,7 @@ impl<T> System for FramerateSystem<T> where T: Processor {
     }
 }
 
-impl<T> EntityObserver for FramerateSystem<T> where T: Processor {
+impl<T> entity::Observer for FramerateSystem<T> where T: Processor {
     fn on_created(&mut self, mentity: &MetaEntity) {
         if self.filter.check(mentity) {
             self.entities.insert(mentity.entity);
