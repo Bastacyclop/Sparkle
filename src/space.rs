@@ -122,21 +122,21 @@ impl<'a> SpaceProxy<'a> {
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> 
+    pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T> 
         where T: Component + ComponentIndex 
     {
-        self.entities.get_mut_component::<T>(entity)
+        self.entities.get_component_mut::<T>(entity)
     }
 
     pub fn set_group(&mut self, group: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity);
+        let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.groups.insert(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn remove_from_group(&mut self, group: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity);
+        let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.groups.remove_from(group, mentity);
         self.events.add(Event::new_changed(*entity));
@@ -147,14 +147,14 @@ impl<'a> SpaceProxy<'a> {
     }
 
     pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity);
+        let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.tags.insert(tag, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn unset_tag(&mut self, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity);
+        let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.tags.remove(mentity);
         self.events.add(Event::new_changed(*entity));

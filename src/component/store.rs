@@ -68,7 +68,7 @@ impl StoreMap {
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T>
+    pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T>
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);

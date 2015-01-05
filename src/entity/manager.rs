@@ -22,7 +22,7 @@ impl Manager{
                       .expect(format!("There is no meta information for {}", entity)[])
     }
 
-    pub fn get_mut_mentity(&mut self, entity: &Entity) -> &mut MetaEntity {
+    pub fn get_mentity_mut(&mut self, entity: &Entity) -> &mut MetaEntity {
         self.mentities.get_mut(entity)
                       .expect(format!("There is no meta information for {}", entity)[])
     }
@@ -63,9 +63,9 @@ impl Manager{
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> 
+    pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T> 
         where T: Component + ComponentIndex 
     {
-        self.components.get_mut_component::<T>(entity)
+        self.components.get_component_mut::<T>(entity)
     }
 }
