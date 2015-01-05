@@ -2,7 +2,7 @@ use std::collections::RingBuf;
 use entity::{Entity, MetaEntity};
 
 #[derive(Hash, PartialEq, Eq, Copy)]
-pub enum Type {
+pub enum Kind {
     Created,
     Removed,
     Changed
@@ -11,28 +11,28 @@ pub enum Type {
 #[derive(Hash, PartialEq, Eq, Copy)]
 pub struct Event {
     pub entity: Entity,
-    pub event_type: Type
+    pub kind: Kind
 }
 
 impl Event {
     pub fn new_created(entity: Entity) -> Event {
         Event {
             entity: entity,
-            event_type: Type::Created
+            kind: Kind::Created
         }
     }
 
     pub fn new_removed(entity: Entity) -> Event {
         Event {
             entity: entity,
-            event_type: Type::Removed
+            kind: Kind::Removed
         }
     }
 
     pub fn new_changed(entity: Entity) -> Event {
         Event {
             entity: entity,
-            event_type: Type::Changed
+            kind: Kind::Changed
         }
     }
 }

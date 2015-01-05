@@ -1,30 +1,25 @@
 use component::{Component, ComponentIndex};
-use entity::{Entity, Event};
-use entity::event::Type as EventType;
-use entity::Queue as EventQueue;
-use entity::Manager as EntityManager;
-use entity::Observer;
+use entity::{self, event, Event, Observer, Entity};
+use system::{self, System};
 use group::GroupMap;
 use tag::TagMap;
-use system::Manager as SystemManager;
-use system::System;
 
 pub struct Space {
-    events: EventQueue,
-    entities: EntityManager,
+    events: event::Queue,
+    entities: entity::Manager,
     groups: GroupMap,
     tags: TagMap,
-    systems: SystemManager
+    systems: system::Manager
 }
 
 impl Space {
     pub fn new() -> Space {
         Space {
-            events: EventQueue::new(),
-            entities: EntityManager::new(),
+            events: event::Queue::new(),
+            entities: entity::Manager::new(),
             groups: GroupMap::new(),
             tags: TagMap::new(),
-            systems: SystemManager::new()
+            systems: system::Manager::new()
         }
     }
 
@@ -63,10 +58,10 @@ impl Space {
     fn handle_event(&mut self, event: Event) -> bool {
         let mentity = self.entities.get_mentity(&event.entity).unwrap();
                 
-        match event.event_type {
-            EventType::Created => self.systems.on_created(mentity),
-            EventType::Changed => self.systems.on_changed(mentity),
-            EventType::Removed => {
+        match event.kind {
+            event::Kind::Created => self.systems.on_created(mentity),
+            event::Kind::Changed => self.systems.on_changed(mentity),
+            event::Kind::Removed => {
                 self.systems.on_removed(mentity);
                 return true;
             }
@@ -77,8 +72,8 @@ impl Space {
 }
 
 pub struct SpaceProxy<'a> {
-    events: &'a mut EventQueue,
-    entities: &'a mut EntityManager,
+    events: &'a mut event::Queue,
+    entities: &'a mut entity::Manager,
     groups: &'a mut GroupMap,
     tags: &'a mut TagMap
 }

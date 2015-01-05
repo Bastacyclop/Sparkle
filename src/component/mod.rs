@@ -1,5 +1,6 @@
 use std::raw::TraitObject;
 use std::mem;
+
 pub use self::store::{Store, StoreMap};
 
 pub mod store;
