@@ -1,7 +1,6 @@
 use std::collections::VecMap;
-use std::mem;
 use entity::Entity;
-use component::{Component, Handle, ComponentIndex, ComponentRefExt, ComponentMutRefExt};
+use component::{Component, ComponentIndex, ComponentRefExt, ComponentMutRefExt};
 
 pub type Store = VecMap<Box<Component>>;
 
@@ -76,25 +75,5 @@ impl StoreMap {
         self.stores.get_mut(&type_index).and_then(|store| {
             store.get_mut(entity)
         }).map(|component| unsafe { component.downcast_mut() })
-    }
-
-    pub fn get_store<T>(&self) -> Option<&VecMap<Handle<T>>>
-        where T: Component + ComponentIndex
-    {
-        let type_index = ComponentIndex::of(None::<T>);
-
-        self.stores.get(&type_index).map(|store| {
-            unsafe { mem::transmute(store) }
-        })
-    }
-
-    pub fn get_store_mut<T>(&mut self) -> Option<&mut VecMap<Handle<T>>>
-        where T: Component + ComponentIndex
-    {
-        let type_index = ComponentIndex::of(None::<T>);
-
-        self.stores.get_mut(&type_index).map(|store| {
-            unsafe { mem::transmute(store) }
-        })
     }
 }
