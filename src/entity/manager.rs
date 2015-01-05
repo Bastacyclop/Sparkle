@@ -17,12 +17,14 @@ impl Manager{
         }
     }
 
-    pub fn get_mentity(&self, entity: &Entity) -> Option<&MetaEntity> {
+    pub fn get_mentity(&self, entity: &Entity) -> &MetaEntity {
         self.mentities.get(entity)
+                      .expect(format!("There is no meta information for {}", entity)[])
     }
 
-    pub fn get_mut_mentity(&mut self, entity: &Entity) -> Option<&mut MetaEntity> {
+    pub fn get_mut_mentity(&mut self, entity: &Entity) -> &mut MetaEntity {
         self.mentities.get_mut(entity)
+                      .expect(format!("There is no meta information for {}", entity)[])
     }
 
     pub fn create(&mut self) -> Entity {

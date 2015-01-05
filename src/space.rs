@@ -4,11 +4,24 @@ use system::{self, System};
 use group::GroupMap;
 use tag::TagMap;
 
+struct Maps {
+    pub groups: GroupMap,
+    pub tags: TagMap
+}
+
+impl Maps {
+    pub fn new() -> Maps {
+        Maps {
+            groups: GroupMap::new(),
+            tags: TagMap::new()
+        }
+    }
+}
+
 pub struct Space {
     events: event::Queue,
+    maps: Maps,
     entities: entity::Manager,
-    groups: GroupMap,
-    tags: TagMap,
     systems: system::Manager
 }
 
@@ -16,9 +29,8 @@ impl Space {
     pub fn new() -> Space {
         Space {
             events: event::Queue::new(),
+            maps: Maps::new(),
             entities: entity::Manager::new(),
-            groups: GroupMap::new(),
-            tags: TagMap::new(),
             systems: system::Manager::new()
         }
     }
@@ -26,9 +38,8 @@ impl Space {
     pub fn get_proxy<'a>(&'a mut self) -> SpaceProxy<'a> {
         SpaceProxy {
             events: &mut self.events,
-            entities: &mut self.entities,
-            groups: &mut self.groups,
-            tags: &mut self.tags
+            maps: &mut self.maps,
+            entities: &mut self.entities
         }
     }
 
@@ -41,9 +52,8 @@ impl Space {
 
         let mut proxy = SpaceProxy {
             events: &mut self.events,
+            maps: &mut self.maps,
             entities: &mut self.entities,
-            groups: &mut self.groups,
-            tags: &mut self.tags
         };
         self.systems.process_systems(&mut proxy);
     }
@@ -56,7 +66,7 @@ impl Space {
     }
 
     fn handle_event(&mut self, event: Event) -> bool {
-        let mentity = self.entities.get_mentity(&event.entity).unwrap();
+        let mentity = self.entities.get_mentity(&event.entity);
                 
         match event.kind {
             event::Kind::Created => self.systems.on_created(mentity),
@@ -73,9 +83,8 @@ impl Space {
 
 pub struct SpaceProxy<'a> {
     events: &'a mut event::Queue,
+    maps: &'a mut Maps,
     entities: &'a mut entity::Manager,
-    groups: &'a mut GroupMap,
-    tags: &'a mut TagMap
 }
 
 impl<'a> SpaceProxy<'a> {
@@ -120,38 +129,38 @@ impl<'a> SpaceProxy<'a> {
     }
 
     pub fn set_group(&mut self, group: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+        let mentity = self.entities.get_mut_mentity(entity);
 
-        self.groups.insert(group, mentity);
+        self.maps.groups.insert(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn remove_from_group(&mut self, group: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+        let mentity = self.entities.get_mut_mentity(entity);
 
-        self.groups.remove_from(group, mentity);
+        self.maps.groups.remove_from(group, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn get_entities_from_group(&self, group: &str) -> Vec<Entity> {
-        self.groups.get(group)
+        self.maps.groups.get(group)
     }
 
     pub fn set_tag(&mut self, tag: &str, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+        let mentity = self.entities.get_mut_mentity(entity);
 
-        self.tags.insert(tag, mentity);
+        self.maps.tags.insert(tag, mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn unset_tag(&mut self, entity: &Entity) {
-        let mentity = self.entities.get_mut_mentity(entity).unwrap();
+        let mentity = self.entities.get_mut_mentity(entity);
 
-        self.tags.remove(mentity);
+        self.maps.tags.remove(mentity);
         self.events.add(Event::new_changed(*entity));
     }
 
     pub fn get_entity_with_tag(&self, tag: &str) -> Option<Entity> {
-        self.tags.get(tag)
+        self.maps.tags.get(tag)
     }
 }
