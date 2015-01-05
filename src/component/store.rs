@@ -1,6 +1,7 @@
 use std::collections::VecMap;
+use std::mem;
 use entity::Entity;
-use component::{Component, ComponentIndex, ComponentRefExt, ComponentMutRefExt};
+use component::{Component, Handle, ComponentIndex, ComponentRefExt, ComponentMutRefExt};
 
 pub type Store = VecMap<Box<Component>>;
 
@@ -15,7 +16,7 @@ impl StoreMap {
         }
     }
 
-    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
+    pub fn attach_component<T>(&mut self, entity: &Entity, component: T)
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
@@ -35,8 +36,8 @@ impl StoreMap {
         self.stores.insert(index, new_store);
     }
 
-    pub fn detach_component<T>(&mut self, entity: &Entity) 
-        where T: Component + ComponentIndex 
+    pub fn detach_component<T>(&mut self, entity: &Entity)
+        where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.stores.get_mut(&type_index).map(|store| store.remove(entity));
@@ -48,16 +49,16 @@ impl StoreMap {
         }
     }
 
-    pub fn has_component<T>(&self, entity: &Entity) -> bool 
-        where T: Component + ComponentIndex 
+    pub fn has_component<T>(&self, entity: &Entity) -> bool
+        where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.stores.get(&type_index).map(|store| store.get(entity)).is_some()
     }
 
     #[inline]
-    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> 
-        where T: Component + ComponentIndex 
+    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T>
+        where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
 
@@ -67,13 +68,33 @@ impl StoreMap {
     }
 
     #[inline]
-    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T> 
-        where T: Component + ComponentIndex 
+    pub fn get_mut_component<T>(&mut self, entity: &Entity) -> Option<&mut T>
+        where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
 
         self.stores.get_mut(&type_index).and_then(|store| {
             store.get_mut(entity)
         }).map(|component| unsafe { component.downcast_mut() })
+    }
+
+    pub fn get_store<T>(&self) -> Option<&VecMap<Handle<T>>>
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+
+        self.stores.get(&type_index).map(|store| {
+            unsafe { mem::transmute(store) }
+        })
+    }
+
+    pub fn get_store_mut<T>(&mut self) -> Option<&mut VecMap<Handle<T>>>
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+
+        self.stores.get_mut(&type_index).map(|store| {
+            unsafe { mem::transmute(store) }
+        })
     }
 }
