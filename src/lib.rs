@@ -1,9 +1,10 @@
 #![crate_name = "sparkle"]
 #![feature(
-    plugin_registrar, 
-    macro_rules, 
-    unboxed_closures, 
-    slicing_syntax
+    plugin_registrar,
+    macro_rules,
+    unboxed_closures,
+    slicing_syntax,
+    associated_types
 )]
 #![unstable]
 
