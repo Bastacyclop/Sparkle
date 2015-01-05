@@ -47,7 +47,7 @@ impl Space {
         self.systems.insert_system(name, system);
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt: f32) {
         self.poll_events();
 
         let mut proxy = SpaceProxy {
@@ -55,7 +55,7 @@ impl Space {
             maps: &mut self.maps,
             entities: &mut self.entities,
         };
-        self.systems.process_systems(&mut proxy);
+        self.systems.process_systems(&mut proxy, dt);
     }
 
     fn poll_events(&mut self) {

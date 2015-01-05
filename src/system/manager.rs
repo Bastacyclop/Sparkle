@@ -22,9 +22,9 @@ impl Manager {
         self.systems.remove(name);
     }
 
-    pub fn process_systems<'a>(&mut self, space: &mut SpaceProxy<'a>) {
+    pub fn process_systems<'a>(&mut self, space: &mut SpaceProxy<'a>, dt: f32) {
         for (_name, system) in self.systems.iter_mut() {
-            system.process(space);
+            system.process(space, dt);
         }
     }
 }
