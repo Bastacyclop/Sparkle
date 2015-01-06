@@ -3,7 +3,3 @@
 name = "sparkle_macros"
 version = "0.0.1"
 authors = ["Liotitch <rph.vaillant@gmail.com>"]
-
-[dependencies.sparkle]
-
-path = "../sparkle/"
