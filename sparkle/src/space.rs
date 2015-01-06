@@ -3,17 +3,20 @@ use entity::{self, event, Event, Observer, Entity};
 use system::{self, System};
 use group::GroupMap;
 use tag::TagMap;
+use builder::{Builder, BuilderMap};
 
 struct Maps {
     pub groups: GroupMap,
-    pub tags: TagMap
+    pub tags: TagMap,
+    pub builders: BuilderMap
 }
 
 impl Maps {
     pub fn new() -> Maps {
         Maps {
             groups: GroupMap::new(),
-            tags: TagMap::new()
+            tags: TagMap::new(),
+            builders: BuilderMap::new()
         }
     }
 }
@@ -44,7 +47,11 @@ impl Space {
     }
 
     pub fn insert_system<T>(&mut self, name: &str, system: T) where T: System {
-        self.systems.insert_system(name, system);
+        self.systems.insert(name, system);
+    }
+
+    pub fn remove_system(&mut self, name: &str) {
+        self.systems.remove(name);
     }
 
     pub fn update(&mut self, dt: f32) {
@@ -55,7 +62,7 @@ impl Space {
             maps: &mut self.maps,
             entities: &mut self.entities,
         };
-        self.systems.process_systems(&mut proxy, dt);
+        self.systems.process_all(&mut proxy, dt);
     }
 
     fn poll_events(&mut self) {
@@ -175,5 +182,20 @@ impl<'a> SpaceProxy<'a> {
 
     pub fn get_entity_with_tag(&self, tag: &str) -> Option<Entity> {
         self.maps.tags.get(tag)
+    }
+
+    pub fn insert_builder<T>(&mut self, name: &str, builder: T) where T: Builder {
+        self.maps.builders.insert(name, builder);
+    }
+
+    pub fn build_entity_with(&mut self, name: &str) -> Entity {
+        let entity = self.maps.builders.build_entity_with(name,
+                                                          self.entities, 
+                                                          &mut self.maps.groups, 
+                                                          &mut self.maps.tags);
+        self.events.add(Event::created(entity));
+        self.events.add(Event::changed(entity));
+
+        entity
     }
 }
