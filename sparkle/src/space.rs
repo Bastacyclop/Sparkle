@@ -44,7 +44,11 @@ impl Space {
     }
 
     pub fn insert_system<T>(&mut self, name: &str, system: T) where T: System {
-        self.systems.insert_system(name, system);
+        self.systems.insert(name, system);
+    }
+
+    pub fn remove_system(&mut self, name: &str) {
+        self.systems.remove(name);
     }
 
     pub fn update(&mut self, dt: f32) {
@@ -55,7 +59,7 @@ impl Space {
             maps: &mut self.maps,
             entities: &mut self.entities,
         };
-        self.systems.process_systems(&mut proxy, dt);
+        self.systems.process_all(&mut proxy, dt);
     }
 
     fn poll_events(&mut self) {

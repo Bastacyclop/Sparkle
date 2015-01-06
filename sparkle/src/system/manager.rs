@@ -14,15 +14,15 @@ impl Manager {
         }
     }
 
-    pub fn insert_system<T>(&mut self, name: &str, system: T) where T: System {
+    pub fn insert<T>(&mut self, name: &str, system: T) where T: System {
         self.systems.insert(name.to_string(), box system);
     }
 
-    pub fn remove_system(&mut self, name: &str) {
+    pub fn remove(&mut self, name: &str) {
         self.systems.remove(name);
     }
 
-    pub fn process_systems<'a>(&mut self, space: &mut SpaceProxy<'a>, dt: f32) {
+    pub fn process_all<'a>(&mut self, space: &mut SpaceProxy<'a>, dt: f32) {
         for (_name, system) in self.systems.iter_mut() {
             system.process(space, dt);
         }
