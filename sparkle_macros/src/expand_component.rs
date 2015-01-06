@@ -1,4 +1,3 @@
-use rustc::plugin;
 use syntax::parse::token;
 use syntax::codemap::Span;
 use syntax::ptr::P;
@@ -6,20 +5,19 @@ use syntax::ast::{MetaItem, Item};
 use syntax::ext::build::AstBuilder;
 use syntax::ext::deriving::generic::{TraitDef, MethodDef, combine_substructure};
 use syntax::ext::deriving::generic::ty::{Path, LifetimeBounds, Self, Literal};
-use syntax::ext::base::{ItemDecorator, SyntaxExtension, ExtCtxt};
+use syntax::ext::base::{ItemDecorator, ExtCtxt};
 use std::sync::atomic::{AtomicUint, Ordering};
 
-#[plugin_registrar]
-#[doc(hidden)]
-pub fn plugin_registrar(reg: &mut plugin::Registry) {
-    reg.register_syntax_extension(
-        token::intern("SparkleComponent"),
-        SyntaxExtension::Decorator(box ComponentDecorator { index_counter: AtomicUint::new(0u) })
-    )
+pub struct ComponentDecorator {
+    pub index_counter: AtomicUint
 }
 
-struct ComponentDecorator {
-    index_counter: AtomicUint
+impl ComponentDecorator {
+    pub fn new() -> ComponentDecorator {
+        ComponentDecorator {
+            index_counter: AtomicUint::new(0u)
+        }
+    }
 }
 
 impl ItemDecorator for ComponentDecorator {

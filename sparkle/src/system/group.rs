@@ -27,6 +27,8 @@ impl<T> System for FixedStepSystem<T> where T: Processor {
     }
 }
 
+
+
 impl<T> entity::Observer for FixedStepSystem<T> where T: Processor {
     fn on_created(&mut self, mentity: &MetaEntity) {
         if mentity.groups.contains(self.group[]) {

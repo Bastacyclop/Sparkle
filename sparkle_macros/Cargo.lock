@@ -1,0 +1,11 @@
+[root]
+name = "sparkle_macros"
+version = "0.0.1"
+dependencies = [
+ "sparkle 0.0.1",
+]
+
+[[package]]
+name = "sparkle"
+version = "0.0.1"
+

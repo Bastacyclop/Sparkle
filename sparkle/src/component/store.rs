@@ -23,6 +23,7 @@ impl<T> AnyStore for Store<T> where T: Component + ComponentIndex {
 }
 
 impl AnyStore {
+    #[inline]
     pub fn downcast_ref<'a, T>(&'a self) -> &'a Store<T> 
         where T: Component + ComponentIndex 
     {
@@ -34,6 +35,7 @@ impl AnyStore {
         }
     }
 
+    #[inline]
     pub fn downcast_mut<'a, T>(&'a mut self) -> &'a mut Store<T> 
         where T: Component + ComponentIndex 
     {
@@ -111,5 +113,19 @@ impl StoreMap {
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.stores.get_mut(&type_index).and_then(|store| store.downcast_mut().get_mut(entity))
+    }
+
+    pub fn get_store<T>(&self) -> Option<&Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+        self.stores.get(&type_index).map(|store| store.downcast_ref())
+    }
+
+    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+        self.stores.get_mut(&type_index).map(|store| store.downcast_mut())
     }
 }

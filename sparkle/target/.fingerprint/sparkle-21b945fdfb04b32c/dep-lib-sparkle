@@ -1,0 +1,6 @@
+F:\Users\Liotitch\Desktop\Sparkle\target\sparkle-21b945fdfb04b32c.dll: src\lib.rs src\entity\mod.rs src\entity\pool.rs src\entity\event.rs src\entity\manager.rs src\component\mod.rs src\component\store.rs src\group.rs src\tag.rs src\system\mod.rs src\system\manager.rs src\system\filter.rs src\system\interval.rs src\system\group.rs src\space.rs src\macros\mod.rs src\macros\expand_component.rs src\macros\expand_get_stores.rs
+
+F:\Users\Liotitch\Desktop\Sparkle\target\libsparkle-21b945fdfb04b32c.rlib: src\lib.rs src\entity\mod.rs src\entity\pool.rs src\entity\event.rs src\entity\manager.rs src\component\mod.rs src\component\store.rs src\group.rs src\tag.rs src\system\mod.rs src\system\manager.rs src\system\filter.rs src\system\interval.rs src\system\group.rs src\space.rs src\macros\mod.rs src\macros\expand_component.rs src\macros\expand_get_stores.rs
+
+F:\Users\Liotitch\Desktop\Sparkle\target\sparkle-21b945fdfb04b32c.d: src\lib.rs src\entity\mod.rs src\entity\pool.rs src\entity\event.rs src\entity\manager.rs src\component\mod.rs src\component\store.rs src\group.rs src\tag.rs src\system\mod.rs src\system\manager.rs src\system\filter.rs src\system\interval.rs src\system\group.rs src\space.rs src\macros\mod.rs src\macros\expand_component.rs src\macros\expand_get_stores.rs
+

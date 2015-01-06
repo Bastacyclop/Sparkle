@@ -1,12 +1,6 @@
 #![crate_name = "sparkle"]
-#![feature(
-    plugin_registrar,
-    macro_rules,
-    unboxed_closures,
-    slicing_syntax,
-    associated_types
-)]
 #![unstable]
+#![feature(slicing_syntax, associated_types)]
 
 extern crate rustc;
 extern crate syntax;
@@ -17,5 +11,3 @@ pub mod group;
 pub mod tag;
 pub mod system;
 pub mod space;
-
-pub mod macros;

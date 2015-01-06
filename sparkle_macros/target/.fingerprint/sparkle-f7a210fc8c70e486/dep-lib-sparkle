@@ -1,0 +1,4 @@
+F:\Users\Liotitch\Desktop\Sparkle\sparkle_macros\target\deps\libsparkle-f7a210fc8c70e486.rlib: src\lib.rs src\entity\mod.rs src\entity\pool.rs src\entity\event.rs src\entity\manager.rs src\component\mod.rs src\component\store.rs src\group.rs src\tag.rs src\system\mod.rs src\system\manager.rs src\system\filter.rs src\system\interval.rs src\system\group.rs src\space.rs
+
+F:\Users\Liotitch\Desktop\Sparkle\sparkle_macros\target\deps\sparkle-f7a210fc8c70e486.d: src\lib.rs src\entity\mod.rs src\entity\pool.rs src\entity\event.rs src\entity\manager.rs src\component\mod.rs src\component\store.rs src\group.rs src\tag.rs src\system\mod.rs src\system\manager.rs src\system\filter.rs src\system\interval.rs src\system\group.rs src\space.rs
+

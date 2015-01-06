@@ -1,4 +1,4 @@
-use component::{Component, ComponentIndex};
+use component::{Component, ComponentIndex, Store};
 use entity::{self, event, Event, Observer, Entity};
 use system::{self, System};
 use group::GroupMap;
@@ -126,6 +126,18 @@ impl<'a> SpaceProxy<'a> {
         where T: Component + ComponentIndex 
     {
         self.entities.get_component_mut::<T>(entity)
+    }
+
+    pub fn get_store<T>(&self) -> Option<&Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        self.entities.get_store::<T>()
+    }
+
+    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        self.entities.get_store_mut::<T>()
     }
 
     pub fn set_group(&mut self, group: &str, entity: &Entity) {

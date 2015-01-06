@@ -1,5 +1,5 @@
 use std::collections::VecMap;
-use component::{Component, ComponentIndex, StoreMap};
+use component::{Component, ComponentIndex, Store, StoreMap};
 use entity::{Pool, Entity, MetaEntity};
 
 pub struct Manager {
@@ -67,5 +67,17 @@ impl Manager{
         where T: Component + ComponentIndex 
     {
         self.components.get_component_mut::<T>(entity)
+    }
+
+    pub fn get_store<T>(&self) -> Option<&Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        self.components.get_store::<T>()
+    }
+
+    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
+        where T: Component + ComponentIndex
+    {
+        self.components.get_store_mut::<T>()
     }
 }
