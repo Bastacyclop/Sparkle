@@ -63,8 +63,8 @@ impl StoreMap {
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
-        if let Some(store) = self.stores.get_mut(&type_index) {
-            store.downcast_mut().insert(*entity, component);
+        if let Some(store) = self.get_store_mut::<T>() {
+            store.insert(*entity, component);
             return;
         }
         self.insert_new_store_with(type_index, entity, component);
@@ -82,8 +82,7 @@ impl StoreMap {
     pub fn detach_component<T>(&mut self, entity: &Entity)
         where T: Component + ComponentIndex
     {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get_mut(&type_index).map(|store| store.downcast_mut::<T>().remove(entity));
+        self.get_store_mut::<T>().map(|store| store.remove(entity));
     }
 
     pub fn detach_components(&mut self, entity: &Entity) {
@@ -95,26 +94,24 @@ impl StoreMap {
     pub fn has_component<T>(&self, entity: &Entity) -> bool
         where T: Component + ComponentIndex
     {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get(&type_index).map(|store| store.downcast_ref::<T>().get(entity)).is_some()
+        self.get_store::<T>().map(|store| store.get(entity)).is_some()
     }
 
     #[inline]
     pub fn get_component<T>(&self, entity: &Entity) -> Option<&T>
         where T: Component + ComponentIndex
     {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get(&type_index).and_then(|store| store.downcast_ref().get(entity))
+        self.get_store::<T>().and_then(|store| store.get(entity))
     }
 
     #[inline]
     pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T>
         where T: Component + ComponentIndex
     {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get_mut(&type_index).and_then(|store| store.downcast_mut().get_mut(entity))
+        self.get_store_mut::<T>().and_then(|store| store.get_mut(entity))
     }
 
+    #[inline]
     pub fn get_store<T>(&self) -> Option<&Store<T>> 
         where T: Component + ComponentIndex
     {
@@ -122,6 +119,7 @@ impl StoreMap {
         self.stores.get(&type_index).map(|store| store.downcast_ref())
     }
 
+    #[inline]
     pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
         where T: Component + ComponentIndex
     {

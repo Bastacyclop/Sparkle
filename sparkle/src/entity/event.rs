@@ -15,21 +15,21 @@ pub struct Event {
 }
 
 impl Event {
-    pub fn new_created(entity: Entity) -> Event {
+    pub fn created(entity: Entity) -> Event {
         Event {
             entity: entity,
             kind: Kind::Created
         }
     }
 
-    pub fn new_removed(entity: Entity) -> Event {
+    pub fn removed(entity: Entity) -> Event {
         Event {
             entity: entity,
             kind: Kind::Removed
         }
     }
 
-    pub fn new_changed(entity: Entity) -> Event {
+    pub fn changed(entity: Entity) -> Event {
         Event {
             entity: entity,
             kind: Kind::Changed

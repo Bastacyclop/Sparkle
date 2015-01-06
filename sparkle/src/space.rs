@@ -90,28 +90,28 @@ pub struct SpaceProxy<'a> {
 impl<'a> SpaceProxy<'a> {
     pub fn create_entity(&mut self) -> Entity {
         let entity = self.entities.create();        
-        self.events.add(Event::new_created(entity));
+        self.events.add(Event::created(entity));
 
         entity
     }
 
     pub fn remove_entity(&mut self, entity: &Entity) {
         self.entities.remove(entity);
-        self.events.add(Event::new_removed(*entity));
+        self.events.add(Event::removed(*entity));
     }
 
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
         where T: Component + ComponentIndex 
     {
         self.entities.attach_component(entity, component);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     pub fn detach_component<T>(&mut self, entity: &Entity, component: T) 
         where T: Component + ComponentIndex 
     {
         self.entities.attach_component(entity, component);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     #[inline]
@@ -144,14 +144,14 @@ impl<'a> SpaceProxy<'a> {
         let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.groups.insert(group, mentity);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     pub fn remove_from_group(&mut self, group: &str, entity: &Entity) {
         let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.groups.remove_from(group, mentity);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     pub fn get_entities_from_group(&self, group: &str) -> Vec<Entity> {
@@ -162,14 +162,14 @@ impl<'a> SpaceProxy<'a> {
         let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.tags.insert(tag, mentity);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     pub fn unset_tag(&mut self, entity: &Entity) {
         let mentity = self.entities.get_mentity_mut(entity);
 
         self.maps.tags.remove(mentity);
-        self.events.add(Event::new_changed(*entity));
+        self.events.add(Event::changed(*entity));
     }
 
     pub fn get_entity_with_tag(&self, tag: &str) -> Option<Entity> {

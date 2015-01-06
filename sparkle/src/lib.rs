@@ -1,6 +1,6 @@
 #![crate_name = "sparkle"]
 #![unstable]
-#![feature(slicing_syntax, associated_types)]
+#![feature(slicing_syntax, associated_types, unboxed_closures)]
 
 pub mod entity;
 pub mod component;
