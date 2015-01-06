@@ -62,6 +62,9 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
 
             component_idents.push(ident);
             names.insert(name.to_string());
+        } else {
+            cx.span_err(sp, "expected component ident.");
+            return None;
         }
     }
 
