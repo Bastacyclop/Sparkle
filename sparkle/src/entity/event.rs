@@ -1,4 +1,4 @@
-use std::collections::RingBuf;
+use std::collections::{RingBuf, HashSet};
 use entity::{Entity, MetaEntity};
 
 #[derive(Hash, PartialEq, Eq, Copy)]
@@ -44,18 +44,21 @@ pub trait Observer {
 }
 
 pub struct Queue {
+    dup_checker: HashSet<Event>,
     events: RingBuf<Event>
 }
 
 impl Queue {
     pub fn new() -> Queue {
         Queue {
+            dup_checker: HashSet::new(),
             events: RingBuf::new()
         }
     }
 
-    pub fn add(&mut self, update: Event) {
-        self.events.push_back(update);
+    pub fn add(&mut self, new_event: Event) {
+        let ok = self.dup_checker.insert(new_event);
+        if ok { self.events.insert(new_event.entity, new_event); }
     }
 
     pub fn get_update_count(&self) -> uint {
@@ -64,5 +67,10 @@ impl Queue {
 
     pub fn poll_event(&mut self) -> Option<Event> {
         self.events.pop_back()
+    }
+
+    pub fn reset(&mut self) {
+        self.events.clear();
+        self.dup_checker.clear();
     }
 }

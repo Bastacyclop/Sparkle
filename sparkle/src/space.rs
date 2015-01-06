@@ -63,6 +63,7 @@ impl Space {
             let remove_flag = self.handle_event(event);
             if remove_flag { self.entities.remove(&event.entity); }
         }
+        self.events.reset();
     }
 
     fn handle_event(&mut self, event: Event) -> bool {
