@@ -43,12 +43,24 @@ macro_rules! sparkle_entity(
 
 #[macro_export]
 macro_rules! sparkle_filter(
-    ($($component_type:ident),*) => ({
+    (require components: $($mandatory_component_type:ident),*
+     forbid components: $($forbidden_component_type:ident),*
+     require groups: $($mandatory_group:expr),*
+     forbid groups: $($forbidden_group:expr),*
+     ) => ({
         let mut filter = sparkle::system::Filter::new();
         $(
-            filter.insert_mandatory::<$component_type>();
+            filter.require_component::<$mandatory_component_type>();
         )*
-
+        $(
+            filter.forbid_component::<$forbidden_component_type>();
+        )*
+        $(
+            filter.require_group($mandatory_group);
+        )*
+        $(
+            filter.forbid_group($forbidden_group);
+        )*
         filter
     })
 );

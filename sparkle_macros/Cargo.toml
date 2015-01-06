@@ -3,3 +3,8 @@
 name = "sparkle_macros"
 version = "0.0.1"
 authors = ["Liotitch <rph.vaillant@gmail.com>"]
+
+[lib]
+
+name = "sparkle_macros"
+crate-type = ["dylib"]
