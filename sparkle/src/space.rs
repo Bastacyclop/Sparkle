@@ -104,7 +104,6 @@ impl<'a> SpaceProxy<'a> {
     }
 
     pub fn remove_entity(&mut self, entity: &Entity) {
-        self.entities.remove(entity);
         self.events.add(Event::removed(*entity));
     }
 
