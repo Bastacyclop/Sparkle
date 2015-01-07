@@ -2,7 +2,6 @@
 #![unstable]
 #![feature(
     plugin_registrar,
-    macro_rules,
     unboxed_closures,
     slicing_syntax,
     quote
@@ -32,7 +31,7 @@ pub fn plugin_registrar(reg: &mut plugin::Registry) {
 }
 
 #[macro_export]
-macro_rules! sparkle_entity(
+macro_rules! sparkle_entity {
     ($em:expr, [$($component:expr),+]) => ({
         let entity = $em.create();
         $(
@@ -41,4 +40,4 @@ macro_rules! sparkle_entity(
 
         entity
     })
-);
+}
