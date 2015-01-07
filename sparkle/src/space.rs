@@ -64,7 +64,7 @@ impl Space {
     fn poll_events(&mut self) {
         while let Some(event) = self.events.poll_event() {
             let remove_flag = self.handle_event(event);
-            if remove_flag { self.entities.remove(&event.entity); }
+            if remove_flag { self.entities.remove_entity(&event.entity); }
         }
         self.events.reset();
     }
@@ -93,7 +93,7 @@ pub struct SpaceProxy<'a> {
 
 impl<'a> SpaceProxy<'a> {
     pub fn create_entity(&mut self) -> Entity {
-        let entity = self.entities.create();        
+        let entity = self.entities.create_entity();        
         self.events.add(Event::created(entity));
 
         entity
@@ -179,18 +179,4 @@ impl<'a> SpaceProxy<'a> {
         self.maps.tags.get(tag)
     }
 
-    pub fn insert_builder<T>(&mut self, name: &str, builder: T) where T: Builder {
-        self.maps.builders.insert(name, builder);
-    }
-
-    pub fn build_entity_with(&mut self, name: &str) -> Entity {
-        let entity = self.maps.builders.build_entity_with(name,
-                                                          self.entities, 
-                                                          &mut self.maps.groups, 
-                                                          &mut self.maps.tags);
-        self.events.add(Event::created(entity));
-        self.events.add(Event::changed(entity));
-
-        entity
-    }
 }

@@ -1,26 +1,26 @@
 use std::collections::HashMap;
-use entity::{self, Entity};
+use entity::{Entity, MetaEntity};
 use group::GroupMap;
 use tag::TagMap;
 
 pub trait Builder: 'static {
     fn create_entity(&mut self, 
-                     em: &mut entity::Manager, 
+                     mentity: &mut MetaEntity, 
                      groups: &mut GroupMap, 
                      tags: &mut TagMap) -> Entity;
 }
 
 impl<F> Builder for F 
-    where F: for<'a> FnMut<(&'a mut entity::Manager, 
+    where F: for<'a> FnMut<(&'a mut MetaEntity, 
                             &'a mut GroupMap, 
                             &'a mut TagMap), Entity> + 'static
 {
-    fn create_entity(&mut self, 
-                     em: &mut entity::Manager, 
+    fn create_entity(&mut self,
+                     mentity: &mut MetaEntity, 
                      groups: &mut GroupMap, 
                      tags: &mut TagMap) -> Entity 
     {
-        self(em, groups, tags)
+        self(mentity, groups, tags)
     }
 }
 
@@ -35,18 +35,11 @@ impl BuilderMap {
         }
     }
 
-    pub fn insert<T>(&mut self, name: &str, template: T) where T: Builder {
-        self.builders.insert(name.to_string(), box template);
+    pub fn insert<T>(&mut self, name: &str, builder: T) where T: Builder {
+        self.builders.insert(name.to_string(), box builder);
     }
 
-    pub fn build_entity_with(&mut self,
-                             name: &str, 
-                             em: &mut entity::Manager, 
-                             groups: &mut GroupMap, 
-                             tags: &mut TagMap) -> Entity 
-    {
-        self.builders.get_mut(name).map(|builder| {
-            builder.create_entity(em, groups, tags)
-        }).expect(format!("No template with the name {} was found.", name)[])
+    pub fn get_builder_mut(&mut self, name: &str) -> Option<&mut Box<Builder>> {
+        self.builders.get_mut(name)
     }
 }
