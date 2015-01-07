@@ -1,14 +1,14 @@
 use std::collections::{RingBuf, HashSet};
 use entity::{Entity, MetaEntity};
 
-#[derive(Hash, PartialEq, Eq, Copy)]
+#[derive(Hash, PartialEq, Eq, Copy, Show)]
 pub enum Kind {
     Created,
     Removed,
     Changed
 }
 
-#[derive(Hash, PartialEq, Eq, Copy)]
+#[derive(Hash, PartialEq, Eq, Copy, Show)]
 pub struct Event {
     pub entity: Entity,
     pub kind: Kind
@@ -58,7 +58,7 @@ impl Queue {
 
     pub fn add(&mut self, new_event: Event) {
         let ok = self.dup_checker.insert(new_event);
-        if ok { self.events.insert(new_event.entity, new_event); }
+        if ok { self.events.push_back(new_event); }
     }
 
     pub fn get_update_count(&self) -> uint {
@@ -66,7 +66,7 @@ impl Queue {
     }
 
     pub fn poll_event(&mut self) -> Option<Event> {
-        self.events.pop_back()
+        self.events.pop_front()
     }
 
     pub fn reset(&mut self) {
