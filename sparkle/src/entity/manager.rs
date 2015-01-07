@@ -11,6 +11,7 @@ struct Entities {
     pub components: StoreMap
 }
 
+#[inline]
 impl Entities {
     pub fn new() -> Entities {
         Entities {
@@ -20,6 +21,7 @@ impl Entities {
         }
     }
 
+    #[inline]
     pub fn create(&mut self) -> Entity {
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
@@ -28,20 +30,24 @@ impl Entities {
         entity
     }
 
+    #[inline]
     pub fn remove(&mut self, entity: &Entity) {
         self.mentities.remove(entity);
     }
 
+    #[inline]
     pub fn get_mentity(&self, entity: &Entity) -> &MetaEntity {
         self.mentities.get(entity)
                       .expect(format!("There is no meta information for {}", entity)[])    
     }
 
+    #[inline]
     pub fn get_mentity_mut(&mut self, entity: &Entity) -> &mut MetaEntity {
         self.mentities.get_mut(entity)
                       .expect(format!("There is no meta information for {}", entity)[])
     }
 
+    #[inline]
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
         where T: Component + ComponentIndex 
     {
@@ -50,6 +56,7 @@ impl Entities {
         self.mentities.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
     }
 
+    #[inline]
     pub fn detach_component<T>(&mut self, entity: &Entity) 
         where T: Component + ComponentIndex
     {
@@ -72,12 +79,14 @@ impl Entities {
         self.components.get_component_mut::<T>(entity)
     }
 
+    #[inline]
     pub fn get_store<T>(&self) -> Option<&Store<T>> 
         where T: Component + ComponentIndex
     {
         self.components.get_store::<T>()
     }
 
+    #[inline]
     pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
         where T: Component + ComponentIndex
     {
