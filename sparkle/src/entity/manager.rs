@@ -8,7 +8,7 @@ pub struct Manager {
     components: StoreMap
 }
 
-impl Manager{
+impl Manager {
     pub fn new() -> Manager {
         Manager {
             pool: Pool::new(),
@@ -39,15 +39,15 @@ impl Manager{
         self.mentities.remove(entity);
     }
 
-    pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
-        where T: Component + ComponentIndex 
+    pub fn attach_component<T>(&mut self, entity: &Entity, component: T)
+        where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
         self.components.attach_component(entity, component);
         self.mentities.get_mut(entity).map(|mentity| mentity.component_bits.insert(type_index));
     }
 
-    pub fn detach_component<T>(&mut self, entity: &Entity) 
+    pub fn detach_component<T>(&mut self, entity: &Entity)
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
@@ -56,26 +56,26 @@ impl Manager{
     }
 
     #[inline]
-    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T> 
-        where T: Component + ComponentIndex 
+    pub fn get_component<T>(&self, entity: &Entity) -> Option<&T>
+        where T: Component + ComponentIndex
     {
         self.components.get_component::<T>(entity)
     }
 
     #[inline]
-    pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T> 
-        where T: Component + ComponentIndex 
+    pub fn get_component_mut<T>(&mut self, entity: &Entity) -> Option<&mut T>
+        where T: Component + ComponentIndex
     {
         self.components.get_component_mut::<T>(entity)
     }
 
-    pub fn get_store<T>(&self) -> Option<&Store<T>> 
+    pub fn get_store<T>(&self) -> Option<&Store<T>>
         where T: Component + ComponentIndex
     {
         self.components.get_store::<T>()
     }
 
-    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>> 
+    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>>
         where T: Component + ComponentIndex
     {
         self.components.get_store_mut::<T>()

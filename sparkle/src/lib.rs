@@ -9,3 +9,4 @@ pub mod tag;
 pub mod builder;
 pub mod system;
 pub mod space;
+pub mod command;
