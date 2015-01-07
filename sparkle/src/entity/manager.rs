@@ -1,8 +1,11 @@
 use std::collections::VecMap;
 use component::{Component, ComponentIndex, Store, StoreMap};
+use command::{Command, CommandSender};
+use builder::{Builder, BuilderMap};
 use group::GroupMap;
 use tag::TagMap;
-use builder::{Builder, BuilderMap};
+use space::Space;
+
 use entity::{Pool, Entity, MetaEntity};
 
 struct Entities {
@@ -10,8 +13,6 @@ struct Entities {
     pub mentities: VecMap<MetaEntity>,
     pub components: StoreMap
 }
-
-#[inline]
 impl Entities {
     pub fn new() -> Entities {
         Entities {
@@ -33,12 +34,6 @@ impl Entities {
     #[inline]
     pub fn remove(&mut self, entity: &Entity) {
         self.mentities.remove(entity);
-    }
-
-    #[inline]
-    pub fn get_mentity(&self, entity: &Entity) -> &MetaEntity {
-        self.mentities.get(entity)
-                      .expect(format!("There is no meta information for {}", entity)[])    
     }
 
     #[inline]
@@ -98,45 +93,44 @@ pub struct Manager {
     entities: Entities,
     groups: GroupMap,
     tags: TagMap,
-    builders: BuilderMap
+    builders: BuilderMap,
+    cmd_sender: CommandSender<Space>
 }
 
 impl Manager {
-    pub fn new() -> Manager {
+    pub fn new(cmd_sender: CommandSender<Space>) -> Manager {
         Manager {
             entities: Entities::new(),
             groups: GroupMap::new(),
             tags: TagMap::new(),
-            builders: BuilderMap::new()
+            builders: BuilderMap::new(),
+            cmd_sender: cmd_sender
         }
     }
 
-    pub fn create_entity(&mut self) -> Entity {
-        self.entities.create()
+    pub fn create(&mut self) -> Entity {
+        let entity = self.entities.create();
+        self.cmd_sender.send(NotifyCreated(entity));
+
+        entity
     }
 
-    pub fn remove_entity(&mut self, entity: &Entity) {
-        self.entities.remove(entity)
-    }
-
-    pub fn get_mentity(&self, entity: &Entity) -> &MetaEntity {
-        self.entities.get_mentity(entity)
-    }
-
-    pub fn get_mentity_mut(&mut self, entity: &Entity) -> &mut MetaEntity {
-        self.entities.get_mentity_mut(entity)
+    pub fn remove(&mut self, entity: &Entity) {
+        self.cmd_sender.send(NotifyRemoved(*entity));
     }
 
     pub fn attach_component<T>(&mut self, entity: &Entity, component: T) 
         where T: Component + ComponentIndex 
     {
         self.entities.attach_component::<T>(entity, component);
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     pub fn detach_component<T>(&mut self, entity: &Entity) 
         where T: Component + ComponentIndex
     {
         self.entities.detach_component::<T>(entity);
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     #[inline]
@@ -167,14 +161,12 @@ impl Manager {
 
     pub fn insert_group(&mut self, group: &str, entity: &Entity) {
         self.groups.insert(group, self.entities.get_mentity_mut(entity));
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     pub fn remove_from_group(&mut self, group_name: &str, entity: &Entity) {
-        self.groups.remove_from(group_name, self.entities.get_mentity_mut(entity))
-    }
-
-    pub fn clear_entity_groups(&mut self, entity: &Entity) {
-        self.groups.clear_entity(self.entities.get_mentity_mut(entity));
+        self.groups.remove_from(group_name, self.entities.get_mentity_mut(entity));
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     pub fn get_from_group(&self, group_name: &str) -> Vec<Entity> {
@@ -183,10 +175,12 @@ impl Manager {
 
     pub fn insert_tag(&mut self, tag: &str, entity: &Entity) {
         self.tags.insert(tag, self.entities.get_mentity_mut(entity));
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     pub fn remove_tag(&mut self, entity: &Entity) {
         self.tags.remove(self.entities.get_mentity_mut(entity));
+        self.cmd_sender.send(NotifyChanged(*entity));
     }
 
     pub fn get_with_tag(&self, tag: &str) -> Option<Entity> {
@@ -199,12 +193,42 @@ impl Manager {
 
     pub fn build_entity_with(&mut self, name: &str) -> Entity 
     {
-        let Manager { ref mut entities, ref mut groups, ref mut tags, ref mut builders } = *self;
+        let Manager { ref mut entities, ref mut groups, ref mut tags, ref mut builders, .. } = *self;
         let entity = entities.create();
         let mentity = entities.get_mentity_mut(&entity);
+        self.cmd_sender.send(NotifyCreated(entity));
 
         builders.get_builder_mut(name).map(|builder| {
             builder.create_entity(mentity, groups, tags)
         }).expect(format!("No template with the name {} was found.", name)[])
+    }
+}
+
+struct NotifyCreated(pub Entity);
+impl Command<Space> for NotifyCreated {
+    fn run(&self, space: &mut Space) {
+        space.sm.notify_entity_created(space.em.entities.get_mentity_mut(&self.0));
+    }
+}
+
+struct NotifyChanged(pub Entity);
+impl Command<Space> for NotifyChanged {
+    fn run(&self, space: &mut Space) {
+        space.sm.notify_entity_changed(space.em.entities.get_mentity_mut(&self.0));    
+    }
+}
+
+struct NotifyRemoved(pub Entity);
+impl Command<Space> for NotifyRemoved {
+    fn run(&self, space: &mut Space) {
+        {
+            let mentity = space.em.entities.get_mentity_mut(&self.0);
+
+            space.sm.notify_entity_removed(mentity);
+            space.em.groups.clear_entity(mentity);
+            space.em.tags.remove(mentity);
+        }
+
+        space.em.entities.remove(&self.0);
     }
 }

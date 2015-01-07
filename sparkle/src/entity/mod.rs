@@ -1,11 +1,9 @@
 use std::collections::{HashSet, BitvSet};
 
 pub use self::pool::Pool;
-pub use self::event::{Event, Queue, Observer};
 pub use self::manager::Manager;
 
 pub mod pool;
-pub mod event;
 pub mod manager;
 
 pub type Entity = uint;

@@ -1,22 +1,58 @@
+use std::rc::Rc;
+use std::cell::RefCell;
 use std::collections::RingBuf;
 use std::collections::ring_buf::Drain;
 
-pub trait Command {
-    type Arg;
-
-    fn run(arg: Self::Arg);
+pub trait Command<Args>: 'static {
+    fn run(&self, args: &mut Args);
 }
 
-pub struct CommandBuffer<C> where C: Command {
-    commands: RingBuf<Box<C>>
+pub struct CommandBuffer<Args> {
+    commands: RingBuf<Box<Command<Args>>>
 }
 
-impl<C> CommandBuffer<C> where C: Command {
-    pub fn push(&mut self, command: Box<C>) {
-        self.commands.push_back(command);
+impl<Args> CommandBuffer<Args> {
+    pub fn new() -> CommandBuffer<Args> {
+        CommandBuffer {
+            commands: RingBuf::new()
+        }
     }
 
-    pub fn drain<'a>(&'a mut self) -> Drain<'a, Box<C>> {
-        self.commands.drain()
+    pub fn push<C>(&mut self, command: C) where C: Command<Args> {
+        self.commands.push_back(box command);
     }
+
+    pub fn pop<'a>(&'a mut self) -> Option<Box<Command<Args>>> {
+        self.commands.pop_front()
+    }
+}
+
+type SharedBuffer<Args> = Rc<RefCell<CommandBuffer<Args>>>;
+
+pub struct CommandSender<Args>(Rc<RefCell<CommandBuffer<Args>>>);
+
+impl<Args> Clone for CommandSender<Args> {
+    fn clone(&self) -> CommandSender<Args> {
+        CommandSender(self.0.clone())
+    }
+}
+
+impl<Args> CommandSender<Args> {
+    pub fn send<C>(&mut self, command: C) where C: Command<Args> {
+        self.0.borrow_mut().push(command);
+    }
+}
+
+pub struct CommandReceiver<Args>(SharedBuffer<Args>);
+
+impl<Args> CommandReceiver<Args> {
+    pub fn recv(&mut self) -> Option<Box<Command<Args>>> {
+        self.0.borrow_mut().pop()
+    }
+}
+
+pub fn stream<Args>() -> (CommandSender<Args>, CommandReceiver<Args>) {
+    let buffer = Rc::new(RefCell::new(CommandBuffer::new()));
+
+    (CommandSender(buffer.clone()), CommandReceiver(buffer.clone()))
 }

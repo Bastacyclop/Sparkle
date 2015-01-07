@@ -5,7 +5,6 @@ use entity::MetaEntity;
 pub struct Filter {
     mandatory_components: BitvSet,
     forbidden_components: BitvSet,
-
     mandatory_groups: HashSet<String>,
     forbidden_groups: HashSet<String>
 }
