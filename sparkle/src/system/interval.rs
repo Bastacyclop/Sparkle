@@ -41,7 +41,7 @@ impl<T> entity::Observer for FramerateSystem<T> where T: Processor {
     fn on_changed(&mut self, mentity: &MetaEntity) {
         let contains = self.entities.contains(&mentity.entity);
         let pass_filter = self.filter.check(mentity);
-        
+
         match (contains, pass_filter) {
             (true, false) => { 
                 self.entities.remove(&mentity.entity);

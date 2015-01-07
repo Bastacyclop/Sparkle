@@ -100,33 +100,33 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
     let mut creation_stmts = Vec::new();
     creation_stmts.push(
         quote_stmt!(cx, let mut filter = sparkle::system::filter::Filter::new();)
-        );
+    );
     components.get_mut("require").map(|v| {
         for mandatory_component_type in v.iter() {
             creation_stmts.push(
                 quote_stmt!(cx, filter.require_component::<$mandatory_component_type>())
-                );
+            );
         }
     });
     components.get_mut("forbid").map(|v| {
         for forbidden_component_type in v.iter() {
             creation_stmts.push(
                 quote_stmt!(cx, filter.forbid_component::<$forbidden_component_type>())
-                );
+            );
         }
     });
     groups.get_mut("require").map(|v| {
         for mandatory_group in v.iter() {
             creation_stmts.push(
                 quote_stmt!(cx, filter.require_group($mandatory_group))
-                );
+            );
         }
     });
     groups.get_mut("forbid").map(|v| {
         for forbidden_group in v.iter() {
             creation_stmts.push(
                 quote_stmt!(cx, filter.forbid_group($forbidden_group);)
-                );
+            );
         }
     });
 

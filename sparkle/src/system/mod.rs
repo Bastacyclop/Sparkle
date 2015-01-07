@@ -9,7 +9,6 @@ pub use self::interval::FramerateSystem;
 pub mod manager;
 pub mod filter;
 pub mod interval;
-pub mod group;
 
 pub trait System: 'static + EntityObserver {
     fn process<'a>(&mut self, em: &mut SpaceProxy<'a>, dt: f32);

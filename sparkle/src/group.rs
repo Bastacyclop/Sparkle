@@ -15,6 +15,7 @@ impl GroupMap {
     }
 
     pub fn insert(&mut self, group_name: &str, mentity: &mut MetaEntity) {
+        mentity.groups.insert(group_name.to_string());
         let entity = mentity.entity;
 
         if let Some(group) = self.groups.get_mut(group_name) {
@@ -22,7 +23,6 @@ impl GroupMap {
             return;
         }
         self.insert_new_group_with(group_name, entity); 
-        mentity.groups.insert(group_name.to_string());
     }
 
     fn insert_new_group_with(&mut self, group_name: &str, entity: Entity) {
