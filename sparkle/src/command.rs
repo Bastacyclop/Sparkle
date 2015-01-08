@@ -1,7 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::collections::RingBuf;
-use std::collections::ring_buf::Drain;
 
 pub trait Command<Args>: 'static {
     fn run(&self, args: &mut Args);
@@ -29,7 +28,7 @@ impl<Args> CommandBuffer<Args> {
 
 type SharedBuffer<Args> = Rc<RefCell<CommandBuffer<Args>>>;
 
-pub struct CommandSender<Args>(Rc<RefCell<CommandBuffer<Args>>>);
+pub struct CommandSender<Args>(SharedBuffer<Args>);
 
 impl<Args> Clone for CommandSender<Args> {
     fn clone(&self) -> CommandSender<Args> {

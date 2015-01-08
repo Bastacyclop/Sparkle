@@ -16,8 +16,8 @@ impl Manager {
         }
     }
 
-    pub fn insert<F, S>(&mut self, builder: F) 
-        where F: FnOnce<CommandSender<Space>, Box<S>>, S: System 
+    pub fn insert<F, S>(&mut self, builder: F)
+        where F: FnOnce<CommandSender<Space>, Box<S>>, S: System
     {
         self.systems.push(builder.call_once(self.cmd_sender.clone()));
     }
@@ -28,7 +28,21 @@ impl Manager {
         }
     }
 
-    pub fn notify_entity_created(&mut self, mentity: &MetaEntity) {}
-    pub fn notify_entity_changed(&mut self, mentity: &MetaEntity) {}
-    pub fn notify_entity_removed(&mut self, mentity: &MetaEntity) {}
+    pub fn notify_entity_created(&mut self, mentity: &MetaEntity) {
+        for system in self.systems.iter_mut() {
+            system.on_entity_created(mentity);
+        }
+    }
+
+    pub fn notify_entity_changed(&mut self, mentity: &MetaEntity) {
+        for system in self.systems.iter_mut() {
+            system.on_entity_changed(mentity);
+        }
+    }
+
+    pub fn notify_entity_removed(&mut self, mentity: &MetaEntity) {
+        for system in self.systems.iter_mut() {
+            system.on_entity_removed(mentity);
+        }
+    }
 }

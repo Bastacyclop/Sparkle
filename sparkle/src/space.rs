@@ -1,9 +1,6 @@
-use std::ops::Deref;
-use component::{Component, ComponentIndex};
-use entity::{self, Entity};
-use builder::Builder;
-use system;
 use command::{self, CommandReceiver, Command};
+use entity;
+use system;
 
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
@@ -20,5 +17,12 @@ impl Space {
             em: entity::Manager::new(sender.clone()),
             sm: system::Manager::new(sender)
         }
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        while let Some(command) = self.cmd_receiver.recv() {
+            command.run(self)
+        }
+        self.sm.update(&mut self.em, dt);
     }
 }
