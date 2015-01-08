@@ -9,18 +9,18 @@ use syntax::ext::build::AstBuilder;
 #[doc(hidden)]
 pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 'static> {
 
-    let (space_proxy, mut component_idents) = match parse_args(cx, sp, tts) {
+    let (em, mut component_idents) = match parse_args(cx, sp, tts) {
         Some(result) => result,
         None => return DummyResult::any(sp)
     };
 
     let mut tuple_exprs = Vec::new();
     let last_ident = component_idents.pop();
-    let last_expr = quote_expr!(cx, ($space_proxy).get_store_mut::<$last_ident>());
+    let last_expr = quote_expr!(cx, ($em).get_store_mut::<$last_ident>());
 
     for component_ident in component_idents.iter() {
         let expr = quote_expr!(cx,  unsafe {
-            let mut_copy: &mut sparkle::space::SpaceProxy = std::mem::transmute(($space_proxy));
+            let mut_copy: &mut sparkle::entity::Manager = std::mem::transmute(($em));
             mut_copy.get_store_mut::<$component_ident>()
         });
 
@@ -39,8 +39,8 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         return None
     }
 
-    let space_expr = parser.parse_expr();
-    let space_proxy = cx.expr_mut_addr_of(sp, cx.expr_deref(sp, space_expr));
+    let em_expr = parser.parse_expr();
+    let em = cx.expr_mut_addr_of(sp, cx.expr_deref(sp, em_expr));
 
     let mut component_idents = Vec::new();
     let mut names: HashSet<String> = HashSet::new();
@@ -68,5 +68,5 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         }
     }
 
-    Some((space_proxy, component_idents))
+    Some((em, component_idents))
 }
