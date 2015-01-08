@@ -41,7 +41,7 @@ impl Filter {
         self.forbidden_groups.insert(group.to_string());
     }
 
-    pub fn check(&self, mentity: &MetaEntity) -> bool {
+    pub fn pass(&self, mentity: &MetaEntity) -> bool {
         self.mandatory_components.is_subset(&mentity.component_bits) &&
         self.forbidden_components.is_disjoint(&mentity.component_bits) &&
         self.mandatory_groups.is_subset(&mentity.groups) &&

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use entity::{Entity, MetaEntity};
-use group::GroupMap;
-use tag::TagMap;
+use entity::group::GroupMap;
+use entity::tag::TagMap;
 
 pub trait Builder: 'static {
     fn create_entity(&mut self, 

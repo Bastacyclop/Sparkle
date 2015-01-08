@@ -1,12 +1,12 @@
 use std::collections::VecMap;
 use component::{Component, ComponentIndex, Store, StoreMap};
 use command::{Command, CommandSender};
-use builder::{Builder, BuilderMap};
-use group::GroupMap;
-use tag::TagMap;
+use entity::builder::{Builder, BuilderMap};
+use entity::group::GroupMap;
+use entity::tag::TagMap;
+use entity::pool::Pool;
+use entity::{Entity, MetaEntity};
 use space::Space;
-
-use entity::{Pool, Entity, MetaEntity};
 
 struct Entities {
     pool: Pool,
@@ -162,7 +162,7 @@ impl Manager {
 
 struct NotifyCreated(pub Entity);
 impl Command<Space> for NotifyCreated {
-    fn run(&self, space: &mut Space) {
+    fn run(&mut self, space: &mut Space) {
         let mentity = get_mentity_mut!(space.em.entities, self.0);
 
         space.sm.notify_entity_created(mentity);
@@ -171,7 +171,7 @@ impl Command<Space> for NotifyCreated {
 
 struct NotifyChanged(pub Entity);
 impl Command<Space> for NotifyChanged {
-    fn run(&self, space: &mut Space) {
+    fn run(&mut self, space: &mut Space) {
         let mentity = get_mentity_mut!(space.em.entities, self.0);
 
         space.sm.notify_entity_changed(mentity);
@@ -180,7 +180,7 @@ impl Command<Space> for NotifyChanged {
 
 struct NotifyRemoved(pub Entity);
 impl Command<Space> for NotifyRemoved {
-    fn run(&self, space: &mut Space) {
+    fn run(&mut self, space: &mut Space) {
         {
             let mentity = get_mentity_mut!(space.em.entities, self.0);
 

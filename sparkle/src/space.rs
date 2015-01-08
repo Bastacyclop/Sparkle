@@ -20,7 +20,7 @@ impl Space {
     }
 
     pub fn update(&mut self, dt: f32) {
-        while let Some(command) = self.cmd_receiver.recv() {
+        while let Some(mut command) = self.cmd_receiver.recv() {
             command.run(self)
         }
         self.sm.update(&mut self.em, dt);

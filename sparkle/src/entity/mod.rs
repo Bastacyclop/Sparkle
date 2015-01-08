@@ -1,10 +1,13 @@
 use std::collections::{HashSet, BitvSet};
 
-pub use self::pool::Pool;
 pub use self::manager::Manager;
+pub use self::builder::Builder;
 
 pub mod pool;
 pub mod manager;
+pub mod group;
+pub mod tag;
+pub mod builder;
 
 pub type Entity = uint;
 

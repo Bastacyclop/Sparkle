@@ -2,8 +2,13 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::collections::RingBuf;
 
+pub use self::space_commands::CreateEntity;
+pub use self::space_commands::RemoveEntity;
+
+pub mod space_commands;
+
 pub trait Command<Args>: 'static {
-    fn run(&self, args: &mut Args);
+    fn run(&mut self, args: &mut Args);
 }
 
 pub struct CommandBuffer<Args> {
