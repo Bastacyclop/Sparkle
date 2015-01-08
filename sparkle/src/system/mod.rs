@@ -30,6 +30,61 @@ impl<F> Processor for F
     }
 }
 
+macro_rules! add_entity {
+    ($system:expr, $mentity:expr) => ({
+        $system.entities.insert($mentity.entity);
+        $system.processor.on_entity_added($mentity);
+    })
+}
+
+macro_rules! remove_entity {
+    ($system:expr, $mentity:expr) => ({
+        $system.entities.remove(&$mentity.entity);
+        $system.processor.on_entity_removed($mentity);
+    })
+}
+
+macro_rules! impl_on_entity_created {
+    () => (
+        fn on_entity_created(&mut self, mentity: &MetaEntity) {
+            if self.filter.pass(mentity) {
+                add_entity!(self, mentity);
+            }
+        }
+    )
+}
+
+macro_rules! impl_on_entity_changed {
+    () => (
+        fn on_entity_changed(&mut self, mentity: &MetaEntity) {
+            let contains = self.entities.contains(&mentity.entity);
+            let pass_filter = self.filter.pass(mentity);
+
+            match (contains, pass_filter) {
+                (true, false) => remove_entity!(self, mentity),
+                (false, true) => add_entity!(self, mentity),
+                _ => {}
+            }
+        }
+    )
+}
+
+macro_rules! impl_on_entity_removed {
+    () => (
+        fn on_entity_removed(&mut self, mentity: &MetaEntity) {
+            remove_entity!(self, mentity);
+        }
+    )
+}
+
+macro_rules! impl_on_entity_ {
+    () => (
+        impl_on_entity_created!();
+        impl_on_entity_changed!();
+        impl_on_entity_removed!();
+    )
+}
+
 pub struct Framerate<P> where P: Processor {
     processor: P,
     filter: Filter,
@@ -51,34 +106,7 @@ impl<P> System for Framerate<P> where P: Processor {
         self.processor.update(em, &self.entities, dt);
     }
 
-    fn on_entity_created(&mut self, mentity: &MetaEntity) {
-        if self.filter.pass(mentity) {
-            self.entities.insert(mentity.entity);
-            self.processor.on_entity_added(mentity);
-        }
-    }
-
-    fn on_entity_changed(&mut self, mentity: &MetaEntity) {
-        let contains = self.entities.contains(&mentity.entity);
-        let pass_filter = self.filter.pass(mentity);
-
-        match (contains, pass_filter) {
-            (true, false) => { 
-                self.entities.remove(&mentity.entity); 
-                self.processor.on_entity_removed(mentity);
-            }
-            (false, true) => { 
-                self.entities.insert(mentity.entity); 
-                self.processor.on_entity_added(mentity);
-            }
-            _ => {}
-        }
-    }
-
-    fn on_entity_removed(&mut self, mentity: &MetaEntity) {
-        self.entities.remove(&mentity.entity);
-        self.processor.on_entity_removed(mentity);
-    }    
+    impl_on_entity_!();
 }
 
 pub struct FixedRate<P> where P: Processor {
@@ -111,32 +139,5 @@ impl<P> System for FixedRate<P> where P: Processor {
         }
     }
 
-    fn on_entity_created(&mut self, mentity: &MetaEntity) {
-        if self.filter.pass(mentity) {
-            self.entities.insert(mentity.entity);
-            self.processor.on_entity_added(mentity);
-        }
-    }
-
-    fn on_entity_changed(&mut self, mentity: &MetaEntity) {
-        let contains = self.entities.contains(&mentity.entity);
-        let pass_filter = self.filter.pass(mentity);
-
-        match (contains, pass_filter) {
-            (true, false) => { 
-                self.entities.remove(&mentity.entity); 
-                self.processor.on_entity_removed(mentity);
-            }
-            (false, true) => { 
-                self.entities.insert(mentity.entity); 
-                self.processor.on_entity_added(mentity);
-            }
-            _ => {}
-        }
-    }
-
-    fn on_entity_removed(&mut self, mentity: &MetaEntity) {
-        self.entities.remove(&mentity.entity);
-        self.processor.on_entity_removed(mentity);
-    }    
+    impl_on_entity_!();
 }
