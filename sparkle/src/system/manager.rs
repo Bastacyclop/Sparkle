@@ -17,9 +17,9 @@ impl Manager {
     }
 
     pub fn insert<F, S>(&mut self, builder: F)
-        where F: FnOnce<CommandSender<Space>, Box<S>>, S: System
+        where F: FnOnce<(CommandSender<Space>,), Box<S>>, S: System
     {
-        self.systems.push(builder.call_once(self.cmd_sender.clone()));
+        self.systems.push(builder.call_once((self.cmd_sender.clone(),)));
     }
 
     pub fn update(&mut self, em: &mut entity::Manager, dt: f32) {
