@@ -69,7 +69,7 @@ impl Manager {
     {
         let mentity = get_mentity_mut!(self.entities, entity);
 
-        self.entities.components.attach_component::<T>(mentity, component);
+        self.entities.components.insert::<T>(mentity, component);
         self.cmd_sender.send(NotifyChanged(entity));
     }
 
@@ -78,7 +78,7 @@ impl Manager {
     {
         let mentity = get_mentity_mut!(self.entities, entity);
 
-        self.entities.components.detach_component::<T>(mentity);
+        self.entities.components.remove::<T>(mentity);
         self.cmd_sender.send(NotifyChanged(entity));
     }
 
@@ -184,7 +184,7 @@ impl Command<Space> for NotifyRemoved {
         {
             let mentity = get_mentity_mut!(space.em.entities, self.0);
 
-            space.em.entities.components.detach_components(mentity);
+            space.em.entities.components.remove_all(mentity);
             space.em.groups.clear_entity(mentity);
             space.em.tags.remove(mentity);
 
