@@ -49,7 +49,7 @@ impl ItemDecorator for ComponentDecorator {
                             true
                         ))
                     ),
-                    ret_ty: Literal(Path::new(vec!("uint"))),
+                    ret_ty: Literal(Path::new(vec!("usize"))),
                     attributes: attrs,
                     combine_substructure: combine_substructure(box |&: c, s, _sub| {
                         c.expr_uint(s, self.index_counter.fetch_add(1, Ordering::SeqCst))

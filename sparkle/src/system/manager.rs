@@ -1,7 +1,8 @@
+use command::CommandSender;
 use entity::{self, MetaEntity};
 use space::Space;
-use command::CommandSender;
 use system::System;
+
 
 pub struct Manager {
     systems: Vec<Box<System>>,
@@ -17,14 +18,20 @@ impl Manager {
     }
 
     pub fn insert<F, S>(&mut self, builder: F)
-        where F: FnOnce<(CommandSender<Space>,), Box<S>>, S: System
+        where F: FnOnce(CommandSender<Space>) -> S, S: System
     {
-        self.systems.push(builder.call_once((self.cmd_sender.clone(),)));
+        self.systems.push(Box::new(builder(self.cmd_sender.clone())));
     }
 
     pub fn update(&mut self, em: &mut entity::Manager, dt: f32) {
         for system in self.systems.iter_mut() {
             system.update(em, dt);
+        }
+    }
+
+    pub fn fixed_update(&mut self, em: &mut entity::Manager) {
+        for system in self.systems.iter_mut() {
+            system.fixed_update(em);
         }
     }
 
