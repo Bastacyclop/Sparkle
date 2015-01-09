@@ -1,5 +1,6 @@
 #![crate_name = "sparkle"]
 #![unstable]
+#![allow(unstable)]
 #![feature(slicing_syntax, unboxed_closures)]
 
 

@@ -9,7 +9,7 @@ pub mod group;
 pub mod tag;
 pub mod builder;
 
-pub type Entity = uint;
+pub type Entity = usize;
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct MetaEntity {

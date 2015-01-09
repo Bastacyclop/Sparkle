@@ -8,12 +8,12 @@ use component::{Component, ComponentIndex};
 pub type Store<T> = VecMap<T>;
 
 trait AnyStore: 'static {
-    fn get_type_index(&self) -> uint;
+    fn get_type_index(&self) -> usize;
     fn remove(&mut self, entity: &Entity);
 }
 
 impl<T> AnyStore for Store<T> where T: Component + ComponentIndex {
-    fn get_type_index(&self) -> uint {
+    fn get_type_index(&self) -> usize {
         ComponentIndex::of(None::<T>)
     }
 
@@ -72,10 +72,10 @@ impl StoreMap {
         self.insert_new_store_with(type_index, mentity.entity, component);
     }
 
-    fn insert_new_store_with<T>(&mut self, index: uint, entity: Entity, component: T)
+    fn insert_new_store_with<T>(&mut self, index: usize, entity: Entity, component: T)
         where T: Component + ComponentIndex
     {
-        let mut new_store = box VecMap::new();
+        let mut new_store = Box::new(VecMap::new());
         new_store.insert(entity, component);
 
         self.stores.insert(index, new_store);

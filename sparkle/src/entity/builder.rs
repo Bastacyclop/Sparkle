@@ -36,7 +36,7 @@ impl BuilderMap {
     }
 
     pub fn insert<T>(&mut self, name: &str, builder: T) where T: Builder {
-        self.builders.insert(name.to_string(), box builder);
+        self.builders.insert(name.to_string(), Box::new(builder));
     }
 
     pub fn get_builder_mut(&mut self, name: &str) -> Option<&mut Box<Builder>> {

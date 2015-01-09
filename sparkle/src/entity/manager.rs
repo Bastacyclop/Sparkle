@@ -17,7 +17,7 @@ struct Entities {
 macro_rules! get_mentity_mut {
     ($entities:expr, $entity:expr) => (
         $entities.mentities.get_mut(&$entity)
-                           .expect(format!("There is no meta information for {}", $entity)[])
+                           .expect(format!("There is no meta information for {}", $entity).as_slice())
     )
 }
 
@@ -156,7 +156,7 @@ impl Manager {
         let mentity = get_mentity_mut!(entities, entity);
         builders.get_builder_mut(name).map(|builder| {
             builder.create_entity(mentity, groups, tags)
-        }).expect(format!("No template with the name {} was found.", name)[])
+        }).expect(format!("No template with the name {} was found.", name).as_slice())
     }
 }
 

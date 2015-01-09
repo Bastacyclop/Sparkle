@@ -56,7 +56,7 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
             let interned_name = token::get_ident(ident);
             let name = interned_name.get();
             if names.contains(name) {
-                cx.span_err(sp, format!("duplicate component ident: {}", name)[]);
+                cx.span_err(sp, format!("duplicate component ident: {}", name).as_slice());
                 return None
             }
 

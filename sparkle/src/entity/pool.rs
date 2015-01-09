@@ -2,7 +2,7 @@ use entity::MetaEntity;
 
 pub struct Pool {
     available: Vec<MetaEntity>,
-    next_id: uint
+    next_id: usize
 }
 
 impl Pool {

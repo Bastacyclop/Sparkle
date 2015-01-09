@@ -15,7 +15,7 @@ pub struct ComponentDecorator {
 impl ComponentDecorator {
     pub fn new() -> ComponentDecorator {
         ComponentDecorator {
-            index_counter: AtomicUint::new(0u)
+            index_counter: AtomicUint::new(0)
         }
     }
 }
@@ -45,7 +45,7 @@ impl ItemDecorator for ComponentDecorator {
                         Literal(Path::new_(
                             vec!("std", "option", "Option"),
                             None,
-                            vec!(box Self),
+                            vec!(Box::new(Self)),
                             true
                         ))
                     ),

@@ -1,8 +1,10 @@
 #![crate_name = "sparkle_macros"]
 #![unstable]
+#![allow(unstable)]
 #![feature(
     plugin_registrar,
     unboxed_closures,
+    box_syntax,
     slicing_syntax,
     quote
 )]
@@ -23,7 +25,7 @@ mod expand_filter;
 pub fn plugin_registrar(reg: &mut plugin::Registry) {
     reg.register_syntax_extension(
         token::intern("SparkleComponent"),
-        SyntaxExtension::Decorator(box expand_component::ComponentDecorator::new())
+        SyntaxExtension::Decorator(Box::new(expand_component::ComponentDecorator::new()))
     );
 
     reg.register_macro("sparkle_get_stores", expand_get_stores::expand);

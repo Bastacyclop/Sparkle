@@ -23,7 +23,7 @@ impl<Args> CommandBuffer<Args> {
     }
 
     pub fn push<C>(&mut self, command: C) where C: Command<Args> {
-        self.commands.push_back(box command);
+        self.commands.push_back(Box::new(command));
     }
 
     pub fn pop<'a>(&'a mut self) -> Option<Box<Command<Args>>> {
