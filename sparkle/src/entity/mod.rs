@@ -8,6 +8,7 @@ pub mod manager;
 pub mod group;
 pub mod tag;
 pub mod builder;
+pub mod event;
 
 pub type Entity = usize;
 

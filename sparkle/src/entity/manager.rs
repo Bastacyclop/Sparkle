@@ -7,6 +7,7 @@ use entity::group::GroupMap;
 use entity::tag::TagMap;
 use entity::pool::Pool;
 use entity::{Entity, MetaEntity};
+use entity::event;
 
 struct Entities {
     pool: Pool,
@@ -36,6 +37,7 @@ pub struct Manager {
     groups: GroupMap,
     tags: TagMap,
     builders: BuilderMap,
+    events: event::Queue
 }
 
 impl Manager {
@@ -44,7 +46,8 @@ impl Manager {
             entities: Entities::new(),
             groups: GroupMap::new(),
             tags: TagMap::new(),
-            builders: BuilderMap::new()
+            builders: BuilderMap::new(),
+            events: event::Queue::new()
         }
     }
 
@@ -53,6 +56,7 @@ impl Manager {
         let entity = meta_entity.entity;
         self.entities.mentities.insert(entity, meta_entity);
 
+        self.events.created(entity);
         entity
     }
 
@@ -64,8 +68,13 @@ impl Manager {
             self.tags.remove(mentity);
         }
         self.entities.mentities.remove(&entity);
+        self.events.removed(entity);
     }
 
+    pub fn get_mentity(&mut self, entity: Entity) -> &MetaEntity {
+        self.entities.mentities.get(&entity)
+                               .expect(format!("There is no meta information for {}", entity).as_slice())
+    }
 
     pub fn filter<'a, P>(&'a mut self, filter: P) -> Filter<(usize, &mut MetaEntity), IterMut<'a, MetaEntity>, P>
         where P: FnMut(&(usize, &mut MetaEntity)) -> bool
@@ -160,5 +169,9 @@ impl Manager {
         builders.get_builder_mut(name).map(|builder| {
             builder.create_entity(mentity, groups, tags)
         }).expect(format!("No template with the name {} was found.", name).as_slice())
+    }
+
+    pub fn pop_event(&mut self) -> Option<(event::Kind, Entity)> {
+        self.events.pop()
     }
 }
