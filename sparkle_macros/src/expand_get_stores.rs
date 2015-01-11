@@ -15,19 +15,16 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
     };
 
     let mut tuple_exprs = Vec::new();
-    let last_ident = component_idents.pop();
-    let last_expr = quote_expr!(cx, ($em).get_store_mut::<$last_ident>());
-
     for component_ident in component_idents.iter() {
         let expr = quote_expr!(cx,  unsafe {
             let mut_copy: &mut sparkle::entity::Manager = std::mem::transmute(($em));
-            mut_copy.get_store_mut::<$component_ident>()
+            mut_copy.ensure::<$component_ident>();
+            mut_copy.get_store_mut::<$component_ident>().unwrap()
         });
 
         tuple_exprs.push(expr);
     }
 
-    tuple_exprs.push(last_expr);
     return MacExpr::new(cx.expr_tuple(sp, tuple_exprs));
 }
 

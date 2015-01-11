@@ -1,11 +1,12 @@
 use std::collections::VecMap;
+use std::cell::{RefCell, Ref, RefMut};
 use std::raw::TraitObject;
 use std::mem;
 use entity::{Entity, MetaEntity};
 
 use component::{Component, ComponentIndex};
 
-pub type Store<T> = VecMap<T>;
+pub type Store<T> = RefCell<VecMap<T>>;
 
 trait AnyStore: 'static {
     fn get_type_index(&self) -> usize;
@@ -34,18 +35,6 @@ impl AnyStore {
             mem::transmute(to.data)
         }
     }
-
-    #[inline]
-    pub fn downcast_mut<'a, T>(&'a mut self) -> &'a mut Store<T>
-        where T: Component + ComponentIndex
-    {
-        debug_assert_eq!(self.get_type_index(), ComponentIndex::of(None::<T>));
-
-        unsafe {
-            let to: TraitObject = mem::transmute(self);
-            mem::transmute(to.data)
-        }
-    }
 }
 
 pub struct StoreMap {
@@ -64,21 +53,39 @@ impl StoreMap {
     {
         let type_index = ComponentIndex::of(None::<T>);
         mentity.component_bits.insert(type_index);
-
-        if let Some(store) = self.get_store_mut::<T>() {
+        
+        self.ensure::<T>();
+        if let Some(mut store) = self.get_mut::<T>() {
             store.insert(mentity.entity, component);
             return;
         }
-        self.insert_new_store_with(type_index, mentity.entity, component);
     }
 
-    fn insert_new_store_with<T>(&mut self, index: usize, entity: Entity, component: T)
+    pub fn ensure<T>(&mut self)
         where T: Component + ComponentIndex
     {
-        let mut new_store = Box::new(VecMap::new());
-        new_store.insert(entity, component);
+        let type_index = ComponentIndex::of(None::<T>);
 
-        self.stores.insert(index, new_store);
+        if !self.stores.contains_key(&type_index) {
+            let empty: Box<Store<T>> = Box::new(RefCell::new(VecMap::new()));
+            self.stores.insert(type_index, empty);       
+        }
+    }
+
+    #[inline]
+    pub fn get<'a, T>(&'a self) -> Option<Ref<'a, VecMap<T>>>
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+        self.stores.get(&type_index).map(|store| store.downcast_ref().borrow())
+    }
+
+    #[inline]
+    pub fn get_mut<'a, T>(&'a self) -> Option<RefMut<'a, VecMap<T>>>
+        where T: Component + ComponentIndex
+    {
+        let type_index = ComponentIndex::of(None::<T>);
+        self.stores.get(&type_index).map(|store| store.downcast_ref().borrow_mut())
     }
 
     pub fn remove<T>(&mut self, mentity: &mut MetaEntity)
@@ -87,7 +94,7 @@ impl StoreMap {
         let type_index = ComponentIndex::of(None::<T>);
         mentity.component_bits.remove(&type_index);
 
-        self.get_store_mut::<T>().map(|store| store.remove(&mentity.entity));
+        self.get_mut::<T>().map(|mut store| store.remove(&mentity.entity));
     }
 
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {
@@ -95,35 +102,5 @@ impl StoreMap {
             mentity.component_bits.remove(&type_index);
             store.remove(&mentity.entity);
         }
-    }
-
-    #[inline]
-    pub fn get_component<T>(&self, entity: Entity) -> Option<&T>
-        where T: Component + ComponentIndex
-    {
-        self.get_store::<T>().and_then(|store| store.get(&entity))
-    }
-
-    #[inline]
-    pub fn get_component_mut<T>(&mut self, entity: Entity) -> Option<&mut T>
-        where T: Component + ComponentIndex
-    {
-        self.get_store_mut::<T>().and_then(|store| store.get_mut(&entity))
-    }
-
-    #[inline]
-    pub fn get_store<T>(&self) -> Option<&Store<T>>
-        where T: Component + ComponentIndex
-    {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get(&type_index).map(|store| store.downcast_ref())
-    }
-
-    #[inline]
-    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>>
-        where T: Component + ComponentIndex
-    {
-        let type_index = ComponentIndex::of(None::<T>);
-        self.stores.get_mut(&type_index).map(|store| store.downcast_mut())
     }
 }

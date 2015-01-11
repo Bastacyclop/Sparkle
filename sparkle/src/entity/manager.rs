@@ -1,5 +1,5 @@
 use std::collections::VecMap;
-use component::{Component, ComponentIndex, Store, StoreMap};
+use component::{StoreMap};
 use command::{Command, CommandSender};
 use entity::builder::{Builder, BuilderMap};
 use entity::group::GroupMap;
@@ -62,50 +62,6 @@ impl Manager {
 
     pub fn remove(&mut self, entity: Entity) {
         self.cmd_sender.send(NotifyRemoved(entity));
-    }
-
-    pub fn attach_component<T>(&mut self, entity: Entity, component: T)
-        where T: Component + ComponentIndex
-    {
-        let mentity = get_mentity_mut!(self.entities, entity);
-
-        self.entities.components.insert::<T>(mentity, component);
-        self.cmd_sender.send(NotifyChanged(entity));
-    }
-
-    pub fn detach_component<T>(&mut self, entity: Entity)
-        where T: Component + ComponentIndex
-    {
-        let mentity = get_mentity_mut!(self.entities, entity);
-
-        self.entities.components.remove::<T>(mentity);
-        self.cmd_sender.send(NotifyChanged(entity));
-    }
-
-    #[inline]
-    pub fn get_component<T>(&self, entity: Entity) -> Option<&T>
-        where T: Component + ComponentIndex
-    {
-        self.entities.components.get_component::<T>(entity)
-    }
-
-    #[inline]
-    pub fn get_component_mut<T>(&mut self, entity: Entity) -> Option<&mut T>
-        where T: Component + ComponentIndex
-    {
-        self.entities.components.get_component_mut::<T>(entity)
-    }
-
-    pub fn get_store<T>(&self) -> Option<&Store<T>>
-        where T: Component + ComponentIndex
-    {
-        self.entities.components.get_store::<T>()
-    }
-
-    pub fn get_store_mut<T>(&mut self) -> Option<&mut Store<T>>
-        where T: Component + ComponentIndex
-    {
-        self.entities.components.get_store_mut::<T>()
     }
 
     pub fn insert_group(&mut self, group: &str, entity: Entity) {
