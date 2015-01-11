@@ -19,7 +19,7 @@ impl<T> AnyStore for Store<T> where T: Component + ComponentIndex {
     }
 
     fn remove(&mut self, entity: &Entity) {
-        self.remove(entity);
+        self.borrow_mut().remove(entity);
     }
 }
 
