@@ -1,13 +1,14 @@
-use std::collections::{HashSet, BitvSet};
+use std::collections::{VecMap, HashSet, BitvSet};
+use self::pool::Pool;
 
 pub use self::manager::Manager;
-pub use self::builder::Builder;
+pub use self::group::GroupMap;
+pub use self::tag::TagMap;
 
 pub mod pool;
 pub mod manager;
 pub mod group;
 pub mod tag;
-pub mod builder;
 pub mod event;
 
 pub type Entity = usize;
@@ -37,4 +38,69 @@ impl MetaEntity {
 
         self
     }
+}
+
+macro_rules! get_mentity {
+    ($mentities:expr, $entity:expr) => (
+        $mentities.get(&$entity)
+                  .expect(format!("There is no meta information for {}", $entity).as_slice())
+    )
+}
+
+macro_rules! get_mentity_mut {
+    ($mentities:expr, $entity:expr) => (
+        $mentities.get_mut(&$entity)
+                  .expect(format!("There is no meta information for {}", $entity).as_slice())
+    )
+}
+
+pub struct MetaEntityMap {
+    pool: Pool,
+    mentities: VecMap<MetaEntity>,
+    events: event::Queue
+}
+
+impl MetaEntityMap {
+    pub fn new() -> MetaEntityMap {
+        MetaEntityMap {
+            pool: Pool::new(),
+            mentities: VecMap::new(),
+            events: event::Queue::new()
+        }
+    }
+
+    pub fn create(&mut self) -> Entity {
+        let meta_entity = self.pool.get();
+        let entity = meta_entity.entity;
+        self.mentities.insert(entity, meta_entity);
+
+        self.events.changed(entity);
+        entity
+    }
+
+    pub fn remove(&mut self, entity: Entity) {
+        self.events.removed(entity);
+    }
+
+    fn clear(&mut self, entity: Entity) {
+        self.pool.put(self.mentities.remove(&entity).unwrap());
+    }
+
+    pub fn get(&self, entity: Entity) -> &MetaEntity {
+        get_mentity!(self.mentities, entity)
+    }
+
+    pub fn get_mut(&mut self, entity: Entity) -> &mut MetaEntity {
+        self.events.changed(entity);
+        get_mentity_mut!(self.mentities, entity)
+    }
+
+    pub fn pop_event(&mut self) -> Option<event::Event> {
+        self.events.pop()
+    }
+}
+
+pub trait Observer {
+    fn notify_changed(&mut self, mentity: &MetaEntity);
+    fn notify_removed(&mut self, mentity: &MetaEntity);
 }

@@ -1,9 +1,8 @@
 use command::CommandSender;
 use entity::{self, MetaEntity};
+use entity::event;
 use space::Space;
 use system::System;
-use entity::event;
-
 
 pub struct Manager {
     systems: Vec<Box<System>>,
@@ -39,22 +38,18 @@ impl Manager {
     }
 
     fn notify_events(&mut self, em: &mut entity::Manager) {
-        let mut events = em.drain_events();
-        while let Some(event) = events.next() {
-            match event.0 {
-                event::Changed => self.notify_entity_changed(event.1),
-                event::Removed => self.notify_entity_removed(event.1),
-            }
-        }
+        em.notify_events(self);
     }
+}
 
-    fn notify_entity_changed(&mut self, mentity: &MetaEntity) {
+impl event::Observer for Manager {
+    fn notify_changed(&mut self, mentity: &MetaEntity) {
         for system in self.systems.iter_mut() {
             system.on_entity_changed(mentity);
         }
     }
 
-    fn notify_entity_removed(&mut self, mentity: &MetaEntity) {
+    fn notify_removed(&mut self, mentity: &MetaEntity) {
         for system in self.systems.iter_mut() {
             system.on_entity_removed(mentity);
         }

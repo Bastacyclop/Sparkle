@@ -1,6 +1,6 @@
 use std::collections::{RingBuf, HashSet};
 use std::collections::ring_buf;
-use entity::Entity;
+use entity::{Entity, MetaEntity};
 
 pub use self::Kind::{Changed, Removed};
 
@@ -36,8 +36,17 @@ impl Queue {
         self.events.push_back((Removed, entity))
     }
 
-    pub fn drain(&mut self) -> Drain {
+    pub fn clear(&mut self) {
         self.changed_set.clear();
-        self.events.drain()
+        self.events.clear();
     }
+
+    pub fn pop(&mut self) -> Option<Event> {
+        self.events.pop_front()
+    }
+}
+
+pub trait Observer {
+    fn notify_changed(&mut self, mentity: &MetaEntity);
+    fn notify_removed(&mut self, mentity: &MetaEntity);
 }

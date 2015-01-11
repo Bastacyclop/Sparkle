@@ -7,8 +7,6 @@
 pub use space::Space;
 
 pub use entity::{Entity, MetaEntity};
-pub use entity::Manager as EntityManager;
-pub use entity::Builder as EntityBuilder;
 
 pub use system::{System, Filter};
 pub use system::Manager as SystemManager;

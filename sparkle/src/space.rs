@@ -7,7 +7,7 @@ use system;
 
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
-    pub blackboard: Rc<RefCell<Blackboard>>, 
+    pub blackboard: Rc<RefCell<Blackboard>>,
     pub em: entity::Manager,
     pub sm: system::Manager
 }
