@@ -2,6 +2,7 @@
 #![unstable]
 #![allow(unstable)]
 #![feature(slicing_syntax, unboxed_closures)]
+#![feature(box_syntax)]
 
 pub use space::Space;
 

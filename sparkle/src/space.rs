@@ -19,7 +19,7 @@ impl Space {
         Space {
             cmd_receiver: receiver,
             blackboard: blackboard,
-            em: entity::Manager::new(sender.clone()),
+            em: entity::Manager::new(),
             sm: system::Manager::new(sender)
         }
     }

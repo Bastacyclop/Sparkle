@@ -1,12 +1,13 @@
 use std::collections::VecMap;
-use component::{StoreMap};
-use command::{Command, CommandSender};
+use std::collections::vec_map::IterMut;
+use std::iter::Filter;
+use component::{Component, ComponentIndex, Store, StoreMap};
 use entity::builder::{Builder, BuilderMap};
 use entity::group::GroupMap;
 use entity::tag::TagMap;
 use entity::pool::Pool;
 use entity::{Entity, MetaEntity};
-use space::Space;
+use entity::event;
 
 struct Entities {
     pool: Pool,
@@ -36,17 +37,17 @@ pub struct Manager {
     groups: GroupMap,
     tags: TagMap,
     builders: BuilderMap,
-    cmd_sender: CommandSender<Space>
+    events: event::Queue
 }
 
 impl Manager {
-    pub fn new(cmd_sender: CommandSender<Space>) -> Manager {
+    pub fn new() -> Manager {
         Manager {
             entities: Entities::new(),
             groups: GroupMap::new(),
             tags: TagMap::new(),
             builders: BuilderMap::new(),
-            cmd_sender: cmd_sender
+            events: event::Queue::new()
         }
     }
 
@@ -55,27 +56,42 @@ impl Manager {
         let entity = meta_entity.entity;
         self.entities.mentities.insert(entity, meta_entity);
 
-        self.cmd_sender.send(NotifyCreated(entity));
-
+        self.events.created(entity);
         entity
     }
 
     pub fn remove(&mut self, entity: Entity) {
-        self.cmd_sender.send(NotifyRemoved(entity));
+        {
+            let mentity = get_mentity_mut!(self.entities, entity);
+            self.entities.components.remove_all(mentity);
+            self.groups.clear_entity(mentity);
+            self.tags.remove(mentity);
+        }
+        self.entities.mentities.remove(&entity);
+        self.events.removed(entity);
+    }
+
+    pub fn get_mentity(&mut self, entity: Entity) -> &MetaEntity {
+        self.entities.mentities.get(&entity)
+                               .expect(format!("There is no meta information for {}", entity).as_slice())
+    }
+
+    pub fn filter<'a, P>(&'a mut self, filter: P) -> Filter<(usize, &mut MetaEntity), IterMut<'a, MetaEntity>, P>
+        where P: FnMut(&(usize, &mut MetaEntity)) -> bool
+    {
+        self.entities.mentities.iter_mut().filter(filter)
     }
 
     pub fn insert_group(&mut self, group: &str, entity: Entity) {
         let mentity = get_mentity_mut!(self.entities, entity);
 
         self.groups.insert(group, mentity);
-        self.cmd_sender.send(NotifyChanged(entity));
     }
 
     pub fn remove_from_group(&mut self, group_name: &str, entity: Entity) {
         let mentity = get_mentity_mut!(self.entities, entity);
 
         self.groups.remove_from(group_name, mentity);
-        self.cmd_sender.send(NotifyChanged(entity));
     }
 
     pub fn get_from_group(&self, group_name: &str) -> Vec<Entity> {
@@ -86,14 +102,12 @@ impl Manager {
         let mentity = get_mentity_mut!(self.entities, entity);
 
         self.tags.insert(tag, mentity);
-        self.cmd_sender.send(NotifyChanged(entity));
     }
 
     pub fn remove_tag(&mut self, entity: Entity) {
         let mentity = get_mentity_mut!(self.entities, entity);
 
         self.tags.remove(mentity);
-        self.cmd_sender.send(NotifyChanged(entity));
     }
 
     pub fn get_with_tag(&self, tag: &str) -> Option<Entity> {
@@ -114,38 +128,8 @@ impl Manager {
             builder.create_entity(mentity, groups, tags)
         }).expect(format!("No template with the name {} was found.", name).as_slice())
     }
-}
 
-struct NotifyCreated(pub Entity);
-impl Command<Space> for NotifyCreated {
-    fn run(&mut self, space: &mut Space) {
-        let mentity = get_mentity_mut!(space.em.entities, self.0);
-
-        space.sm.notify_entity_created(mentity);
-    }
-}
-
-struct NotifyChanged(pub Entity);
-impl Command<Space> for NotifyChanged {
-    fn run(&mut self, space: &mut Space) {
-        let mentity = get_mentity_mut!(space.em.entities, self.0);
-
-        space.sm.notify_entity_changed(mentity);
-    }
-}
-
-struct NotifyRemoved(pub Entity);
-impl Command<Space> for NotifyRemoved {
-    fn run(&mut self, space: &mut Space) {
-        {
-            let mentity = get_mentity_mut!(space.em.entities, self.0);
-
-            space.em.entities.components.remove_all(mentity);
-            space.em.groups.clear_entity(mentity);
-            space.em.tags.remove(mentity);
-
-            space.sm.notify_entity_removed(mentity);
-        }
-        space.em.entities.mentities.remove(&self.0);
+    pub fn pop_event(&mut self) -> Option<(event::Kind, Entity)> {
+        self.events.pop()
     }
 }

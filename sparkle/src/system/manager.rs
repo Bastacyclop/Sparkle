@@ -2,6 +2,7 @@ use command::CommandSender;
 use entity::{self, MetaEntity};
 use space::Space;
 use system::System;
+use entity::event;
 
 
 pub struct Manager {
@@ -24,30 +25,36 @@ impl Manager {
     }
 
     pub fn update(&mut self, em: &mut entity::Manager, dt: f32) {
-        for system in self.systems.iter_mut() {
-            system.update(em, dt);
+        for i in range(0, self.systems.len()) {
+            self.notify_events(em);
+            self.systems[i].update(em, dt);
         }
     }
 
     pub fn fixed_update(&mut self, em: &mut entity::Manager) {
-        for system in self.systems.iter_mut() {
-            system.fixed_update(em);
+        for i in range(0, self.systems.len()) {
+            self.notify_events(em);
+            self.systems[i].fixed_update(em);
         }
     }
 
-    pub fn notify_entity_created(&mut self, mentity: &MetaEntity) {
+    fn notify_events(&mut self, em: &mut entity::Manager) {
+        while let Some(event) = em.pop_event() {
+            let mentity = em.get_mentity(event.1);
+            match event.0 {
+                event::Created => self.notify_entity_created(mentity),
+                event::Removed => self.notify_entity_removed(mentity),
+            }
+        }
+    }
+
+    fn notify_entity_created(&mut self, mentity: &MetaEntity) {
         for system in self.systems.iter_mut() {
             system.on_entity_created(mentity);
         }
     }
 
-    pub fn notify_entity_changed(&mut self, mentity: &MetaEntity) {
-        for system in self.systems.iter_mut() {
-            system.on_entity_changed(mentity);
-        }
-    }
-
-    pub fn notify_entity_removed(&mut self, mentity: &MetaEntity) {
+    fn notify_entity_removed(&mut self, mentity: &MetaEntity) {
         for system in self.systems.iter_mut() {
             system.on_entity_removed(mentity);
         }
