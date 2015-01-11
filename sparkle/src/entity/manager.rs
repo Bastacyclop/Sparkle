@@ -2,7 +2,7 @@ use std::collections::VecMap;
 use std::cell::{Ref, RefMut};
 use component::{Component, ComponentIndex, StoreMap};
 use entity::event::{self, Event};
-use entity::{Entity, MetaEntityMap, GroupMap, TagMap};
+use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
 
 pub struct Manager {
     mentities: MetaEntityMap,
@@ -28,6 +28,7 @@ impl Manager {
     pub fn remove(&mut self, entity: Entity) {
         {
             let mentity = self.mentities.get_mut(entity);
+            self.stores.remove_all(mentity);
             self.groups.clear_entity(mentity);
             self.tags.remove(mentity);
         }
@@ -83,19 +84,19 @@ impl Manager {
     }
 
     pub fn notify_events<T>(&mut self, obs: &mut T) where T: event::Observer {
-        while let Some(event) = self.mentities.pop_event() {
-            let removed = self.handle_event(event, obs);
+        let drain = self.mentities.drain_events();
+        while let Some((kind, mentity)) = drain.next() {
+            let removed = self.handle_event(kind, mentity, obs);
             if removed {
-                self.mentities.clear(event.1);
+                self.mentities.clear(mentity.entity);
             }
         }
-        self.mentities.events.clear();
     }
 
-    fn handle_event<T>(&mut self, event: Event, obs: &mut T) -> bool where T: event::Observer {
-        let mentity = self.mentities.get_mut(event.1);
-
-        match event.0 {
+    fn handle_event<T>(&mut self, kind: event::Kind, mentity: &MetaEntity, obs: &mut T) -> bool 
+        where T: event::Observer 
+    {
+        match kind {
             event::Kind::Changed => obs.notify_changed(mentity),
             event::Kind::Removed => {
                 obs.notify_removed(mentity);

@@ -94,9 +94,10 @@ impl MetaEntityMap {
         self.events.changed(entity);
         get_mentity_mut!(self.mentities, entity)
     }
-
-    pub fn pop_event(&mut self) -> Option<event::Event> {
-        self.events.pop()
+    
+    pub fn drain_events<'a>(&'a mut self) -> Box<Iterator<Item=(event::Kind, &MetaEntity)>> {
+        let MetaEntityMap {ref mut events, ref mentities, ..} = *self;
+        Box::new(events.drain().map(move |(kind, entity)| (kind, get_mentity!(mentities, entity))))
     }
 }
 

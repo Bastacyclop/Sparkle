@@ -36,13 +36,9 @@ impl Queue {
         self.events.push_back((Removed, entity))
     }
 
-    pub fn clear(&mut self) {
+    pub fn drain(&mut self) -> Drain {
         self.changed_set.clear();
-        self.events.clear();
-    }
-
-    pub fn pop(&mut self) -> Option<Event> {
-        self.events.pop_front()
+        self.events.drain()
     }
 }
 
