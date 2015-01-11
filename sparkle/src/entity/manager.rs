@@ -26,6 +26,11 @@ impl Manager {
     }
 
     pub fn remove(&mut self, entity: Entity) {
+        {
+            let mentity = self.mentities.get_mut(entity);
+            self.groups.clear_entity(mentity);
+            self.tags.remove(mentity);
+        }
         self.mentities.remove(entity)
     }
 
@@ -84,6 +89,7 @@ impl Manager {
                 self.mentities.clear(event.1);
             }
         }
+        self.mentities.events.clear();
     }
 
     fn handle_event<T>(&mut self, event: Event, obs: &mut T) -> bool where T: event::Observer {
@@ -93,9 +99,6 @@ impl Manager {
             event::Kind::Changed => obs.notify_changed(mentity),
             event::Kind::Removed => {
                 obs.notify_removed(mentity);
-                self.groups.clear_entity(mentity);
-                self.tags.remove(mentity);
-
                 return true;
             }
         }
