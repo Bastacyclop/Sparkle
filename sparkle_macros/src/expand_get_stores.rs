@@ -9,23 +9,30 @@ use syntax::ext::build::AstBuilder;
 #[doc(hidden)]
 pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 'static> {
 
-    let (em, mut component_idents) = match parse_args(cx, sp, tts) {
+    let (store_map, component_idents) = match parse_args(cx, sp, tts) {
         Some(result) => result,
         None => return DummyResult::any(sp)
     };
 
-    let mut tuple_exprs = Vec::new();
+    let mut ensure_stmts = Vec::new();
     for component_ident in component_idents.iter() {
-        let expr = quote_expr!(cx,  unsafe {
-            let mut_copy: &mut sparkle::entity::Manager = std::mem::transmute(($em));
-            mut_copy.ensure::<$component_ident>();
-            mut_copy.get_store_mut::<$component_ident>().unwrap()
-        });
-
-        tuple_exprs.push(expr);
+        ensure_stmts.push(quote_stmt!(cx,
+            $store_map.ensure::<$component_ident>();
+        ));
     }
 
-    return MacExpr::new(cx.expr_tuple(sp, tuple_exprs));
+    let mut tuple_exprs = Vec::new();
+    for component_ident in component_idents.iter() {
+        tuple_exprs.push(quote_expr!(cx,
+            $store_map.get_mut::<$component_ident>().unwrap()
+        ));
+    }
+    let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
+
+    let result_block = cx.block(sp, ensure_stmts, Some(tuple_expr));
+    let result_expr = cx.expr_block(result_block);
+
+    return MacExpr::new(result_expr);
 }
 
 fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>, Vec<Ident>)> {
@@ -36,8 +43,7 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         return None
     }
 
-    let em_expr = parser.parse_expr();
-    let em = cx.expr_mut_addr_of(sp, cx.expr_deref(sp, em_expr));
+    let store_map = parser.parse_expr();
 
     let mut component_idents = Vec::new();
     let mut names: HashSet<String> = HashSet::new();
@@ -65,5 +71,5 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         }
     }
 
-    Some((em, component_idents))
+    Some((store_map, component_idents))
 }
