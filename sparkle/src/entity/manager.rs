@@ -29,7 +29,6 @@ impl Manager {
     pub fn remove(&mut self, entity: Entity) {
         {
             let mentity = self.mentities.get(entity);
-            component::store::private::forget(&mut self.stores, mentity);
             entity::group::private::forget(&mut self.groups, mentity);
             entity::tag::private::forget(&mut self.tags, mentity);
         }
@@ -85,10 +84,15 @@ impl Manager {
     }
 
     pub fn notify_events<T>(&mut self, obs: &mut T) where T: event::Observer {
-        self.mentities.drain_events_with(|(kind, mentity)| {
+        let Manager { ref mut mentities, ref mut stores, .. } = *self;
+
+        mentities.drain_events_with(|(kind, mentity)| {
             match kind {
                 event::Changed => obs.notify_changed(mentity),
-                event::Removed => obs.notify_removed(mentity)
+                event::Removed => {
+                    obs.notify_removed(mentity);
+                    component::store::private::forget(stores, mentity);
+                }
             }
         });
     }

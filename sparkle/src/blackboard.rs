@@ -17,6 +17,10 @@ impl Blackboard {
         }
     }
 
+    pub fn new_shared() -> Rc<RefCell<Blackboard>> {
+        Rc::new(RefCell::new(Blackboard::new()))
+    }
+
     pub fn insert_entry<T: 'static>(&mut self, name: &str, entry: T) {
         match self.entries.entry(name.to_string()) {
             HashMapEntry::Vacant(vacant) => {
