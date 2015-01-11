@@ -47,6 +47,10 @@ impl Manager {
         self.stores.remove::<T>(self.mentities.get_mut(entity));
     }
 
+    pub fn get_stores_mut(&mut self) -> &mut StoreMap {
+        &mut self.stores
+    }
+
     pub fn get_store<'a, T>(&'a self) -> Option<Ref<'a, VecMap<T>>>
         where T: Component + ComponentIndex
     {
