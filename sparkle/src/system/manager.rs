@@ -39,18 +39,18 @@ impl Manager {
     }
 
     fn notify_events(&mut self, em: &mut entity::Manager) {
-        while let Some(event) = em.pop_event() {
-            let mentity = em.get_mentity(event.1);
+        let mut events = em.drain_events();
+        while let Some(event) = events.next() {
             match event.0 {
-                event::Created => self.notify_entity_created(mentity),
-                event::Removed => self.notify_entity_removed(mentity),
+                event::Changed => self.notify_entity_changed(event.1),
+                event::Removed => self.notify_entity_removed(event.1),
             }
         }
     }
 
-    fn notify_entity_created(&mut self, mentity: &MetaEntity) {
+    fn notify_entity_changed(&mut self, mentity: &MetaEntity) {
         for system in self.systems.iter_mut() {
-            system.on_entity_created(mentity);
+            system.on_entity_changed(mentity);
         }
     }
 

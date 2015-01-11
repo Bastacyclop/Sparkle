@@ -1,7 +1,5 @@
 use std::collections::VecMap;
-use std::collections::vec_map::IterMut;
-use std::iter::Filter;
-use component::{Component, ComponentIndex, Store, StoreMap};
+use component::StoreMap;
 use entity::builder::{Builder, BuilderMap};
 use entity::group::GroupMap;
 use entity::tag::TagMap;
@@ -9,31 +7,24 @@ use entity::pool::Pool;
 use entity::{Entity, MetaEntity};
 use entity::event;
 
-struct Entities {
-    pool: Pool,
-    mentities: VecMap<MetaEntity>,
-    components: StoreMap
-}
-
-macro_rules! get_mentity_mut {
-    ($entities:expr, $entity:expr) => (
-        $entities.mentities.get_mut(&$entity)
-                           .expect(format!("There is no meta information for {}", $entity).as_slice())
+macro_rules! get_mentity {
+    ($metas:expr, $entity:expr) => (
+        $metas.get(&$entity)
+              .expect(format!("There is no meta information for {}", $entity).as_slice())
     )
 }
 
-impl Entities {
-    pub fn new() -> Entities {
-        Entities {
-            pool: Pool::new(),
-            mentities: VecMap::new(),
-            components: StoreMap::new()
-        }
-    }
+macro_rules! get_mentity_mut {
+    ($metas:expr, $entity:expr) => (
+        $metas.get_mut(&$entity)
+              .expect(format!("There is no meta information for {}", $entity).as_slice())
+    )
 }
 
 pub struct Manager {
-    entities: Entities,
+    pool: Pool,
+    metas: VecMap<MetaEntity>,
+    components: StoreMap,
     groups: GroupMap,
     tags: TagMap,
     builders: BuilderMap,
@@ -43,7 +34,9 @@ pub struct Manager {
 impl Manager {
     pub fn new() -> Manager {
         Manager {
-            entities: Entities::new(),
+            pool: Pool::new(),
+            metas: VecMap::new(),
+            components: StoreMap::new(),
             groups: GroupMap::new(),
             tags: TagMap::new(),
             builders: BuilderMap::new(),
@@ -52,44 +45,33 @@ impl Manager {
     }
 
     pub fn create(&mut self) -> Entity {
-        let meta_entity = self.entities.pool.get();
+        let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
-        self.entities.mentities.insert(entity, meta_entity);
+        self.metas.insert(entity, meta_entity);
 
-        self.events.created(entity);
+        self.events.changed(entity);
         entity
     }
 
     pub fn remove(&mut self, entity: Entity) {
-        {
-            let mentity = get_mentity_mut!(self.entities, entity);
-            self.entities.components.remove_all(mentity);
-            self.groups.clear_entity(mentity);
-            self.tags.remove(mentity);
-        }
-        self.entities.mentities.remove(&entity);
+        let mut mentity = self.metas.remove(&entity)
+                              .expect(format!("There is no meta information for {}", entity).as_slice());
+        self.components.remove_all(&mut mentity);
+        self.groups.clear_entity(&mut mentity);
+        self.tags.remove(&mut mentity);
+        self.pool.put(mentity);
+
         self.events.removed(entity);
     }
 
-    pub fn get_mentity(&mut self, entity: Entity) -> &MetaEntity {
-        self.entities.mentities.get(&entity)
-                               .expect(format!("There is no meta information for {}", entity).as_slice())
-    }
-
-    pub fn filter<'a, P>(&'a mut self, filter: P) -> Filter<(usize, &mut MetaEntity), IterMut<'a, MetaEntity>, P>
-        where P: FnMut(&(usize, &mut MetaEntity)) -> bool
-    {
-        self.entities.mentities.iter_mut().filter(filter)
-    }
-
     pub fn insert_group(&mut self, group: &str, entity: Entity) {
-        let mentity = get_mentity_mut!(self.entities, entity);
+        let mentity = get_mentity_mut!(self.metas, entity);
 
         self.groups.insert(group, mentity);
     }
 
     pub fn remove_from_group(&mut self, group_name: &str, entity: Entity) {
-        let mentity = get_mentity_mut!(self.entities, entity);
+        let mentity = get_mentity_mut!(self.metas, entity);
 
         self.groups.remove_from(group_name, mentity);
     }
@@ -99,13 +81,13 @@ impl Manager {
     }
 
     pub fn insert_tag(&mut self, tag: &str, entity: Entity) {
-        let mentity = get_mentity_mut!(self.entities, entity);
+        let mentity = get_mentity_mut!(self.metas, entity);
 
         self.tags.insert(tag, mentity);
     }
 
     pub fn remove_tag(&mut self, entity: Entity) {
-        let mentity = get_mentity_mut!(self.entities, entity);
+        let mentity = get_mentity_mut!(self.metas, entity);
 
         self.tags.remove(mentity);
     }
@@ -121,15 +103,16 @@ impl Manager {
     pub fn build_entity_with(&mut self, name: &str) -> Entity
     {
         let entity = self.create();
-        let Manager { ref mut entities, ref mut groups, ref mut tags, ref mut builders, .. } = *self;
+        let Manager { ref mut metas, ref mut groups, ref mut tags, ref mut builders, .. } = *self;
 
-        let mentity = get_mentity_mut!(entities, entity);
+        let mentity = get_mentity_mut!(metas, entity);
         builders.get_builder_mut(name).map(|builder| {
             builder.create_entity(mentity, groups, tags)
         }).expect(format!("No template with the name {} was found.", name).as_slice())
     }
 
-    pub fn pop_event(&mut self) -> Option<(event::Kind, Entity)> {
-        self.events.pop()
+    pub fn drain_events<'a>(&'a mut self) -> Box<Iterator<Item=(event::Kind, &MetaEntity)>> {
+        let Manager {ref mut events, ref metas, ..} = *self;
+        Box::new(events.drain().map(move |(kind, entity)| (kind, get_mentity!(metas, entity))))
     }
 }

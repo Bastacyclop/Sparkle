@@ -1,34 +1,43 @@
-use std::collections::RingBuf;
+use std::collections::{RingBuf, HashSet};
+use std::collections::ring_buf;
 use entity::Entity;
 
-pub use self::Kind::{Created, Removed};
+pub use self::Kind::{Changed, Removed};
 
 #[derive(Copy, Show)]
 pub enum Kind {
-    Created,
+    Changed,
     Removed
 }
 
+pub type Event = (Kind, Entity);
+pub type Drain<'a> = ring_buf::Drain<'a, (Kind, Entity)>;
+
 pub struct Queue {
-    events: RingBuf<(Kind, Entity)>
+    changed_set: HashSet<Entity>,
+    events: RingBuf<Event>
 }
 
 impl Queue {
     pub fn new() -> Queue {
         Queue {
+            changed_set: HashSet::new(),
             events: RingBuf::new()
         }
     }
 
-    pub fn created(&mut self, entity: Entity) {
-        self.events.push_back((Created, entity))
+    pub fn changed(&mut self, entity: Entity) {
+        if self.changed_set.insert(entity) {
+            self.events.push_back((Changed, entity))
+        }
     }
 
     pub fn removed(&mut self, entity: Entity) {
         self.events.push_back((Removed, entity))
     }
 
-    pub fn pop(&mut self) -> Option<(Kind, Entity)> {
-        self.events.pop_front()
+    pub fn drain(&mut self) -> Drain {
+        self.changed_set.clear();
+        self.events.drain()
     }
 }
