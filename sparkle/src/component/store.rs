@@ -53,7 +53,7 @@ impl StoreMap {
     {
         let type_index = ComponentIndex::of(None::<T>);
         mentity.component_bits.insert(type_index);
-        
+
         self.ensure::<T>();
         if let Some(mut store) = self.get_mut::<T>() {
             store.insert(mentity.entity, component);
@@ -68,7 +68,7 @@ impl StoreMap {
 
         if !self.stores.contains_key(&type_index) {
             let empty: Box<Store<T>> = Box::new(RefCell::new(VecMap::new()));
-            self.stores.insert(type_index, empty);       
+            self.stores.insert(type_index, empty);
         }
     }
 
@@ -101,6 +101,19 @@ impl StoreMap {
         for (type_index, store) in self.stores.iter_mut() {
             mentity.component_bits.remove(&type_index);
             store.remove(&mentity.entity);
+        }
+    }
+}
+
+#[doc(hidden)]
+pub mod private {
+    use super::StoreMap;
+    use entity::MetaEntity;
+
+    pub fn forget(store_map: &mut StoreMap, mentity: &MetaEntity) {
+        for type_index in mentity.component_bits.iter() {
+            store_map.stores.get_mut(&type_index)
+                            .map(|mut store| store.remove(&mentity.entity));
         }
     }
 }

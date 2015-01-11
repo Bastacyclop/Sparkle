@@ -29,3 +29,13 @@ impl TagMap {
         self.tags.get(tag).map(|entity| *entity)
     }
 }
+
+#[doc(hidden)]
+pub mod private {
+    use super::TagMap;
+    use entity::MetaEntity;
+
+    pub fn forget(tag_map: &mut TagMap, mentity: &MetaEntity) {
+        mentity.tag.as_ref().map(|tag| tag_map.tags.remove(tag));
+    }
+}

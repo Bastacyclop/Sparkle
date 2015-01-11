@@ -1,8 +1,9 @@
 use std::collections::VecMap;
 use std::cell::{Ref, RefMut};
-use component::{Component, ComponentIndex, StoreMap};
-use entity::event::{self, Event};
-use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
+use component::{self, Component, ComponentIndex, StoreMap};
+use entity;
+use entity::event;
+use entity::{Entity, MetaEntityMap, GroupMap, TagMap};
 
 pub struct Manager {
     mentities: MetaEntityMap,
@@ -27,22 +28,22 @@ impl Manager {
 
     pub fn remove(&mut self, entity: Entity) {
         {
-            let mentity = self.mentities.get_mut(entity);
-            self.stores.remove_all(mentity);
-            self.groups.clear_entity(mentity);
-            self.tags.remove(mentity);
+            let mentity = self.mentities.get(entity);
+            component::store::private::forget(&mut self.stores, mentity);
+            entity::group::private::forget(&mut self.groups, mentity);
+            entity::tag::private::forget(&mut self.tags, mentity);
         }
         self.mentities.remove(entity)
     }
 
     pub fn attach_component<T>(&mut self, entity: Entity, component: T)
-        where T: Component + ComponentIndex 
+        where T: Component + ComponentIndex
     {
         self.stores.insert(self.mentities.get_mut(entity), component);
     }
 
     pub fn detach_component<T>(&mut self, entity: Entity)
-        where T: Component + ComponentIndex 
+        where T: Component + ComponentIndex
     {
         self.stores.remove::<T>(self.mentities.get_mut(entity));
     }
@@ -84,26 +85,11 @@ impl Manager {
     }
 
     pub fn notify_events<T>(&mut self, obs: &mut T) where T: event::Observer {
-        let drain = self.mentities.drain_events();
-        while let Some((kind, mentity)) = drain.next() {
-            let removed = self.handle_event(kind, mentity, obs);
-            if removed {
-                self.mentities.clear(mentity.entity);
+        self.mentities.drain_events_with(|(kind, mentity)| {
+            match kind {
+                event::Changed => obs.notify_changed(mentity),
+                event::Removed => obs.notify_removed(mentity)
             }
-        }
-    }
-
-    fn handle_event<T>(&mut self, kind: event::Kind, mentity: &MetaEntity, obs: &mut T) -> bool 
-        where T: event::Observer 
-    {
-        match kind {
-            event::Kind::Changed => obs.notify_changed(mentity),
-            event::Kind::Removed => {
-                obs.notify_removed(mentity);
-                return true;
-            }
-        }
-
-        false
+        });
     }
 }

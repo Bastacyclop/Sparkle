@@ -11,7 +11,7 @@ pub enum Kind {
 }
 
 pub type Event = (Kind, Entity);
-pub type Drain<'a> = ring_buf::Drain<'a, (Kind, Entity)>;
+pub type Drain<'a> = ring_buf::Drain<'a, Event>;
 
 pub struct Queue {
     changed_set: HashSet<Entity>,

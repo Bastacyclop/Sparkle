@@ -82,10 +82,6 @@ impl MetaEntityMap {
         self.events.removed(entity);
     }
 
-    fn clear(&mut self, entity: Entity) {
-        self.pool.put(self.mentities.remove(&entity).unwrap());
-    }
-
     pub fn get(&self, entity: Entity) -> &MetaEntity {
         get_mentity!(self.mentities, entity)
     }
@@ -94,10 +90,15 @@ impl MetaEntityMap {
         self.events.changed(entity);
         get_mentity_mut!(self.mentities, entity)
     }
-    
-    pub fn drain_events<'a>(&'a mut self) -> Box<Iterator<Item=(event::Kind, &MetaEntity)>> {
-        let MetaEntityMap {ref mut events, ref mentities, ..} = *self;
-        Box::new(events.drain().map(move |(kind, entity)| (kind, get_mentity!(mentities, entity))))
+
+    pub fn drain_events_with<'a, W>(&'a mut self, mut last_wish: W)
+        where W: for<'b> FnMut((event::Kind, &'b MetaEntity))
+    {
+        let MetaEntityMap {ref mut events, ref mut mentities, ref mut pool} = *self;
+        for (kind, entity) in events.drain() {
+            last_wish((kind, get_mentity!(mentities, entity)));
+            pool.put(mentities.remove(&entity).unwrap());
+        }
     }
 }
 

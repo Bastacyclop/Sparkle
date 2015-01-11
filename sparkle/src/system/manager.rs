@@ -25,20 +25,16 @@ impl Manager {
 
     pub fn update(&mut self, em: &mut entity::Manager, dt: f32) {
         for i in range(0, self.systems.len()) {
-            self.notify_events(em);
+            em.notify_events(self);
             self.systems[i].update(em, dt);
         }
     }
 
     pub fn fixed_update(&mut self, em: &mut entity::Manager) {
         for i in range(0, self.systems.len()) {
-            self.notify_events(em);
+            em.notify_events(self);
             self.systems[i].fixed_update(em);
         }
-    }
-
-    fn notify_events(&mut self, em: &mut entity::Manager) {
-        em.notify_events(self);
     }
 }
 

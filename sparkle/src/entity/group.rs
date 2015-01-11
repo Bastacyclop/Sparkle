@@ -6,7 +6,7 @@ pub type Group = HashSet<Entity>;
 pub struct GroupMap {
     groups: HashMap<String, Group>
 }
-    
+
 impl GroupMap {
     pub fn new() -> GroupMap {
         GroupMap {
@@ -22,7 +22,7 @@ impl GroupMap {
             group.insert(entity);
             return;
         }
-        self.insert_new_group_with(group_name, entity); 
+        self.insert_new_group_with(group_name, entity);
     }
 
     fn insert_new_group_with(&mut self, group_name: &str, entity: Entity) {
@@ -52,6 +52,18 @@ impl GroupMap {
         match self.groups.get(group_name) {
             Some(group) => group.iter().map(|entity| *entity).collect(),
             None => Vec::new()
+        }
+    }
+}
+
+#[doc(hidden)]
+pub mod private {
+    use super::GroupMap;
+    use entity::MetaEntity;
+
+    pub fn forget(group_map: &mut GroupMap, mentity: &MetaEntity) {
+        for name in mentity.groups.iter() {
+            group_map.groups.remove(name);
         }
     }
 }
