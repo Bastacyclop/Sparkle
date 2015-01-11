@@ -91,13 +91,15 @@ impl MetaEntityMap {
         get_mentity_mut!(self.mentities, entity)
     }
 
-    pub fn drain_events_with<'a, W>(&'a mut self, mut last_wish: W)
-        where W: for<'b> FnMut((event::Kind, &'b MetaEntity))
+    pub fn drain_events_with<'a, F>(&'a mut self, mut func: F)
+        where F: for<'b> FnMut((event::Kind, &'b MetaEntity))
     {
         let MetaEntityMap {ref mut events, ref mut mentities, ref mut pool} = *self;
         for (kind, entity) in events.drain() {
-            last_wish((kind, get_mentity!(mentities, entity)));
-            pool.put(mentities.remove(&entity).unwrap());
+            func((kind, get_mentity!(mentities, entity)));
+            if let event::Kind::Removed = kind {
+                pool.put(mentities.remove(&entity).unwrap());
+            }
         }
     }
 }
