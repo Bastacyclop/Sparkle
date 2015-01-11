@@ -6,10 +6,10 @@ use entity::event;
 use entity::{Entity, MetaEntityMap, GroupMap, TagMap};
 
 pub struct Manager {
-    mentities: MetaEntityMap,
-    stores: StoreMap,
-    groups: GroupMap,
-    tags: TagMap
+    pub mentities: MetaEntityMap,
+    pub stores: StoreMap,
+    pub groups: GroupMap,
+    pub tags: TagMap
 }
 
 impl Manager {
