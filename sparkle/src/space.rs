@@ -20,10 +20,10 @@ impl Space {
 
         Space {
             cmd_receiver: receiver,
-            blackboard: blackboard,
+            blackboard: blackboard.clone(),
             em: entity::Manager::new(),
             cm: component::Manager::new(),
-            sm: system::Manager::new(sender)
+            sm: system::Manager::new(sender, blackboard)
         }
     }
 

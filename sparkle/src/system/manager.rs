@@ -1,4 +1,5 @@
 use command::CommandSender;
+use blackboard::SharedBlackboard;
 use entity::{self, MetaEntity};
 use component;
 use entity::event;
@@ -7,21 +8,23 @@ use system::System;
 
 pub struct Manager {
     systems: Vec<Box<System>>,
-    cmd_sender: CommandSender<Space>
+    cmd_sender: CommandSender<Space>,
+    blackboard: SharedBlackboard
 }
 
 impl Manager {
-    pub fn new(cmd_sender: CommandSender<Space>) -> Manager {
+    pub fn new(cmd_sender: CommandSender<Space>, blackboard: SharedBlackboard) -> Manager {
         Manager {
             systems: Vec::new(),
-            cmd_sender: cmd_sender
+            cmd_sender: cmd_sender,
+            blackboard: blackboard
         }
     }
 
     pub fn insert<F, S>(&mut self, builder: F)
-        where F: FnOnce(CommandSender<Space>) -> S, S: System
+        where F: FnOnce(CommandSender<Space>, SharedBlackboard) -> S, S: System
     {
-        self.systems.push(Box::new(builder(self.cmd_sender.clone())));
+        self.systems.push(Box::new(builder(self.cmd_sender.clone(), self.blackboard.clone())));
     }
 
     pub fn update(&mut self, em: &mut entity::Manager, cm: &mut component::Manager, dt: f32) {

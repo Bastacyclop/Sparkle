@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use std::any::Any;
 
 pub type Entry<T: 'static> = Rc<RefCell<T>>;
+pub type SharedBlackboard = Rc<RefCell<Blackboard>>;
 
 pub struct Blackboard {
     entries: HashMap<String, Box<Any>>
@@ -17,7 +18,7 @@ impl Blackboard {
         }
     }
 
-    pub fn new_shared() -> Rc<RefCell<Blackboard>> {
+    pub fn new_shared() -> SharedBlackboard {
         Rc::new(RefCell::new(Blackboard::new()))
     }
 
