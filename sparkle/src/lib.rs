@@ -9,6 +9,8 @@
 pub use blackboard::Blackboard;
 pub use space::Space;
 
+pub use component::Manager as ComponentManager;
+
 pub use entity::{Entity, MetaEntity};
 pub use entity::Manager as EntityManager;
 

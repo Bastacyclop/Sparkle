@@ -1,11 +1,6 @@
-use std::collections::VecMap;
-use std::cell::{Ref, RefMut};
-use std::ops::{Deref, DerefMut};
-use split_access::Access;
-use component::{self, Component, ComponentIndex, StoreMap};
-use entity;
-use entity::event;
+use component;
 use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
+use entity::event;
 
 pub struct Manager {
     mentities: MetaEntityMap,
@@ -54,7 +49,7 @@ impl Manager {
         self.tags.get(tag)
     }
 
-    pub fn notify_events<T>(&mut self, cm: &mut component::StoreMap, obs: &mut T) where T: event::Observer {
+    pub fn notify_events<T>(&mut self, cm: &mut component::Manager, obs: &mut T) where T: event::Observer {
         let Manager { ref mut mentities, .. } = *self;
 
         mentities.drain_events_with(|(kind, mentity)| {
@@ -62,7 +57,7 @@ impl Manager {
                 event::Changed => obs.notify_changed(mentity),
                 event::Removed => {
                     obs.notify_removed(mentity);
-                    component::store::private::forget(cm, mentity);
+                    component::manager::private::forget(cm, mentity);
                 }
             }
         });

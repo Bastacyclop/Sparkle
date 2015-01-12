@@ -1,6 +1,6 @@
-pub use self::store::{Store, StoreMap};
+pub use self::manager::Manager;
 
-pub mod store;
+pub mod manager;
 
 pub trait Component: 'static + Send + Sync {}
 

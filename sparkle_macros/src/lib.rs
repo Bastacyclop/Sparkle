@@ -68,3 +68,22 @@ macro_rules! sparkle_default_system_filtering {
     )
 }
 
+#[macro_export]
+macro_rules! sparkle_get_component {
+    ($store:expr, $entity:expr) => (
+        match $store.get($entity) {
+            Some(component) => component,
+            None => continue
+        }
+    )
+}
+
+#[macro_export]
+macro_rules! sparkle_get_component_mut {
+    ($store:expr, $entity:expr) => (
+        match $store.get_mut($entity) {
+            Some(component) => component,
+            None => continue
+        }
+    )
+}

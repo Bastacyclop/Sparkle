@@ -1,8 +1,8 @@
 use command::{self, CommandReceiver, Command};
-use component::StoreMap;
 use blackboard::Blackboard;
 use std::rc::Rc;
 use std::cell::RefCell;
+use component;
 use entity;
 use system;
 
@@ -10,7 +10,7 @@ pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
     pub blackboard: Rc<RefCell<Blackboard>>,
     pub em: entity::Manager,
-    pub cm: StoreMap,
+    pub cm: component::Manager,
     pub sm: system::Manager
 }
 
@@ -22,7 +22,7 @@ impl Space {
             cmd_receiver: receiver,
             blackboard: blackboard,
             em: entity::Manager::new(),
-            cm: StoreMap::new(),
+            cm: component::Manager::new(),
             sm: system::Manager::new(sender)
         }
     }

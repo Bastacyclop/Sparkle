@@ -37,13 +37,13 @@ impl AnyStore {
     }
 }
 
-pub struct StoreMap {
+pub struct Manager {
     stores: VecMap<Box<AnyStore>>
 }
 
-impl StoreMap {
-    pub fn new() -> StoreMap {
-        StoreMap {
+impl Manager {
+    pub fn new() -> Manager {
+        Manager {
             stores: VecMap::new()
         }
     }
@@ -104,12 +104,12 @@ impl StoreMap {
 
 #[doc(hidden)]
 pub mod private {
-    use super::StoreMap;
+    use super::Manager;
     use entity::MetaEntity;
 
-    pub fn forget(store_map: &mut StoreMap, mentity: &MetaEntity) {
+    pub fn forget(manager: &mut Manager, mentity: &MetaEntity) {
         for type_index in mentity.components.iter() {
-            store_map.stores.get_mut(&type_index)
+            manager.stores.get_mut(&type_index)
                             .map(|mut store| store.remove(&mentity.entity));
         }
     }
