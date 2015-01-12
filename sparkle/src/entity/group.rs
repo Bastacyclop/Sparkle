@@ -14,22 +14,19 @@ impl GroupMap {
         }
     }
 
-    pub fn insert(&mut self, group_name: &str, mentity: &mut MetaEntity) {
-        mentity.groups.insert(group_name.to_string());
+    pub fn insert(&mut self, name: &str, mentity: &mut MetaEntity) {
+        mentity.groups.insert(name.to_string());
         let entity = mentity.entity;
 
-        if let Some(group) = self.groups.get_mut(group_name) {
-            group.insert(entity);
-            return;
-        }
-        self.insert_new_group_with(group_name, entity);
+        self.ensure(name);
+        self.groups.get_mut(name).unwrap().insert(entity);
     }
 
-    fn insert_new_group_with(&mut self, group_name: &str, entity: Entity) {
-        let mut group = HashSet::new();
-        group.insert(entity);
-
-        self.groups.insert(group_name.to_string(), group);
+    fn ensure(&mut self, name: &str) {
+        if !self.groups.contains_key(name) {
+            let empty = HashSet::new();
+            self.groups.insert(name.to_string(), empty);
+        }
     }
 
     pub fn remove_from(&mut self, group_name: &str, mentity: &mut MetaEntity) {

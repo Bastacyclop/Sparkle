@@ -55,10 +55,7 @@ impl StoreMap {
         mentity.component_bits.insert(type_index);
 
         self.ensure::<T>();
-        if let Some(mut store) = self.get_mut::<T>() {
-            store.insert(mentity.entity, component);
-            return;
-        }
+        self.get_mut::<T>().unwrap().insert(mentity.entity, component);
     }
 
     pub fn ensure<T>(&mut self)
