@@ -6,7 +6,8 @@
 
 #[macro_use] extern crate split_access;
 
-pub use blackboard::Blackboard;
+pub use blackboard::{Blackboard, SharedBlackboard};
+pub use blackboard::Entry as BlackboardEntry;
 pub use space::Space;
 
 pub use component::Manager as ComponentManager;
