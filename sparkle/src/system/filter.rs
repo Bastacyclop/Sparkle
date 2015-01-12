@@ -42,8 +42,8 @@ impl Filter {
     }
 
     pub fn pass(&self, mentity: &MetaEntity) -> bool {
-        self.mandatory_components.is_subset(&mentity.component_bits) &&
-        self.forbidden_components.is_disjoint(&mentity.component_bits) &&
+        self.mandatory_components.is_subset(&mentity.components) &&
+        self.forbidden_components.is_disjoint(&mentity.components) &&
         self.mandatory_groups.is_subset(&mentity.groups) &&
         self.forbidden_groups.is_disjoint(&mentity.groups)
     }

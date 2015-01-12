@@ -18,7 +18,7 @@ pub struct MetaEntity {
     pub entity: Entity,
     pub tag: Option<String>,
     pub groups: HashSet<String>,
-    pub component_bits: BitvSet
+    pub components: BitvSet
 }
 
 impl MetaEntity {
@@ -27,12 +27,12 @@ impl MetaEntity {
             entity: entity,
             tag: None,
             groups: HashSet::new(),
-            component_bits: BitvSet::new()
+            components: BitvSet::new()
         }
     }
 
     pub fn reset(mut self) -> MetaEntity {
-        self.component_bits.clear();
+        self.components.clear();
         self.tag = None;
         self.groups.clear();
 
@@ -102,9 +102,4 @@ impl MetaEntityMap {
             }
         }
     }
-}
-
-pub trait Observer {
-    fn notify_changed(&mut self, mentity: &MetaEntity);
-    fn notify_removed(&mut self, mentity: &MetaEntity);
 }

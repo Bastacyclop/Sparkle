@@ -52,7 +52,7 @@ impl StoreMap {
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
-        mentity.component_bits.insert(type_index);
+        mentity.components.insert(type_index);
 
         self.ensure::<T>();
         self.get_mut::<T>().unwrap().insert(mentity.entity, component);
@@ -89,14 +89,14 @@ impl StoreMap {
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
-        mentity.component_bits.remove(&type_index);
+        mentity.components.remove(&type_index);
 
         self.get_mut::<T>().map(|mut store| store.remove(&mentity.entity));
     }
 
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {
         for (type_index, store) in self.stores.iter_mut() {
-            mentity.component_bits.remove(&type_index);
+            mentity.components.remove(&type_index);
             store.remove(&mentity.entity);
         }
     }
@@ -108,7 +108,7 @@ pub mod private {
     use entity::MetaEntity;
 
     pub fn forget(store_map: &mut StoreMap, mentity: &MetaEntity) {
-        for type_index in mentity.component_bits.iter() {
+        for type_index in mentity.components.iter() {
             store_map.stores.get_mut(&type_index)
                             .map(|mut store| store.remove(&mentity.entity));
         }

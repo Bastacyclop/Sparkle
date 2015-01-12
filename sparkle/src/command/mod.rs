@@ -2,11 +2,6 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::collections::RingBuf;
 
-pub use self::space_commands::CreateEntity;
-pub use self::space_commands::RemoveEntity;
-
-pub mod space_commands;
-
 pub trait Command<Args>: 'static {
     fn run(&mut self, args: &mut Args);
 }
@@ -26,7 +21,7 @@ impl<Args> CommandBuffer<Args> {
         self.commands.push_back(Box::new(command));
     }
 
-    pub fn pop<'a>(&'a mut self) -> Option<Box<Command<Args>>> {
+    pub fn pop(&mut self) -> Option<Box<Command<Args>>> {
         self.commands.pop_front()
     }
 }
