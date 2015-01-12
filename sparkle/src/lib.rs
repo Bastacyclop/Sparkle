@@ -4,6 +4,8 @@
 #![feature(slicing_syntax, unboxed_closures)]
 #![feature(box_syntax)]
 
+#[macro_use] extern crate split_access;
+
 pub use space::Space;
 
 pub use entity::{Entity, MetaEntity};

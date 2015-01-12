@@ -1,4 +1,12 @@
 [root]
 name = "sparkle"
 version = "0.0.1"
+dependencies = [
+ "split_access 0.0.1 (git+https://github.com/Bastacyclop/split_access.git)",
+]
+
+[[package]]
+name = "split_access"
+version = "0.0.1"
+source = "git+https://github.com/Bastacyclop/split_access.git#ee7edb3b310e8045983c1af553bbe94092b257cd"
 
