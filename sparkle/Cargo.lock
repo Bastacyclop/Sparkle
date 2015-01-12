@@ -8,5 +8,5 @@ dependencies = [
 [[package]]
 name = "split_access"
 version = "0.0.1"
-source = "git+https://github.com/Bastacyclop/split_access.git#ee7edb3b310e8045983c1af553bbe94092b257cd"
+source = "git+https://github.com/Bastacyclop/split_access.git#5b3c1b82e123c79f436b963dea740211379ec198"
 

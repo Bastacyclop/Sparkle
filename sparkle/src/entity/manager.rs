@@ -30,10 +30,10 @@ impl Manager {
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access,
+          G: Access,
+          T: Access
 {
     pub fn create_entity(&mut self) -> Entity {
         self.mentities.create()
@@ -41,10 +41,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + DerefMut<Target=GroupMap>,
-          T: Access<'a, TagMap> + DerefMut<Target=TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access,
+          G: Access + DerefMut<Target=GroupMap>,
+          T: Access + DerefMut<Target=TagMap>
 {
     pub fn remove_entity(&mut self, entity: Entity) {
         {
@@ -57,10 +57,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access + DerefMut<Target=StoreMap>,
+          G: Access,
+          T: Access
 {
     pub fn attach_component<C>(&mut self, entity: Entity, component: C)
         where C: Component + ComponentIndex
@@ -76,12 +76,16 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access,
+          S: Access + DerefMut<Target=StoreMap>,
+          G: Access,
+          T: Access
 {
-    pub fn get_stores_mut(&'a mut self) -> (&'a mut StoreMap, ManagerView<'a, M, (), G, T>) {
+    pub fn get_stores_mut(&'a mut self) -> (&'a mut StoreMap,
+                                            ManagerView<'a, &mut <M as Access>::Spread,
+                                                            (),
+                                                            &mut <G as Access>::Spread,
+                                                            &mut <T as Access>::Spread>) {
         (self.stores.deref_mut(),
          ManagerView {
              mentities: self.mentities.spread(),
@@ -93,12 +97,16 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap> + Deref<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access,
+          S: Access + Deref<Target=StoreMap>,
+          G: Access,
+          T: Access
 {
-    pub fn get_store<C>(&'a mut self) -> (Option<Ref<'a, VecMap<C>>>, ManagerView<'a, M, &'a StoreMap, G, T>)
+    pub fn get_store<C>(&'a mut self) -> (Option<Ref<'a, VecMap<C>>>,
+                                          ManagerView<'a, &mut <M as Access>::Spread,
+                                                          &'a StoreMap,
+                                                          &mut <G as Access>::Spread,
+                                                          &mut <T as Access>::Spread>)
         where C: Component + ComponentIndex
     {
         (self.stores.get::<C>(),
@@ -110,7 +118,12 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
          })
     }
 
-    pub fn get_store_mut<C>(&'a mut self) -> (Option<RefMut<'a, VecMap<C>>>, ManagerView<'a, M, &'a StoreMap, G, T>)
+    pub fn get_store_mut<C>(&'a mut self) -> (Option<RefMut<'a, VecMap<C>>>,
+                                              ManagerView<'a,
+                                                          &mut <M as Access>::Spread,
+                                                          &'a StoreMap,
+                                                          &mut <G as Access>::Spread,
+                                                          &mut <T as Access>::Spread>)
         where C: Component + ComponentIndex
     {
         (self.stores.get_mut::<C>(),
@@ -124,10 +137,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + DerefMut<Target=GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access,
+          G: Access + DerefMut<Target=GroupMap>,
+          T: Access
 {
     pub fn insert_group(&mut self, group: &str, entity: Entity) {
         self.groups.insert(group, self.mentities.get_mut(entity));
@@ -139,10 +152,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + Deref<Target=GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access,
+          S: Access,
+          G: Access + Deref<Target=GroupMap>,
+          T: Access
 {
     pub fn get_group(&mut self, group: &str) -> Vec<Entity> {
         self.groups.get(group)
@@ -150,10 +163,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap> + DerefMut<Target=TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access,
+          G: Access,
+          T: Access + DerefMut<Target=TagMap>
 {
     pub fn insert_tag(&mut self, tag: &str, entity: Entity) {
         self.tags.insert(tag, self.mentities.get_mut(entity));
@@ -165,10 +178,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap> + Deref<Target=TagMap>
+    where M: Access,
+          S: Access,
+          G: Access,
+          T: Access + Deref<Target=TagMap>
 {
     pub fn get_tag(&mut self, tag: &str) -> Option<Entity> {
         self.tags.get(tag)
@@ -176,10 +189,10 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
 }
 
 impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
+    where M: Access + DerefMut<Target=MetaEntityMap>,
+          S: Access + DerefMut<Target=StoreMap>,
+          G: Access,
+          T: Access
 {
     pub fn notify_events<O>(&mut self, obs: &mut O) where O: event::Observer {
         let mentities = self.mentities.deref_mut();
