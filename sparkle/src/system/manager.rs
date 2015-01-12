@@ -1,5 +1,6 @@
 use command::CommandSender;
 use entity::{self, MetaEntity};
+use component::StoreMap;
 use entity::event;
 use space::Space;
 use system::System;
@@ -23,17 +24,17 @@ impl Manager {
         self.systems.push(Box::new(builder(self.cmd_sender.clone())));
     }
 
-    pub fn update(&mut self, em: &mut entity::Manager, dt: f32) {
+    pub fn update(&mut self, em: &mut entity::Manager, cm: &mut StoreMap, dt: f32) {
         for i in range(0, self.systems.len()) {
-            em.view_mut().notify_events(self);
-            self.systems[i].update(em, dt);
+            em.notify_events(cm, self);
+            self.systems[i].update(em, cm, dt);
         }
     }
 
-    pub fn fixed_update(&mut self, em: &mut entity::Manager) {
+    pub fn fixed_update(&mut self, em: &mut entity::Manager, cm: &mut StoreMap) {
         for i in range(0, self.systems.len()) {
-            em.view_mut().notify_events(self);
-            self.systems[i].fixed_update(em);
+            em.notify_events(cm, self);
+            self.systems[i].fixed_update(em, cm);
         }
     }
 }

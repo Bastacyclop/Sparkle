@@ -5,192 +5,64 @@ use split_access::Access;
 use component::{self, Component, ComponentIndex, StoreMap};
 use entity;
 use entity::event;
-use entity::{Entity, MetaEntityMap, GroupMap, TagMap};
+use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
 
-split_access_struct! {
-    view: ManagerView
-    #[doc = ""]
-    pub struct Manager {
-        mentities: MetaEntityMap [M],
-        stores: StoreMap [S],
-        groups: GroupMap [G],
-        tags: TagMap [T]
-    }
+pub struct Manager {
+    mentities: MetaEntityMap,
+    groups: GroupMap,
+    tags: TagMap
 }
 
 impl Manager {
     pub fn new() -> Manager {
         Manager {
             mentities: MetaEntityMap::new(),
-            stores: StoreMap::new(),
             groups: GroupMap::new(),
             tags: TagMap::new()
         }
     }
-}
 
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn create_entity(&mut self) -> Entity {
-        self.mentities.create()
-    }
-}
-
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + DerefMut<Target=GroupMap>,
-          T: Access<'a, TagMap> + DerefMut<Target=TagMap>
-{
-    pub fn remove_entity(&mut self, entity: Entity) {
-        {
-            let mentity = self.mentities.get(entity);
-            entity::group::private::forget(self.groups.deref_mut(), mentity);
-            entity::tag::private::forget(self.tags.deref_mut(), mentity);
-        }
-        self.mentities.remove(entity)
-    }
-}
-
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn insert_component<C>(&mut self, entity: Entity, component: C)
-        where C: Component + ComponentIndex
-    {
-        self.stores.insert(self.mentities.get_mut(entity), component);
+    pub fn get_mentity(&self, entity: Entity) -> &MetaEntity {
+        self.mentities.get(entity)
     }
 
-    pub fn remove_component<C>(&mut self, entity: Entity)
-        where C: Component + ComponentIndex
-    {
-        self.stores.remove::<C>(self.mentities.get_mut(entity));
-    }
-}
-
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn get_stores_mut(&'a mut self) -> (&'a mut StoreMap, ManagerView<'a, M, (), G, T>) {
-        (self.stores.deref_mut(),
-         ManagerView {
-             mentities: self.mentities.spread(),
-             stores: (),
-             groups: self.groups.spread(),
-             tags: self.tags.spread()
-         })
-    }
-}
-
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap> + Deref<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn get_store<C>(&'a mut self) -> (Option<Ref<'a, VecMap<C>>>, ManagerView<'a, M, &'a StoreMap, G, T>)
-        where C: Component + ComponentIndex
-    {
-        (self.stores.get::<C>(),
-         ManagerView {
-             mentities: self.mentities.spread(),
-             stores: self.stores.deref(),
-             groups: self.groups.spread(),
-             tags: self.tags.spread()
-         })
+    pub fn get_mentity_mut(&mut self, entity: Entity) -> &mut MetaEntity {
+        self.mentities.get_mut(entity)
     }
 
-    pub fn get_store_mut<C>(&'a mut self) -> (Option<RefMut<'a, VecMap<C>>>, ManagerView<'a, M, &'a StoreMap, G, T>)
-        where C: Component + ComponentIndex
-    {
-        (self.stores.get_mut::<C>(),
-         ManagerView {
-             mentities: self.mentities.spread(),
-             stores: self.stores.deref(),
-             groups: self.groups.spread(),
-             tags: self.tags.spread()
-         })
-    }
-}
-
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + DerefMut<Target=GroupMap>,
-          T: Access<'a, TagMap>
-{
     pub fn set_group(&mut self, entity: Entity, group: &str) {
         self.groups.insert_in(self.mentities.get_mut(entity), group);
     }
 
-    pub fn unset_group(&mut self, entity: Entity, group: &str) {
+    pub fn unset_group(&mut self,  entity: Entity, group: &str) {
         self.groups.remove_from(self.mentities.get_mut(entity), group);
     }
-}
 
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap> + Deref<Target=GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn get_group(&mut self, group: &str) -> Vec<Entity> {
+    pub fn get_group(&self, group: &str) -> Vec<Entity> {
         self.groups.get(group)
     }
-}
 
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap> + DerefMut<Target=TagMap>
-{
-    pub fn set_tag(&mut self, entity: Entity, tag: &str,) {
+    pub fn set_tag(&mut self, tag: &str, entity: Entity) {
         self.tags.insert(self.mentities.get_mut(entity), tag);
     }
 
     pub fn unset_tag(&mut self, entity: Entity) {
-        self.tags.remove(self.mentities.get_mut(entity));
+        self.tags.remove(self.mentities.get_mut(entity))
     }
-}
 
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap>,
-          S: Access<'a, StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap> + Deref<Target=TagMap>
-{
-    pub fn get_tag(&mut self, tag: &str) -> Option<Entity> {
+    pub fn get_tag(&self, tag: &str) -> Option<Entity> {
         self.tags.get(tag)
     }
-}
 
-impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
-    where M: Access<'a, MetaEntityMap> + DerefMut<Target=MetaEntityMap>,
-          S: Access<'a, StoreMap> + DerefMut<Target=StoreMap>,
-          G: Access<'a, GroupMap>,
-          T: Access<'a, TagMap>
-{
-    pub fn notify_events<O>(&mut self, obs: &mut O) where O: event::Observer {
-        let mentities = self.mentities.deref_mut();
-        let stores = self.stores.deref_mut();
+    pub fn notify_events<T>(&mut self, cm: &mut component::StoreMap, obs: &mut T) where T: event::Observer {
+        let Manager { ref mut mentities, .. } = *self;
 
         mentities.drain_events_with(|(kind, mentity)| {
             match kind {
                 event::Changed => obs.notify_changed(mentity),
                 event::Removed => {
                     obs.notify_removed(mentity);
-                    component::store::private::forget(stores, mentity);
+                    component::store::private::forget(cm, mentity);
                 }
             }
         });
