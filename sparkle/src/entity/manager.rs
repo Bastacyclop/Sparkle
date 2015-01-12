@@ -62,13 +62,13 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
           G: Access,
           T: Access
 {
-    pub fn attach_component<C>(&mut self, entity: Entity, component: C)
+    pub fn insert_component<C>(&mut self, entity: Entity, component: C)
         where C: Component + ComponentIndex
     {
         self.stores.insert(self.mentities.get_mut(entity), component);
     }
 
-    pub fn detach_component<C>(&mut self, entity: Entity)
+    pub fn remove_component<C>(&mut self, entity: Entity)
         where C: Component + ComponentIndex
     {
         self.stores.remove::<C>(self.mentities.get_mut(entity));
@@ -142,12 +142,12 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
           G: Access + DerefMut<Target=GroupMap>,
           T: Access
 {
-    pub fn insert_group(&mut self, group: &str, entity: Entity) {
-        self.groups.insert(group, self.mentities.get_mut(entity));
+    pub fn set_group(&mut self, entity: Entity, group: &str) {
+        self.groups.insert_in(self.mentities.get_mut(entity), group);
     }
 
-    pub fn remove_from_group(&mut self, group: &str, entity: Entity) {
-        self.groups.remove_from(group, self.mentities.get_mut(entity));
+    pub fn unset_group(&mut self, entity: Entity, group: &str) {
+        self.groups.remove_from(self.mentities.get_mut(entity), group);
     }
 }
 
@@ -168,11 +168,11 @@ impl<'a, M, S, G, T> ManagerView<'a, M, S, G, T>
           G: Access,
           T: Access + DerefMut<Target=TagMap>
 {
-    pub fn insert_tag(&mut self, tag: &str, entity: Entity) {
-        self.tags.insert(tag, self.mentities.get_mut(entity));
+    pub fn set_tag(&mut self, entity: Entity, tag: &str,) {
+        self.tags.insert(self.mentities.get_mut(entity), tag);
     }
 
-    pub fn remove_tag(&mut self, entity: Entity) {
+    pub fn unset_tag(&mut self, entity: Entity) {
         self.tags.remove(self.mentities.get_mut(entity));
     }
 }

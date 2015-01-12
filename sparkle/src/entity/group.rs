@@ -14,7 +14,7 @@ impl GroupMap {
         }
     }
 
-    pub fn insert(&mut self, name: &str, mentity: &mut MetaEntity) {
+    pub fn insert_in(&mut self, mentity: &mut MetaEntity, name: &str) {
         mentity.groups.insert(name.to_string());
         let entity = mentity.entity;
 
@@ -29,11 +29,11 @@ impl GroupMap {
         }
     }
 
-    pub fn remove_from(&mut self, group_name: &str, mentity: &mut MetaEntity) {
+    pub fn remove_from(&mut self, mentity: &mut MetaEntity, name: &str) {
         let entity = mentity.entity;
 
-        self.groups.get_mut(group_name).map(|group| group.remove(&entity));
-        mentity.groups.remove(group_name);
+        self.groups.get_mut(name).map(|group| group.remove(&entity));
+        mentity.groups.remove(name);
     }
 
     pub fn clear_entity(&mut self, mentity: &mut MetaEntity) {
@@ -45,8 +45,8 @@ impl GroupMap {
         mentity.groups.clear();
     }
 
-    pub fn get(&self, group_name: &str) -> Vec<Entity> {
-        match self.groups.get(group_name) {
+    pub fn get(&self, name: &str) -> Vec<Entity> {
+        match self.groups.get(name) {
             Some(group) => group.iter().map(|entity| *entity).collect(),
             None => Vec::new()
         }

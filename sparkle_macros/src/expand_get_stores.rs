@@ -43,8 +43,7 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         return None
     }
 
-    let em_expr = parser.parse_expr();
-    let store_map = quote_expr!(cx, ($em_expr).stores;);
+    let store_map = parser.parse_expr();
 
     let mut component_idents = Vec::new();
     let mut names: HashSet<String> = HashSet::new();
