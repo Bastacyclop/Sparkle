@@ -9,9 +9,9 @@ use system;
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
     pub blackboard: Rc<RefCell<Blackboard>>,
-    pub em: entity::Manager,
-    pub cm: component::Manager,
-    pub sm: system::Manager
+    pub em: entity::Mapper,
+    pub cm: component::Mapper,
+    pub sm: system::Mapper
 }
 
 impl Space {
@@ -21,9 +21,9 @@ impl Space {
         Space {
             cmd_receiver: receiver,
             blackboard: blackboard.clone(),
-            em: entity::Manager::new(),
-            cm: component::Manager::new(),
-            sm: system::Manager::new(sender, blackboard)
+            em: entity::Mapper::new(),
+            cm: component::Mapper::new(),
+            sm: system::Mapper::new(sender, blackboard)
         }
     }
 

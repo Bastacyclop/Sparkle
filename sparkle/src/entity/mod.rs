@@ -1,12 +1,12 @@
 use std::collections::{VecMap, HashSet, BitvSet};
 use self::pool::Pool;
 
-pub use self::manager::Manager;
+pub use self::mapper::Mapper;
 pub use self::group::GroupMap;
 pub use self::tag::TagMap;
 
 pub mod pool;
-pub mod manager;
+pub mod mapper;
 pub mod group;
 pub mod tag;
 pub mod event;

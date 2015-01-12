@@ -2,15 +2,15 @@ use component;
 use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
 use entity::event;
 
-pub struct Manager {
+pub struct Mapper {
     mentities: MetaEntityMap,
     groups: GroupMap,
     tags: TagMap
 }
 
-impl Manager {
-    pub fn new() -> Manager {
-        Manager {
+impl Mapper {
+    pub fn new() -> Mapper {
+        Mapper {
             mentities: MetaEntityMap::new(),
             groups: GroupMap::new(),
             tags: TagMap::new()
@@ -33,7 +33,6 @@ impl Manager {
         self.groups.remove_from(self.mentities.get_mut(entity), group);
     }
 
-
     pub fn get_group(&mut self, group: &str) -> Vec<Entity> {
         self.groups.get(group)
     }
@@ -50,15 +49,15 @@ impl Manager {
         self.tags.get(tag)
     }
 
-    pub fn notify_events<O>(&mut self, cm: &mut component::Manager, obs: &mut O) where O: event::Observer {
-        let Manager { ref mut mentities, .. } = *self;
+    pub fn notify_events<O>(&mut self, cm: &mut component::Mapper, obs: &mut O) where O: event::Observer {
+        let Mapper { ref mut mentities, .. } = *self;
 
         mentities.drain_events_with(|(kind, mentity)| {
             match kind {
                 event::Changed => obs.notify_changed(mentity),
                 event::Removed => {
                     obs.notify_removed(mentity);
-                    component::manager::private::forget(cm, mentity);
+                    component::mapper::private::forget(cm, mentity);
                 }
             }
         });

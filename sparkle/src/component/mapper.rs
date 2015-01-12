@@ -37,13 +37,13 @@ impl AnyStore {
     }
 }
 
-pub struct Manager {
+pub struct Mapper {
     stores: VecMap<Box<AnyStore>>
 }
 
-impl Manager {
-    pub fn new() -> Manager {
-        Manager {
+impl Mapper {
+    pub fn new() -> Mapper {
+        Mapper {
             stores: VecMap::new()
         }
     }
@@ -104,12 +104,12 @@ impl Manager {
 
 #[doc(hidden)]
 pub mod private {
-    use super::Manager;
+    use super::Mapper;
     use entity::MetaEntity;
 
-    pub fn forget(manager: &mut Manager, mentity: &MetaEntity) {
+    pub fn forget(mapper: &mut Mapper, mentity: &MetaEntity) {
         for type_index in mentity.components.iter() {
-            manager.stores.get_mut(&type_index)
+            mapper.stores.get_mut(&type_index)
                             .map(|mut store| store.remove(&mentity.entity));
         }
     }

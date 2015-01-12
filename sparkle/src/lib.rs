@@ -4,19 +4,17 @@
 #![feature(slicing_syntax, unboxed_closures)]
 #![feature(box_syntax)]
 
-#[macro_use] extern crate split_access;
-
 pub use blackboard::{Blackboard, SharedBlackboard};
 pub use blackboard::Entry as BlackboardEntry;
 pub use space::Space;
 
-pub use component::Manager as ComponentManager;
+pub use component::Mapper as ComponentMapper;
 
 pub use entity::{Entity, MetaEntity};
-pub use entity::Manager as EntityManager;
+pub use entity::Mapper as EntityMapper;
 
 pub use system::{System, Filter};
-pub use system::Manager as SystemManager;
+pub use system::Mapper as SystemMapper;
 
 pub use command::{Command, CommandSender};
 

@@ -1,6 +1,6 @@
-pub use self::manager::Manager;
+pub use self::mapper::Mapper;
 
-pub mod manager;
+pub mod mapper;
 
 pub trait Component: 'static + Send + Sync {}
 
