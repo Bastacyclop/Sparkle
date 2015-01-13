@@ -1,6 +1,8 @@
 use component;
 use entity::{Entity, MetaEntity, MetaEntityMap, GroupMap, TagMap};
 use entity::event;
+use entity::group;
+use entity::tag;
 
 pub struct Mapper {
     mentities: MetaEntityMap,
@@ -19,6 +21,15 @@ impl Mapper {
 
     pub fn create_entity(&mut self) -> Entity {
         self.mentities.create()
+    }
+
+    pub fn remove_entity(&mut self, entity: Entity) {
+        {
+            let mentity = self.mentities.get(entity);
+            group::private::forget(&mut self.groups, mentity);
+            tag::private::forget(&mut self.tags, mentity);
+        }
+        self.mentities.remove(entity);
     }
 
     pub fn get_mentity(&self, entity: Entity) -> &MetaEntity {
