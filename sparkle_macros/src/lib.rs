@@ -51,7 +51,7 @@ macro_rules! _sparkle_remove_entity {
 #[macro_export]
 macro_rules! sparkle_default_system_filtering {
     () => (
-        fn on_entity_changed(&mut self, mentity: &sparkle::MetaEntity) {
+        fn on_entity_changed(&mut self, mentity: &::sparkle::MetaEntity) {
             let contains = self.entities.contains(&mentity.entity);
             let pass_filter = self.filter.pass(mentity);
 
@@ -62,7 +62,7 @@ macro_rules! sparkle_default_system_filtering {
             }
         }
 
-        fn on_entity_removed(&mut self, mentity: &sparkle::MetaEntity) {
+        fn on_entity_removed(&mut self, mentity: &::sparkle::MetaEntity) {
             _sparkle_remove_entity!(self, mentity);
         }
     )

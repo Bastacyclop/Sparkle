@@ -17,6 +17,10 @@ impl Mapper {
         }
     }
 
+    pub fn create_entity(&mut self) -> Entity {
+        self.mentities.create()
+    }
+
     pub fn get_mentity(&self, entity: Entity) -> &MetaEntity {
         self.mentities.get(entity)
     }
