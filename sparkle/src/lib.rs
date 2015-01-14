@@ -24,3 +24,15 @@ pub mod system;
 pub mod space;
 pub mod command;
 pub mod blackboard;
+
+pub mod prelude {
+    pub use {
+        Blackboard, SharedBlackboard, BlackboardEntry,
+        Space,
+        Entity, EntityMapper,
+        System, SystemMapper,
+        ComponentMapper,
+        Filter,
+        Command
+    };
+}
