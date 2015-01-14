@@ -31,8 +31,14 @@ impl Blackboard {
         }
     }
 
-    pub fn get<T: 'static>(&self, name: &str) -> Option<Entry<T>> {
+    pub fn try_get<T: 'static>(&self, name: &str) -> Option<Entry<T>> {
         self.entries.get(name).and_then(|any_entry| any_entry.downcast_ref::<Entry<T>>())
                               .map(|entry| entry.clone())
+    }
+
+    pub fn get<T: 'static>(&self, name: &str) -> Entry<T> {
+        let any_entry = self.entries.get(name).expect(format!("missing entry {}.", name).as_slice());
+        let entry = any_entry.downcast_ref::<Entry<T>>().expect("invalid entry type.");
+        entry.clone()
     }
 }
