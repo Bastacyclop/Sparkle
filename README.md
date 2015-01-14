@@ -8,11 +8,10 @@ by already existing ECS: entityx, artemis framework and anax.
 
 *Currently Sparkle provides the following features:*
 
-- Automatic implementation of Component trait.
-- Components are stored in a VecMap and accessible by indexes.
-- Helpers to implements system with their own entities queue
+- Automatic implementation of Component trait
+- Helpers to implement systems with their own set of entity
 - A blackboard and a command queue for communication
-- Support of entities tags and groups
+- Support of entity tags and groups
 
 ## Installation
 
@@ -28,7 +27,7 @@ To install Sparkle put these lines in your Cargo.toml file:
   git = "https://github.com/RustSparkle/Sparkle/"
 ```
 
-and add these in your main rust file:
+and these in your main rust file:
 
 ```rust
   #![feature(plugin)]
@@ -42,7 +41,7 @@ and add these in your main rust file:
 
 ### Declare a Component
 
-Declaring a new component is easy as following:
+Declaring a new component is as easy as following:
 
 ```rust
   #[SparkleComponent]
@@ -54,9 +53,7 @@ Declaring a new component is easy as following:
 
 ### Declare a System
 
-A system is responsible for updating components in the world. Most of the time
-you will the default implementation provided by the macro
-sparkle_default_system_filtering!:
+A system is responsible for updating components in the world. Most of the time you'll either want no filtering or the default implementation provided by the macro `sparkle_default_system_filtering!`:
 
 ```rust
   struct PositionPrinter {
@@ -77,7 +74,7 @@ sparkle_default_system_filtering!:
   impl System for PositionPrinter {
       fn fixed_update(_em: &mut EntityMapper, cm: &mut ComponentMapper) {
           // This line safely retrieve component stores.
-          // Note that you can also use get_store directly but this one can fail if the
+          // Note that you can also use get_store directly but it will panic if the
           // store doesn't exist.
           let (position_store,) = sparkle_get_stores!(cm, Position);
           
@@ -91,16 +88,14 @@ sparkle_default_system_filtering!:
           // Use this if you want an update every frame.
       }
       
-      // This implement methods that fill self.entities according to the filter
+      // This implement methods that will manage self.entities according to the filter
       sparkle_default_system_filtering!()
   }
 ```
 
-### Use the Space struct
+### Use a Space
 
-A space struct represent a part of your game world. In small project
-one instance should be sufficient but in larger one you may need to
-isolate groups of entities and create multiple space
+A space represents a part of your game world. In small project one instance should be sufficient but in larger ones you may need to isolate groups of entities by creating multiple spaces.
 
 ```rust
   use sparkle::prelude::*;
@@ -109,9 +104,9 @@ isolate groups of entities and create multiple space
   let space = Space::new(blackboard);
   
   let entity = space.em.create_entity();
-  space.em.set_tag(entity, "aTag");
+  space.em.set_tag(entity, "a_tag");
   
-  // a MetaEntity contains the extras information associated with an entity.
+  // a MetaEntity contains the extra information associated to an entity.
   let meta_entity = space.em.get_mentity_mut(entity);
   space.cm.insert(meta_entity, Position { x: 5, y: 8 });
   
@@ -122,16 +117,16 @@ isolate groups of entities and create multiple space
   
   ...
   space.update(dt) // This should be called every frame
-  space.fixed_update() // And this in a fixed timestep
+  space.fixed_update() // And this at a fixed timestep
 ```
 
-### Other example
+### Other examples
 
-For more in deep example you can see [snaked](https://github.com/RustSparkle/Snaked)
+For a more in deep example you can look at [snaked](https://github.com/RustSparkle/Snaked).
 
 ## Notes
 
-Sparkle is in a very early stage and we would appreciate feedback and contributions
+Sparkle is in a very early stage and we would appreciate feedback and contributions.
 
 ## Documentation
 
