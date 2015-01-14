@@ -122,7 +122,7 @@ A space represents a part of your game world. In small project one instance shou
 
 ### Other examples
 
-For a more in deep example you can look at [snaked](https://github.com/RustSparkle/Snaked).
+For a more in depth example you can look at [snaked](https://github.com/RustSparkle/Snaked).
 
 ## Notes
 
