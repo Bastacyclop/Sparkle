@@ -6,7 +6,7 @@ by already existing ECS: entityx, artemis framework and anax.
 
 ## Overview
 
-*Currently Sparkle provides the following features:*
+*Currently, Sparkle provides the following features:*
 
 - Automatic implementation of Component trait
 - Helpers to implement systems with their own set of entity
@@ -27,12 +27,12 @@ To install Sparkle put these lines in your Cargo.toml file:
   git = "https://github.com/RustSparkle/Sparkle/"
 ```
 
-and these in your main rust file:
+and these in your main file:
 
 ```rust
   #![feature(plugin)]
   
-  #[plugin]  #[no_link] #[macro_use]
+  #[plugin] #[no_link] #[macro_use]
   extern crate sparkle_macros;
   extern crate sparkle;
 ```
@@ -73,7 +73,7 @@ A system is responsible for updating components in the world. Most of the time y
   
   impl System for PositionPrinter {
       fn fixed_update(_em: &mut EntityMapper, cm: &mut ComponentMapper) {
-          // This line safely retrieve component stores.
+          // This line safely retrieves component stores.
           // Note that you can also use get_store directly but it will panic if the
           // store doesn't exist.
           let (position_store,) = sparkle_get_stores!(cm, Position);
@@ -88,14 +88,14 @@ A system is responsible for updating components in the world. Most of the time y
           // Use this if you want an update every frame.
       }
       
-      // This implement methods that will manage self.entities according to the filter
+      // This macro implements methods that will manage self.entities according to self.filter
       sparkle_default_system_filtering!()
   }
 ```
 
 ### Use a Space
 
-A space represents a part of your game world. In small project one instance should be sufficient but in larger ones you may need to isolate groups of entities by creating multiple spaces.
+A space represents a part of your game world. In small projects one instance should be sufficient, but in larger ones you may need to isolate groups of entities by creating multiple spaces.
 
 ```rust
   use sparkle::prelude::*;
@@ -122,7 +122,7 @@ A space represents a part of your game world. In small project one instance shou
 
 ### Other examples
 
-For a more specific example you can look at [snaked](https://github.com/RustSparkle/Snaked).
+For a more specific example, you can look at the small game [Snaked](https://github.com/RustSparkle/Snaked).
 
 ## Notes
 
