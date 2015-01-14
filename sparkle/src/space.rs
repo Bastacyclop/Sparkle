@@ -1,21 +1,19 @@
 use command::{self, CommandReceiver, Command};
-use blackboard::Blackboard;
-use std::rc::Rc;
-use std::cell::RefCell;
+use blackboard::SharedBlackboard;
 use component;
 use entity;
 use system;
 
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
-    pub blackboard: Rc<RefCell<Blackboard>>,
+    pub blackboard: SharedBlackboard,
     pub em: entity::Mapper,
     pub cm: component::Mapper,
     pub sm: system::Mapper
 }
 
 impl Space {
-    pub fn new(blackboard: Rc<RefCell<Blackboard>>) -> Space {
+    pub fn new(blackboard: SharedBlackboard) -> Space {
         let (sender, receiver) = command::stream();
 
         Space {

@@ -5,7 +5,6 @@ use std::cell::RefCell;
 use std::any::Any;
 
 pub type Entry<T: 'static> = Rc<RefCell<T>>;
-pub type SharedBlackboard = Rc<RefCell<Blackboard>>;
 
 pub struct Blackboard {
     entries: HashMap<String, Box<Any>>
@@ -16,10 +15,6 @@ impl Blackboard {
         Blackboard {
             entries: HashMap::new()
         }
-    }
-
-    pub fn new_shared() -> SharedBlackboard {
-        Rc::new(RefCell::new(Blackboard::new()))
     }
 
     pub fn insert<T: 'static>(&mut self, name: &str, entry: T) {
@@ -40,5 +35,29 @@ impl Blackboard {
         let any_entry = self.entries.get(name).expect(format!("missing entry {}.", name).as_slice());
         let entry = any_entry.downcast_ref::<Entry<T>>().expect("invalid entry type.");
         entry.clone()
+    }
+}
+
+#[derive(Clone)]
+pub struct SharedBlackboard(Rc<RefCell<Blackboard>>);
+
+impl SharedBlackboard {
+    pub fn new() -> SharedBlackboard {
+        SharedBlackboard(Rc::new(RefCell::new(Blackboard::new())))
+    }
+
+    #[inline]
+    pub fn insert<T: 'static>(&mut self, name: &str, entry: T) {
+        self.0.borrow_mut().insert(name, entry);
+    }
+
+    #[inline]
+    pub fn try_get<T: 'static>(&self, name: &str) -> Option<Entry<T>> {
+        self.0.borrow().try_get(name)
+    }
+
+    #[inline]
+    pub fn get<T: 'static>(&self, name: &str) -> Entry<T> {
+        self.0.borrow().get(name)
     }
 }
