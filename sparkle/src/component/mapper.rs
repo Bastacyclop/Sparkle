@@ -1,4 +1,5 @@
 use std::collections::VecMap;
+use std::ops::{Deref, DerefMut};
 use std::cell::{RefCell, Ref, RefMut};
 use std::raw::TraitObject;
 use std::mem;
@@ -37,6 +38,38 @@ impl AnyStore {
     }
 }
 
+pub struct ComponentRef<'a, T: 'a> {
+    entity: Entity,
+    inner_ref: Ref<'a, VecMap<T>>
+}
+
+impl<'a, T> Deref for ComponentRef<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        self.inner_ref.get(&self.entity).expect("Failed to find component")
+    }
+}
+
+pub struct ComponentRefMut<'a, T: 'a> {
+    entity: Entity,
+    inner_mut: RefMut<'a, VecMap<T>>
+}
+
+impl<'a, T> Deref for ComponentRefMut<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        self.inner_mut.get(&self.entity).expect("Failed to find component")
+    }
+}
+
+impl<'a, T> DerefMut for ComponentRefMut<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.inner_mut.get_mut(&self.entity).expect("Failed to find component")
+    }
+}
+
 pub struct Mapper {
     stores: VecMap<Box<AnyStore>>
 }
@@ -55,7 +88,7 @@ impl Mapper {
         mentity.components.insert(type_index);
 
         self.ensure::<T>();
-        self.get_mut::<T>().unwrap().insert(mentity.entity, component);
+        self.get_store_mut::<T>().unwrap().insert(mentity.entity, component);
     }
 
     pub fn ensure<T>(&mut self)
@@ -70,7 +103,31 @@ impl Mapper {
     }
 
     #[inline]
-    pub fn get<'a, T>(&'a self) -> Option<Ref<'a, VecMap<T>>>
+    pub fn get<'a, T>(&'a self, entity: Entity) -> Option<ComponentRef<'a, T>>
+        where T: Component + ComponentIndex
+    {
+        self.get_store::<T>().map(|store| {
+            ComponentRef {
+                entity: entity,
+                inner_ref: store
+            }
+        })
+    }
+
+    #[inline]
+    pub fn get_mut<'a, T>(&'a self, entity: Entity) -> Option<ComponentRefMut<'a, T>>
+        where T: Component + ComponentIndex
+    {
+        self.get_store_mut::<T>().map(|store| {
+            ComponentRefMut {
+                entity: entity,
+                inner_mut: store
+            }
+        })
+    }
+
+    #[inline]
+    pub fn get_store<'a, T>(&'a self) -> Option<Ref<'a, VecMap<T>>>
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
@@ -78,7 +135,7 @@ impl Mapper {
     }
 
     #[inline]
-    pub fn get_mut<'a, T>(&'a self) -> Option<RefMut<'a, VecMap<T>>>
+    pub fn get_store_mut<'a, T>(&'a self) -> Option<RefMut<'a, VecMap<T>>>
         where T: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<T>);
@@ -91,7 +148,7 @@ impl Mapper {
         let type_index = ComponentIndex::of(None::<T>);
         mentity.components.remove(&type_index);
 
-        self.get_mut::<T>().map(|mut store| store.remove(&mentity.entity));
+        self.get_store_mut::<T>().map(|mut store| store.remove(&mentity.entity));
     }
 
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {

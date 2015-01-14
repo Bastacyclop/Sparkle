@@ -24,7 +24,7 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
     let mut tuple_exprs = Vec::new();
     for component_ident in component_idents.iter() {
         tuple_exprs.push(quote_expr!(cx,
-            $cm.get_mut::<$component_ident>().unwrap()
+            $cm.get_store_mut::<$component_ident>().unwrap()
         ));
     }
     let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
