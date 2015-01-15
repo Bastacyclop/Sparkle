@@ -12,7 +12,7 @@ impl TagMap {
         }
     }
 
-    pub fn insert(&mut self, tag: &str, mentity: &mut MetaEntity) {
+    pub fn insert(&mut self, mentity: &mut MetaEntity, tag: &str) {
         if !self.tags.contains_key(tag) {
             let entity = mentity.entity;
 

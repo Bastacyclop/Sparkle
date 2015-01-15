@@ -24,7 +24,7 @@ mod expand_filter;
 #[doc(hidden)]
 pub fn plugin_registrar(reg: &mut plugin::Registry) {
     reg.register_syntax_extension(
-        token::intern("SparkleComponent"),
+        token::intern("sparkle_component"),
         SyntaxExtension::Decorator(Box::new(expand_component::ComponentDecorator::new()))
     );
 
@@ -51,7 +51,7 @@ macro_rules! _sparkle_remove_entity {
 #[macro_export]
 macro_rules! sparkle_default_system_filtering {
     () => (
-        fn on_entity_changed(&mut self, mentity: &sparkle::MetaEntity) {
+        fn on_entity_changed(&mut self, mentity: &::sparkle::MetaEntity) {
             let contains = self.entities.contains(&mentity.entity);
             let pass_filter = self.filter.pass(mentity);
 
@@ -62,9 +62,28 @@ macro_rules! sparkle_default_system_filtering {
             }
         }
 
-        fn on_entity_removed(&mut self, mentity: &sparkle::MetaEntity) {
+        fn on_entity_removed(&mut self, mentity: &::sparkle::MetaEntity) {
             _sparkle_remove_entity!(self, mentity);
         }
     )
 }
 
+#[macro_export]
+macro_rules! sparkle_get_component {
+    ($store:expr, $entity:expr) => (
+        match $store.get($entity) {
+            Some(component) => component,
+            None => continue
+        }
+    )
+}
+
+#[macro_export]
+macro_rules! sparkle_get_component_mut {
+    ($store:expr, $entity:expr) => (
+        match $store.get_mut($entity) {
+            Some(component) => component,
+            None => continue
+        }
+    )
+}

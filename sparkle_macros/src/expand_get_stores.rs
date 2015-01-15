@@ -9,7 +9,7 @@ use syntax::ext::build::AstBuilder;
 #[doc(hidden)]
 pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 'static> {
 
-    let (store_map, component_idents) = match parse_args(cx, sp, tts) {
+    let (cm, component_idents) = match parse_args(cx, sp, tts) {
         Some(result) => result,
         None => return DummyResult::any(sp)
     };
@@ -17,14 +17,14 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
     let mut ensure_stmts = Vec::new();
     for component_ident in component_idents.iter() {
         ensure_stmts.push(quote_stmt!(cx,
-            $store_map.ensure::<$component_ident>();
+            $cm.ensure::<$component_ident>();
         ));
     }
 
     let mut tuple_exprs = Vec::new();
     for component_ident in component_idents.iter() {
         tuple_exprs.push(quote_expr!(cx,
-            $store_map.get_mut::<$component_ident>().unwrap()
+            $cm.get_store_mut::<$component_ident>().unwrap()
         ));
     }
     let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
@@ -43,8 +43,7 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         return None
     }
 
-    let em_expr = parser.parse_expr();
-    let store_map = quote_expr!(cx, ($em_expr).stores;);
+    let cm = parser.parse_expr();
 
     let mut component_idents = Vec::new();
     let mut names: HashSet<String> = HashSet::new();
@@ -72,5 +71,5 @@ fn parse_args(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Option<(P<Expr>,
         }
     }
 
-    Some((store_map, component_idents))
+    Some((cm, component_idents))
 }

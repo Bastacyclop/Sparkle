@@ -8,7 +8,3 @@ authors = ["Liaud <rph.vaillant@gmail.com>"]
 
 name = "sparkle"
 path = "src/lib.rs"
-
-[dependencies.split_access]
-
-git = "https://github.com/Bastacyclop/split_access.git"
