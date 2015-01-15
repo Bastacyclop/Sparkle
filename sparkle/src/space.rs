@@ -1,15 +1,15 @@
 use command::{self, CommandReceiver, Command};
 use blackboard::SharedBlackboard;
-use component;
-use entity;
-use system;
+use component::ComponentMapper;
+use entity::EntityMapper;
+use system::SystemMapper;
 
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
     pub blackboard: SharedBlackboard,
-    pub em: entity::Mapper,
-    pub cm: component::Mapper,
-    pub sm: system::Mapper
+    pub em: EntityMapper,
+    pub cm: ComponentMapper,
+    pub sm: SystemMapper
 }
 
 impl Space {
@@ -19,9 +19,9 @@ impl Space {
         Space {
             cmd_receiver: receiver,
             blackboard: blackboard.clone(),
-            em: entity::Mapper::new(),
-            cm: component::Mapper::new(),
-            sm: system::Mapper::new(sender, blackboard)
+            em: EntityMapper::new(),
+            cm: ComponentMapper::new(),
+            sm: SystemMapper::new(sender, blackboard)
         }
     }
 
@@ -38,6 +38,6 @@ impl Space {
     fn run_commands(&mut self) {
         while let Some(mut command) = self.cmd_receiver.recv() {
             command.run(self)
-        }    
+        }
     }
 }

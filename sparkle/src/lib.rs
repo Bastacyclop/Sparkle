@@ -1,3 +1,26 @@
+//! # Sparkle Entity Component System
+//!
+//! The Sparkle library provides building blocks to build games
+//! with an ECS approach.
+//!
+//! ## Entities
+//!
+//! Entities are some kind of objects, represented by a simple identifier.
+//! They can be [tagged](entity/tag/index.html)
+//! and organised in [groups](entity/group/index.html).
+//!
+//! ## Components
+//!
+//!
+//!
+//! ## Systems
+//!
+//!
+//!
+//! ## Other
+//!
+//!
+
 #![crate_name = "sparkle"]
 #![unstable]
 #![allow(unstable)]
@@ -8,13 +31,11 @@ pub use blackboard::{Blackboard, SharedBlackboard};
 pub use blackboard::Entry as BlackboardEntry;
 pub use space::Space;
 
-pub use component::Mapper as ComponentMapper;
+pub use component::ComponentMapper;
 
-pub use entity::{Entity, MetaEntity};
-pub use entity::Mapper as EntityMapper;
+pub use entity::{Entity, MetaEntity, EntityMapper};
 
-pub use system::{System, Filter};
-pub use system::Mapper as SystemMapper;
+pub use system::{System, SystemMapper, Filter};
 
 pub use command::{Command, CommandSender};
 
