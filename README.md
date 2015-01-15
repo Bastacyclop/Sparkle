@@ -44,7 +44,7 @@ and these in your main file:
 Declaring a new component is as easy as following:
 
 ```rust
-  #[SparkleComponent]
+  #[sparkle_component]
   struct Position {
       pub x: i32,
       pub y: i32
