@@ -1,5 +1,6 @@
-//! Organisation of entities with groups.
-//! A group has a name and can contain multiple entities.
+//! Identification of entities using groups.
+//!
+//! A group has a name and can contain multiple entities.   
 //! An entity can belong to multiple groups.
 
 use std::collections::{HashMap, HashSet};
@@ -7,7 +8,7 @@ use entity::{Entity, MetaEntity};
 
 type Group = HashSet<Entity>;
 
-/// A `GroupMap` is keeping track of groups of entities.
+/// A `GroupMap` is keeping track of entity groups.
 pub struct GroupMap {
     groups: HashMap<String, Group>
 }

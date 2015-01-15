@@ -1,11 +1,12 @@
-//! Identification of entities by tags.
-//! A tag has a name and can only be applied to one entity at a time.
+//! Identification of entities using tags.
+//!
+//! A tag has a name and can only be applied to one entity at a time.  
 //! An entity can only have one tag.
 
 use std::collections::HashMap;
 use entity::{Entity, MetaEntity};
 
-/// A `TagMap` is keeping track of the entities tags.
+/// A `TagMap` is keeping track of entity tags.
 pub struct TagMap {
     tags: HashMap<String, Entity>
 }
