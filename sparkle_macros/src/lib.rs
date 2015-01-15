@@ -24,7 +24,7 @@ mod expand_filter;
 #[doc(hidden)]
 pub fn plugin_registrar(reg: &mut plugin::Registry) {
     reg.register_syntax_extension(
-        token::intern("SparkleComponent"),
+        token::intern("sparkle_component"),
         SyntaxExtension::Decorator(Box::new(expand_component::ComponentDecorator::new()))
     );
 
