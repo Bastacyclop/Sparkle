@@ -169,8 +169,15 @@ impl EntityMapper {
     }
 
     /// Returns the entity tagged by `tag` if it exists.
-    pub fn get_tag(&self, tag: &str) -> Option<Entity> {
+    ///
+    /// This method panic if the tag doesn't exist.
+    pub fn try_get_tag(&self, tag: &str) -> Option<Entity> {
         self.tags.get(tag)
+    }
+
+    /// Returns the entity tagged by `tag` if it exists.
+    pub fn get_tag(&self, tag: &str) -> Entity {
+        self.tags.get(tag).expect(format!("Failed to find an entity with tag {}", tag).as_slice())
     }
 
     /// Notify all entity events that occurred to an observer.
