@@ -4,6 +4,7 @@
 //! An entity can belong to multiple groups.
 
 use std::collections::{HashMap, HashSet};
+
 use entity::{Entity, MetaEntity};
 
 type Group = HashSet<Entity>;
@@ -22,6 +23,7 @@ impl GroupMap {
     }
 
     /// Inserts an entity into a group.
+    ///
     /// Creates the group if necessary.
     pub fn insert_in(&mut self, mentity: &mut MetaEntity, name: &str) {
         mentity.groups.insert(name.to_string());

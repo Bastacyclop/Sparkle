@@ -3,7 +3,9 @@
 //! A tag has a name and can only be applied to one entity at a time.  
 //! An entity can only have one tag.
 
+use std::mem;
 use std::collections::HashMap;
+
 use entity::{Entity, MetaEntity};
 
 /// A `TagMap` is keeping track of entity tags.
@@ -20,14 +22,14 @@ impl TagMap {
     }
 
     /// Inserts an entity tag.
-    /// Does nothing if the tag already exists.
-    pub fn insert(&mut self, mentity: &mut MetaEntity, tag: &str) {
-        if !self.tags.contains_key(tag) && mentity.tag.is_none() {
-            let entity = mentity.entity;
-
-            self.tags.insert(tag.to_string(), entity);
-            mentity.tag = Some(tag.to_string());
+    ///
+    /// If the entity was already tagged, the previous tag will be overriden.
+    /// If the tag was already used, the previously tagged entity is returned.
+    pub fn insert(&mut self, mentity: &mut MetaEntity, tag: &str) -> Option<Entity> {
+        if let Some(previous_tag) = mem::replace(&mut mentity.tag, Some(tag.to_string())) {
+            self.tags.remove(&previous_tag);
         }
+        self.tags.insert(tag.to_string(), mentity.entity)
     }
 
     /// Removes the tag of an entity.
