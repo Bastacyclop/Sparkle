@@ -1,4 +1,4 @@
-///! The Component related types
+//! The component related features.
 
 use std::collections::VecMap;
 use std::ops::{Deref, DerefMut};

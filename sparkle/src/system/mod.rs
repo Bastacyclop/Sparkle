@@ -1,4 +1,4 @@
-//! The System related types.
+//! The system related features.
 
 use std::intrinsics::TypeId;
 
@@ -12,32 +12,29 @@ pub use self::filter::Filter;
 
 pub mod filter;
 
-/// The trait for systems
+/// The trait for systems.
 pub trait System: 'static {
-    /// Perform an update of components in the space according to the given delta time.
+    /// Performs an update of the system according to the given delta time.
     ///
     /// This method is called every frame.
     fn update(&mut self, _em: &mut EntityMapper, _component: &mut ComponentMapper, _dt: f32) {}
 
-    /// Perform an update of components in the space.
+    /// Performs an update of of the system.
     ///
     /// This method is called at a fixed timestep.
     fn fixed_update(&mut self, _em: &mut EntityMapper, _component: &mut ComponentMapper) {}
 
     /// Called when an entity has been changed.
-    ///
-    /// If you want a default implementation you can use the sparkle_default_system_filtering macro.
     fn on_entity_changed(&mut self, _mentity: &MetaEntity) {}
 
-    /// Called when an entity has been removed from Space.
-    /// For convenience all meta datas are kept during this method. However
-    /// when all systems has been notifyied entity meta datas are cleared.
+    /// Called when an entity has been removed.
     ///
-    /// If you want a default implementation you can use the sparkle_default_system_filtering macro.
+    /// For convenience, entity metadatas clearing is delayed
+    /// until all systems have been notified.
     fn on_entity_removed(&mut self, _mentity: &MetaEntity) {}
 }
 
-/// A `SystemMapper` using TypeId as systems identifier
+/// Maps systems using `TypeId`s as identifiers.
 pub struct SystemMapper {
     slots: Vec<SystemSlot>,
     cmd_sender: CommandSender<Space>,
@@ -45,8 +42,9 @@ pub struct SystemMapper {
 }
 
 impl SystemMapper {
-    /// Create a new empty `SystemMapper` with the geiven cmd_sender and blackboard.
-    /// Those will be passed around each system at insertion.
+    /// Creates an empty `SystemMapper`.
+    ///
+    /// The given `cmd_sender` and `blackboard` will be presented to each systems at insertion.
     pub fn new(cmd_sender: CommandSender<Space>, blackboard: SharedBlackboard) -> SystemMapper {
         SystemMapper {
             slots: Vec::new(),
@@ -55,8 +53,12 @@ impl SystemMapper {
         }
     }
 
-    /// Insert a new system in the mapper. The builder fonction receive a 
-    /// cmd_sender and a blackboard free to use for systems which require them.
+    /// Inserts a system in the mapper.
+    ///
+    /// The builder fonction receives a `CommandSender` and `Blackboard` access
+    /// which can be used for systems requiring them.
+    ///
+    /// The system will be awake.
     pub fn insert<F, S>(&mut self, builder: F)
         where F: FnOnce(CommandSender<Space>, SharedBlackboard) -> S, S: System
     {
@@ -65,7 +67,7 @@ impl SystemMapper {
         ));
     }
 
-    /// Remove a system from the mapper.
+    /// Removes a system from the mapper.
     ///
     /// Note that this method is O(n).
     pub fn remove<S>(&mut self)
@@ -75,8 +77,7 @@ impl SystemMapper {
         self.slots.retain(|slot| slot.type_id != type_id);
     }
 
-    /// Enable a system present in the mapper.
-    /// Update methods of the system will anew called.
+    /// Enables a system, resuming updates.
     ///
     /// Note that this method is O(n).
     pub fn wake_up<S>(&mut self)
@@ -85,9 +86,9 @@ impl SystemMapper {
         self.set_awake::<S>(true);
     }
 
-    /// Disable a system present in the mapper.
-    /// Update methods of the system won't be called anymore
-    /// but the system will still get update of entities.
+    /// Disables a system, interrupting updates.
+    ///
+    /// The system will be kept informed of entity changes.
     ///
     /// Note that this method is O(n).
     pub fn put_to_sleep<S>(&mut self)
@@ -96,7 +97,7 @@ impl SystemMapper {
         self.set_awake::<S>(false);
     }
 
-    /// Enable or disable the given system.
+    /// Enables or disables a system.
     fn set_awake<S>(&mut self, is_awake: bool)
         where S: System
     {
@@ -109,19 +110,23 @@ impl SystemMapper {
         }
     }
 
-    /// Update systems with the given delta times.
-    /// Every change applied to entities are kept updated after each system update call.
+    /// Updates systems with the given delta time.
+    ///
+    /// The systems are kept informed of entity changes between each system update.
     pub fn update(&mut self, em: &mut EntityMapper, cm: &mut ComponentMapper, dt: f32) {
         self.update_with(em, cm, |slot, em, cm| slot.system.update(em, cm, dt));
     }
 
-    /// Update systems at a fixed timestep
-    /// Every change applied to entities are kept updated after each system update call.
+    /// Updates systems at a fixed timestep.
+    ///
+    /// The systems are kept informed of entity changes between each system update.
     pub fn fixed_update(&mut self, em: &mut EntityMapper, cm: &mut ComponentMapper) {
         self.update_with(em, cm, |slot, em, cm| slot.system.fixed_update(em, cm));
     }
 
-    /// Update all systems with the given function.
+    /// Updates systems with the given function.
+    ///
+    /// The systems are kept informed of entity changes between each system update.
     fn update_with<F>(&mut self, em: &mut EntityMapper, cm: &mut ComponentMapper, mut func: F)
         where F: FnMut(&mut SystemSlot, &mut EntityMapper, &mut ComponentMapper)
     {
@@ -136,14 +141,14 @@ impl SystemMapper {
 }
 
 impl EntityObserver for SystemMapper {
-    /// Notify all systems that an entity has changed.
+    /// Notifies systems that an entity has changed.
     fn notify_changed(&mut self, mentity: &MetaEntity) {
         for slot in self.slots.iter_mut() {
             slot.system.on_entity_changed(mentity);
         }
     }
 
-    /// Notify all systems that an entity has been removed.
+    /// Notifies systems that an entity has been removed.
     fn notify_removed(&mut self, mentity: &MetaEntity) {
         for slot in self.slots.iter_mut() {
             slot.system.on_entity_removed(mentity);
@@ -151,8 +156,7 @@ impl EntityObserver for SystemMapper {
     }
 }
 
-/// A `SystemSlot` is a wrapper around a system
-/// that keep some extra information
+/// Hosts a system and keeps some extra informations.
 struct SystemSlot {
     system: Box<System>,
     type_id: TypeId,
@@ -160,8 +164,9 @@ struct SystemSlot {
 }
 
 impl SystemSlot {
-    /// Returns a new `SystemSlot` with the given system
-    /// By default, a system is awaken.
+    /// Returns a new `SystemSlot` hosting the given system.
+    ///
+    /// By default, a system is awake.
     fn new<S>(system: S) -> SystemSlot
         where S: System
     {

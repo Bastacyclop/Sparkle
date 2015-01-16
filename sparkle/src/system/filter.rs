@@ -1,24 +1,24 @@
-//! Filtering entity by groups and components types.
+//! Filtering entities by groups and component types.
 //!
-//! A Filter is a great tool to select entities for systems.
-//! Generally you wont create this structure by yourself and
-//! use the sparkle_filter! macros
+//! A `Filter` is a great tool to select entities for systems.
+//! Generally, you won't create this structure by yourself and
+//! use the `sparkle_filter!`` macro instead:
 //!
 //! ```ignore
-//! // This will create a filter that let pass entities with 
-//! // AComponentType attached to them and that are not in the "Forbiden" group.
+//! // This will create a filter that lets pass entities with a RequiredComponentType
+//! // attached to them and that are not in the "Forbidden" group.
 //! 
 //! let filter = sparkle_filter!(
-//!     require components: AComponentType,
-//!     forbid groups: "Forbiden"
+//!     require components: RequiredComponentType,
+//!     forbid groups: "Forbidden"
 //! );
 //! ```
+
 use std::collections::{HashSet, BitvSet};
 use component::{Component, ComponentIndex};
 use entity::MetaEntity;
 
-/// A Filter is type that help systems to know in which
-/// entity they might be interested.
+/// Filters entities to keep the ones you are interested in.
 pub struct Filter {
     mandatory_components: BitvSet,
     forbidden_components: BitvSet,
@@ -27,7 +27,7 @@ pub struct Filter {
 }
 
 impl Filter {
-    /// Create a new empty `Filter`
+    /// Creates a new `Filter`, letting pass every entity.
     pub fn new() -> Filter {
         Filter {
             mandatory_components: BitvSet::new(),
@@ -37,7 +37,7 @@ impl Filter {
         }
     }
 
-    /// Add a component type requirement.
+    /// Adds a mandatory component type.
     pub fn require_component<T>(&mut self)
         where T: Component + ComponentIndex
     {
@@ -45,8 +45,7 @@ impl Filter {
         self.mandatory_components.insert(index);
     }
 
-    /// Add a component type that will exlude any entity
-    /// that does have it.
+    /// Adds a forbidden component type.
     pub fn forbid_component<T>(&mut self)
         where T: Component + ComponentIndex
     {
@@ -54,18 +53,17 @@ impl Filter {
         self.forbidden_components.insert(index);
     }
 
-    /// Add a group requirement.
+    /// Adds a mandatory group.
     pub fn require_group(&mut self, group: &str) {
         self.mandatory_groups.insert(group.to_string());
     }
 
-    /// Add group that will exlude any entity
-    /// that does have it.
+    /// Adds a forbidden group.
     pub fn forbid_group(&mut self, group: &str) {
         self.forbidden_groups.insert(group.to_string());
     }
 
-    /// Determine if an entity pass the filter or not.
+    /// Determines if an entity passes the filter.
     pub fn pass(&self, mentity: &MetaEntity) -> bool {
         self.mandatory_components.is_subset(&mentity.components) &&
         self.forbidden_components.is_disjoint(&mentity.components) &&
