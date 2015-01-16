@@ -17,8 +17,8 @@ use std::collections::{HashSet, BitvSet};
 use component::{Component, ComponentIndex};
 use entity::MetaEntity;
 
-//! A Filter is type that help systems to know in which
-//! entity they might be interested.
+/// A Filter is type that help systems to know in which
+/// entity they might be interested.
 pub struct Filter {
     mandatory_components: BitvSet,
     forbidden_components: BitvSet,
