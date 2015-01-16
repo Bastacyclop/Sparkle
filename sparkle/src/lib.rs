@@ -54,7 +54,15 @@ pub mod space;
 pub mod command;
 pub mod blackboard;
 
-/// The Sparkle Prelude
+/// The Sparkle prelude.
+///
+/// This prelude is useful to quickly import everything you need into your local scope:
+///
+/// ````
+/// use sparkle::prelude::*;
+///
+/// // Your stuff
+/// ````
 pub mod prelude {
     pub use {
         Blackboard, SharedBlackboard, BlackboardEntry,

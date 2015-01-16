@@ -5,26 +5,45 @@ use std::raw::TraitObject;
 use std::mem;
 use entity::{Entity, MetaEntity};
 
+/// The trait for components.
+///
+/// You shouldn't implement this manually, instead use the `#[sparkle_component]` macro.
 pub trait Component: 'static {}
 
+/// A Component trait extension.
+///
+/// You shouldn't implement this manually, instead use the `#[sparkle_component]` macro.
 // FIXME: Change this to a more generic trait
 pub trait ComponentIndex: Component {
     fn of(_: Option<Self>) -> usize;
 }
 
+/// A store of components of the same type.
+///
+/// Basically a vector of components where
+/// each index corresponds to an `Entity`.
 pub type ComponentStore<C> = RefCell<VecMap<C>>;
 
+/// A component mapper.
+///
+/// Basically a vector of component stores where
+/// each index corresponds to a specific component type.
 pub struct ComponentMapper {
     stores: VecMap<Box<AnyStore>>
 }
 
 impl ComponentMapper {
+    /// Creates a new `ComponentMapper`.
+    #[doc(hidden)]
     pub fn new() -> ComponentMapper {
         ComponentMapper {
             stores: VecMap::new()
         }
     }
 
+    /// Attaches a component to an entity and inserts it into the map.
+    ///
+    /// If necessary, a new component store is created.
     pub fn insert<C>(&mut self, mentity: &mut MetaEntity, component: C)
         where C: Component + ComponentIndex
     {
@@ -35,6 +54,7 @@ impl ComponentMapper {
         self.get_store_mut::<C>().unwrap().insert(mentity.entity, component);
     }
 
+    /// Ensures a component store presence.
     pub fn ensure<C>(&mut self)
         where C: Component + ComponentIndex
     {
@@ -46,6 +66,7 @@ impl ComponentMapper {
         }
     }
 
+    /// Returns a reference to an entity's component, if it exists.
     #[inline]
     pub fn get<'a, C>(&'a self, entity: Entity) -> Option<ComponentRef<'a, C>>
         where C: Component + ComponentIndex
@@ -58,6 +79,7 @@ impl ComponentMapper {
         })
     }
 
+    /// Returns a mutable reference to an entity's component, if it exists.
     #[inline]
     pub fn get_mut<'a, C>(&'a self, entity: Entity) -> Option<ComponentRefMut<'a, C>>
         where C: Component + ComponentIndex
@@ -70,6 +92,7 @@ impl ComponentMapper {
         })
     }
 
+    /// Returns a reference to a component store, if it exists.
     #[inline]
     pub fn get_store<'a, C>(&'a self) -> Option<Ref<'a, VecMap<C>>>
         where C: Component + ComponentIndex
@@ -78,6 +101,7 @@ impl ComponentMapper {
         self.stores.get(&type_index).map(|store| store.downcast_ref().borrow())
     }
 
+    /// Returns a mutable reference to a component store, if it exists.
     #[inline]
     pub fn get_store_mut<'a, C>(&'a self) -> Option<RefMut<'a, VecMap<C>>>
         where C: Component + ComponentIndex
@@ -86,6 +110,7 @@ impl ComponentMapper {
         self.stores.get(&type_index).map(|store| store.downcast_ref().borrow_mut())
     }
 
+    /// Detaches a component from an entity and removes it from the map.
     pub fn remove<C>(&mut self, mentity: &mut MetaEntity)
         where C: Component + ComponentIndex
     {
@@ -95,6 +120,7 @@ impl ComponentMapper {
         self.get_store_mut::<C>().map(|mut store| store.remove(&mentity.entity));
     }
 
+    /// Detaches all components from an entity and removes them from the map.
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {
         for (type_index, store) in self.stores.iter_mut() {
             mentity.components.remove(&type_index);
@@ -103,6 +129,7 @@ impl ComponentMapper {
     }
 }
 
+/// A `ComponentStore` of any component type.
 trait AnyStore: 'static {
     fn get_type_index(&self) -> usize;
     fn remove(&mut self, entity: &Entity);
@@ -121,6 +148,10 @@ impl<C> AnyStore for ComponentStore<C>
 }
 
 impl AnyStore {
+    /// Downcasts the `AnyStore` to a reference to a 
+    /// `ComponentStore` of a specific component type.
+    ///
+    /// The asked component type must match the original one.
     #[inline]
     pub fn downcast_ref<'a, C>(&'a self) -> &'a ComponentStore<C>
         where C: Component + ComponentIndex
@@ -134,6 +165,7 @@ impl AnyStore {
     }
 }
 
+/// A custom reference to a component.
 pub struct ComponentRef<'a, C>
     where C: Component + ComponentIndex
 {
@@ -151,6 +183,7 @@ impl<'a, C> Deref for ComponentRef<'a, C>
     }
 }
 
+/// A custom mutable reference to a component.
 pub struct ComponentRefMut<'a, C>
     where C: Component + ComponentIndex
 {
@@ -182,6 +215,8 @@ pub mod private {
     use super::ComponentMapper;
     use entity::MetaEntity;
 
+    /// Forgets an entity, removing it from the `ComponentMapper`
+    /// without touching the meta entity data.
     pub fn forget(mapper: &mut ComponentMapper, mentity: &MetaEntity) {
         for type_index in mentity.components.iter() {
             mapper.stores.get_mut(&type_index)

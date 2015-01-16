@@ -71,7 +71,8 @@ pub mod private {
     use super::GroupMap;
     use entity::MetaEntity;
 
-    /// Forgets an entity, removing it from the `GroupMap` without clearing the metadata.
+    /// Forgets an entity, removing it from the `GroupMap`
+    /// without touching the meta entity data.
     pub fn forget(group_map: &mut GroupMap, mentity: &MetaEntity) {
         for name in mentity.groups.iter() {
             group_map.groups.remove(name);

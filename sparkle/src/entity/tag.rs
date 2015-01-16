@@ -46,7 +46,8 @@ pub mod private {
     use super::TagMap;
     use entity::MetaEntity;
 
-    /// Forgets an entity, removing it from the `TagMap` without clearing the metadata.
+    /// Forgets an entity, removing it from the `TagMap`
+    /// without touching the meta entity data.
     pub fn forget(tag_map: &mut TagMap, mentity: &MetaEntity) {
         mentity.tag.as_ref().map(|tag| tag_map.tags.remove(tag));
     }
