@@ -1,10 +1,11 @@
 env:
   global:
-    - secure: YhUaNx7vZooCHruUajsxayBPMSy0nXm0rvU9PbOQu6xXo/ctHZdXYUZTOloKfGMEmfLfVBWG3NlSVHUNW1xitFRrRpFY6w54XGaH0KhwtoO2yARERIqZ/rtrkLy7/u0ReP9N7S01/XiPnGXyNtOOZwe8XCQ94nhasUn3uE1OfWw=
+    - secure: Xynl6Z81cbzmL24un1yckLrNifxRpQXX8MSfZXGCP7/4X7esi5x8HKxt9WcVYVSjOtqaDskxMu9V8b6yrr1EbM+MmH0HRyJ8nGGAo7BW9/tDrh63lmbZSR7Vlf+USCS2svzESVhLbEtNeAxmzEKJVRdQbSfjXBZWWOGEl86AFzk=
 language: rust
 script:
   - cd sparkle
   - cargo build --verbose
   - cargo doc --no-deps --verbose
+  - mv target/doc ../doc
 after_script:
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
