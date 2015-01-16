@@ -1,6 +1,6 @@
 env:
   global:
-    - secure: L6IAjt9oL6kbjWOwXJvQ0Sw0jvmp9P0fOs3zsURQrkHn/fBGEvklXOHLFsOshu5RbIp04tD/DRGkNEECITXsjbt2vSP3uYOucbyD/mtoeQGxYh1YHMiHe0PxQoM54a0z9dLcVqbP30cEJ1aH/FPAFTq3c/HAWoZRdvuA4n5pJJI=
+    - secure: YhUaNx7vZooCHruUajsxayBPMSy0nXm0rvU9PbOQu6xXo/ctHZdXYUZTOloKfGMEmfLfVBWG3NlSVHUNW1xitFRrRpFY6w54XGaH0KhwtoO2yARERIqZ/rtrkLy7/u0ReP9N7S01/XiPnGXyNtOOZwe8XCQ94nhasUn3uE1OfWw=
 language: rust
 script:
   - cd sparkle
