@@ -1,4 +1,10 @@
+env:
+  global:
+    - secure: L6IAjt9oL6kbjWOwXJvQ0Sw0jvmp9P0fOs3zsURQrkHn/fBGEvklXOHLFsOshu5RbIp04tD/DRGkNEECITXsjbt2vSP3uYOucbyD/mtoeQGxYh1YHMiHe0PxQoM54a0z9dLcVqbP30cEJ1aH/FPAFTq3c/HAWoZRdvuA4n5pJJI=
 language: rust
 script:
   - cd sparkle
   - cargo build --verbose
+  - cargo doc --no-deps --verbose
+after_script:
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
