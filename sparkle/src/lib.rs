@@ -36,7 +36,7 @@
 #![feature(box_syntax)]
 
 pub use blackboard::{Blackboard, SharedBlackboard};
-pub use blackboard::Entry as BlackboardEntry;
+pub use blackboard::BlackboardEntry;
 pub use space::Space;
 
 pub use component::ComponentMapper;
