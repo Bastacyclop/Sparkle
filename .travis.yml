@@ -1,7 +1,7 @@
+language: rust
 env:
   global:
-    - secure: Xynl6Z81cbzmL24un1yckLrNifxRpQXX8MSfZXGCP7/4X7esi5x8HKxt9WcVYVSjOtqaDskxMu9V8b6yrr1EbM+MmH0HRyJ8nGGAo7BW9/tDrh63lmbZSR7Vlf+USCS2svzESVhLbEtNeAxmzEKJVRdQbSfjXBZWWOGEl86AFzk=
-language: rust
+    - secure: AZzOBFofEZelStX7+ctmkRJS5/cdOSXehQ4Sdw+z640rfqPB8xTTJ5nHaP7gDWZVjutL0reVPyqX5EC8V/tEzAH+oSnk1bPmuCohUCwKlb34rhQyUXN9Y8EEWYers+DHy/CawVBCe1D4ZQchcB+oHvwzStkTChYuQrkjWq0ozhM=
 script:
   - cd sparkle
   - cargo build --verbose
