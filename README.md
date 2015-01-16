@@ -1,4 +1,4 @@
-Sparkle
+Sparkle [![Build Status](https://travis-ci.org/RustSparkle/Sparkle.svg)](https://travis-ci.org/RustSparkle/Sparkle)
 =======
 
 Sparkle is another Entity Component System (ECS) written in Rust. It has been highly inspirated

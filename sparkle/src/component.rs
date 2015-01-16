@@ -15,6 +15,7 @@ pub trait Component: 'static {}
 /// You shouldn't implement this manually, instead use the `#[sparkle_component]` macro.
 // FIXME: Change this to a more generic trait
 pub trait ComponentIndex: Component {
+    /// Returns the storage index of the component.
     fn of(_: Option<Self>) -> usize;
 }
 
