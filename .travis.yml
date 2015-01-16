@@ -5,8 +5,10 @@ language: rust
 script:
   - cd sparkle
   - cargo build --verbose
+  - cargo test --verbose
   - cargo doc --no-deps --verbose
   - cd ..
-  - mv sparkle/target/doc doc
-after_script:
+after_success:
+  - cp -R sparkle/target/doc doc
   - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
+  - rm -r doc
