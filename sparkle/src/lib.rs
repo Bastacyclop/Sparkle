@@ -58,7 +58,7 @@ pub mod blackboard;
 ///
 /// This prelude is useful to quickly import everything you need into your local scope:
 ///
-/// ````
+/// ````ignore
 /// use sparkle::prelude::*;
 ///
 /// // Your stuff

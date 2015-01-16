@@ -4,7 +4,7 @@
 //!
 //! Creating and removing entities is pretty simple:
 //!
-//! ````
+//! ````ignore
 //! let entity = em.create_entity();
 //! // ...
 //! em.remove_entity(entity);
@@ -15,7 +15,7 @@
 //! Groups are useful to identify a category of entities.
 //! For example, you could have a group of allies:
 //!
-//! ````
+//! ````ignore
 //! em.set_group(wise_mage, "allies");
 //! em.set_group(bold_dwarf, "allies");
 //! // ...
@@ -32,7 +32,7 @@
 //! Tags are useful to identify a specific entity.
 //! For example, you could tag the hero of your game:
 //!
-//! ```
+//! ```ignore
 //! em.set_tag(julian, "hero");
 //! // ...
 //! // And somewhere else:
