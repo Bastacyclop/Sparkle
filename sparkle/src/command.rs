@@ -20,6 +20,7 @@ pub fn stream<Args>() -> (CommandSender<Args>, CommandReceiver<Args>) {
 
 /// A `CommandSender` is a type that send commands
 /// to the `CommandReceiver`.
+///
 /// You can have multiple sender using the clone method.
 pub struct CommandSender<Args>(WeakSharedBuffer<Args>);
 
@@ -43,6 +44,7 @@ impl<Args> CommandSender<Args> {
 
 /// A `CommandReceiver` is a type that receive commands
 /// from the `CommandSender`.
+///
 /// You can only have one Receiver per stream.
 pub struct CommandReceiver<Args>(SharedBuffer<Args>);
 

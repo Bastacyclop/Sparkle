@@ -1,4 +1,4 @@
-/// The Blackboard related structures
+//! The Blackboard related structures
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry as HashMapEntry;
@@ -10,8 +10,9 @@ use std::any::Any;
 pub type BlackboardEntry<T: 'static> = Rc<RefCell<T>>;
 
 /// A Blackboard is a container that can expose different values
-/// to multiples readers. This is generally used when multiple systems
-/// need to work together.
+/// to multiples readers. 
+///
+/// This is generally used when multiple systems need to work together.
 pub struct Blackboard {
     entries: HashMap<String, Box<Any>>
 }
@@ -56,8 +57,9 @@ impl Blackboard {
 }
 
 /// A `SharedBlackboard` is a simple wrapper around
-/// a `Blackboard` allocated with Rc. This permit
-/// to reduce the verbosity created by Rc and RefCell.
+/// a `Blackboard` allocated with Rc. 
+///
+/// This permit to reduce the verbosity created by Rc and RefCell.
 #[derive(Clone)]
 pub struct SharedBlackboard(Rc<RefCell<Blackboard>>);
 

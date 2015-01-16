@@ -1,3 +1,5 @@
+///! The Component related types
+
 use std::collections::VecMap;
 use std::ops::{Deref, DerefMut};
 use std::cell::{RefCell, Ref, RefMut};

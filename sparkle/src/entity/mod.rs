@@ -1,4 +1,4 @@
-//! 
+//! The Entity related types
 //!
 //! ## Simple entity manipulation
 //!
