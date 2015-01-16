@@ -43,7 +43,8 @@ pub use component::ComponentMapper;
 
 pub use entity::{Entity, MetaEntity, EntityMapper};
 
-pub use system::{System, SystemMapper, Filter};
+pub use system::{System, SystemMapper,
+    EntityView, EntityFilter, StandardEntityFilter};
 
 pub use command::{Command, CommandSender};
 
@@ -69,8 +70,8 @@ pub mod prelude {
         Space,
         Entity, EntityMapper,
         System, SystemMapper,
+        EntityView, EntityFilter, StandardEntityFilter,
         ComponentMapper,
-        Filter,
         Command
     };
 }
