@@ -54,7 +54,7 @@ impl ComponentMapper {
         mentity.components.insert(type_index);
 
         self.ensure::<C>();
-        self.get_store_mut::<C>().unwrap().insert(mentity.entity, component);
+        self.get_store_mut::<C>().insert(mentity.entity, component);
     }
 
     /// Ensures a component store presence.
@@ -69,12 +69,12 @@ impl ComponentMapper {
         }
     }
 
-    /// Returns a reference to an entity's component, if it exists.
+    /// Try to returns a reference to an entity's component, if it exists.
     #[inline]
-    pub fn get<'a, C>(&'a self, entity: Entity) -> Option<ComponentRef<'a, C>>
+    pub fn try_get<'a, C>(&'a self, entity: Entity) -> Option<ComponentRef<'a, C>>
         where C: Component + ComponentIndex
     {
-        self.get_store::<C>().map(|store| {
+        self.try_get_store::<C>().map(|store| {
             ComponentRef {
                 entity: entity,
                 inner_ref: store
@@ -82,12 +82,22 @@ impl ComponentMapper {
         })
     }
 
-    /// Returns a mutable reference to an entity's component, if it exists.
+    /// Returns a reference to an entity's component.
+    ///
+    /// This method panic if the entity doesn't have the requested component.
     #[inline]
-    pub fn get_mut<'a, C>(&'a self, entity: Entity) -> Option<ComponentRefMut<'a, C>>
+    pub fn get<'a, C>(&'a self, entity: Entity) -> ComponentRef<'a, C>
         where C: Component + ComponentIndex
     {
-        self.get_store_mut::<C>().map(|store| {
+        self.try_get::<C>(entity).expect("Failed to get the component")
+    }
+
+    /// Try to returns a mutable reference to an entity's component, if it exists.
+    #[inline]
+    pub fn try_get_mut<'a, C>(&'a self, entity: Entity) -> Option<ComponentRefMut<'a, C>>
+        where C: Component + ComponentIndex
+    {
+        self.try_get_store_mut::<C>().map(|store| {
             ComponentRefMut {
                 entity: entity,
                 inner_mut: store
@@ -95,22 +105,52 @@ impl ComponentMapper {
         })
     }
 
-    /// Returns a reference to a component store, if it exists.
+    /// Try to returns a mutable reference to an entity's component, if it exists.
+    ///
+    /// This method panic if the entity doesn't have the requested component.
     #[inline]
-    pub fn get_store<'a, C>(&'a self) -> Option<Ref<'a, VecMap<C>>>
+    pub fn get_mut<'a, C>(&'a self, entity: Entity) -> ComponentRefMut<'a, C>
+        where C: Component + ComponentIndex
+    {
+        self.try_get_mut::<C>(entity).expect("Failed to get the component")
+    }
+
+    /// Try to returns a reference to a component store, if it exists.
+    #[inline]
+    pub fn try_get_store<'a, C>(&'a self) -> Option<Ref<'a, VecMap<C>>>
         where C: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<C>);
         self.stores.get(&type_index).map(|store| store.downcast_ref().borrow())
     }
 
-    /// Returns a mutable reference to a component store, if it exists.
+    /// Returns a reference to a component store, if it exists.
+    ///
+    /// This method panic if the store doesn't exist.
     #[inline]
-    pub fn get_store_mut<'a, C>(&'a self) -> Option<RefMut<'a, VecMap<C>>>
+    pub fn get_store<'a, C>(&'a self) -> Ref<'a, VecMap<C>>
+        where C: Component + ComponentIndex
+    {
+        self.try_get_store::<C>().expect("Failed to get the store")
+    }
+
+    /// Try to returns a mutable reference to a component store, if it exists.
+    #[inline]
+    pub fn try_get_store_mut<'a, C>(&'a self) -> Option<RefMut<'a, VecMap<C>>>
         where C: Component + ComponentIndex
     {
         let type_index = ComponentIndex::of(None::<C>);
         self.stores.get(&type_index).map(|store| store.downcast_ref().borrow_mut())
+    }
+
+    /// Returns a mutable reference to a component store, if it exists.
+    ///
+    /// This method panic if the store doesn't exist.
+    #[inline]
+    pub fn get_store_mut<'a, C>(&'a self) -> RefMut<'a, VecMap<C>>
+        where C: Component + ComponentIndex
+    {
+        self.try_get_store_mut::<C>().expect("Failed to get the store")
     }
 
     /// Detaches a component from an entity and removes it from the map.
@@ -120,7 +160,7 @@ impl ComponentMapper {
         let type_index = ComponentIndex::of(None::<C>);
         mentity.components.remove(&type_index);
 
-        self.get_store_mut::<C>().map(|mut store| store.remove(&mentity.entity));
+        self.get_store_mut::<C>().remove(&mentity.entity);
     }
 
     /// Detaches all components from an entity and removes them from the map.
@@ -200,7 +240,7 @@ impl<'a, C> Deref for ComponentRefMut<'a, C>
     type Target = C;
 
     fn deref(&self) -> &C {
-        self.inner_mut.get(&self.entity).expect("Failed to find component")
+        self.inner_mut.get(&self.entity).expect("Failed to find the component")
     }
 }
 
@@ -208,7 +248,7 @@ impl<'a, C> DerefMut for ComponentRefMut<'a, C>
     where C: Component + ComponentIndex
 {
     fn deref_mut(&mut self) -> &mut C {
-        self.inner_mut.get_mut(&self.entity).expect("Failed to find component")
+        self.inner_mut.get_mut(&self.entity).expect("Failed to find the component")
     }
 }
 

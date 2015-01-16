@@ -74,13 +74,13 @@ A system is responsible for updating components in the world. Most of the time y
   impl System for PositionPrinter {
       fn fixed_update(_em: &mut EntityMapper, cm: &mut ComponentMapper) {
           // This line safely retrieves component stores.
-          // Note that you can also use get_store directly,
+          // Note that you can also use try_get_store directly,
           // but it will return None if the store doesn't exist,
           // while the macro ensures the store existence.
           let (position_store,) = sparkle_get_stores!(cm, Position);
           
           for entity in self.entities() {
-              let position = position_store.get(entity).unwrap();
+              let position = position_store.get(entity);
               println!("Position: {}, {}", position.x, position.y);
           }
       }
