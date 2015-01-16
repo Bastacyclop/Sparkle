@@ -1,6 +1,6 @@
 //! The Command related types
 
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 use std::cell::RefCell;
 use std::collections::RingBuf;
 
@@ -15,13 +15,13 @@ pub trait Command<Args>: 'static {
 pub fn stream<Args>() -> (CommandSender<Args>, CommandReceiver<Args>) {
     let buffer = Rc::new(RefCell::new(CommandBuffer::new()));
 
-    (CommandSender(buffer.clone()), CommandReceiver(buffer.clone()))
+    (CommandSender(buffer.clone().downgrade()), CommandReceiver(buffer.clone()))
 }
 
 /// A `CommandSender` is a type that send commands
 /// to the `CommandReceiver`.
 /// You can have multiple sender using the clone method.
-pub struct CommandSender<Args>(SharedBuffer<Args>);
+pub struct CommandSender<Args>(WeakSharedBuffer<Args>);
 
 impl<Args> Clone for CommandSender<Args> {
     fn clone(&self) -> CommandSender<Args> {
@@ -31,10 +31,13 @@ impl<Args> Clone for CommandSender<Args> {
 
 impl<Args> CommandSender<Args> {
     /// Send a command to the linked `CommandReceiver`.
+    /// If the receiver is dropped this method does nothing.
     pub fn send<C>(&mut self, command: C)
         where C: Command<Args>
     {
-        self.0.borrow_mut().push(command);
+        if let Some(buffer) = self.0.upgrade() {
+            buffer.borrow_mut().push(command);    
+        }
     }
 }
 
@@ -54,6 +57,7 @@ impl<Args> CommandReceiver<Args> {
 }
 
 type SharedBuffer<Args> = Rc<RefCell<CommandBuffer<Args>>>;
+type WeakSharedBuffer<Args> = Weak<RefCell<CommandBuffer<Args>>>;
 
 /// A simple buffer of commands using a RingBuffer.
 struct CommandBuffer<Args> {
