@@ -1,18 +1,62 @@
+//! 
+//!
+//! ## Simple entity manipulation
+//!
+//! Creating and removing entities is pretty simple:
+//!
+//! ````
+//! let entity = em.create_entity();
+//! // ...
+//! em.remove_entity(entity);
+//! ````
+//!
+//! ## Identification of entities using groups
+//!
+//! Groups are useful to identify a category of entities.
+//! For example, you could have a group of allies:
+//!
+//! ````
+//! em.set_group(wise_mage, "allies");
+//! em.set_group(bold_dwarf, "allies");
+//! // ...
+//! // And somewhere else:
+//! let allies = em.get_group("allies");
+//! // Though you'll probably prefer using system filters than that function.
+//! ````
+//! 
+//! A group is referred to by a name and can contain multiple entities.
+//! Likewise, an entity can belong to multiple groups.
+//!
+//! ## Identification of entities using tags
+//!
+//! Tags are useful to identify a specific entity.
+//! For example, you could tag the hero of your game:
+//!
+//! ```
+//! em.set_tag(julian, "hero");
+//! // ...
+//! // And somewhere else:
+//! let hero = em.get_tag("hero").expect("there's no hero :(");
+//! ```
+//!
+//! A tag is referred to by a name and can only tag one entity at a time.
+//! Furthermore, an entity can only have one tag at a time.
+
 use std::collections::{VecMap, RingBuf, HashSet, BitvSet};
 use std::collections::ring_buf;
 
 use component::ComponentMapper;
 
-pub use self::group::GroupMap;
-pub use self::tag::TagMap;
+use self::group::GroupMap;
+use self::tag::TagMap;
 
-pub mod group;
-pub mod tag;
+mod group;
+mod tag;
 
 /// A plain entity identifier.
 pub type Entity = usize;
 
-/// Represents an entity and its features.
+/// An entity and its features.
 #[derive(PartialEq, Eq, Clone)]
 pub struct MetaEntity {
     pub entity: Entity,
@@ -42,7 +86,7 @@ impl MetaEntity {
     }
 }
 
-/// Maps entities using plain `Entity` identifiers, tags and groups.
+/// An entity mapper using plain `Entity` identifiers, tags and groups.
 pub struct EntityMapper {
     mentities: MetaEntityMap,
     groups: GroupMap,
@@ -51,6 +95,7 @@ pub struct EntityMapper {
 
 impl EntityMapper {
     /// Creates a new `EntityMapper`.
+    #[doc(hidden)]
     pub fn new() -> EntityMapper {
         EntityMapper {
             mentities: MetaEntityMap::new(),
@@ -92,8 +137,13 @@ impl EntityMapper {
     }
 
     /// Removes an entity from a group.
-    pub fn unset_group(&mut self,  entity: Entity, group: &str) {
+    pub fn unset_group(&mut self, entity: Entity, group: &str) {
         self.groups.remove_from(self.mentities.get_mut(entity), group);
+    }
+    
+    /// Clears an entity groups.
+    pub fn clear_entity_groups(&mut self, entity: Entity) {
+        self.groups.clear_entity(self.mentities.get_mut(entity));
     }
 
     /// Returns an entity group as a vector.
@@ -102,7 +152,7 @@ impl EntityMapper {
     }
 
     /// Sets an entity tag.
-    pub fn set_tag(&mut self, tag: &str, entity: Entity) {
+    pub fn set_tag(&mut self, entity: Entity, tag: &str) {
         self.tags.insert(self.mentities.get_mut(entity), tag);
     }
 
@@ -117,6 +167,7 @@ impl EntityMapper {
     }
 
     /// Notify all entity events that occurred to an observer.
+    #[doc(hidden)]
     pub fn notify_events<O>(&mut self, cm: &mut ComponentMapper, obs: &mut O) where O: EntityObserver {
         let EntityMapper { ref mut mentities, .. } = *self;
 
@@ -181,6 +232,7 @@ impl EventQueue {
 type EventDrain<'a> = ring_buf::Drain<'a, Event>;
 
 /// Observes entity-related events.
+#[doc(hidden)]
 pub trait EntityObserver {
     /// Notifies the observer that an entity was changed.
     fn notify_changed(&mut self, mentity: &MetaEntity);

@@ -5,8 +5,9 @@
 //!
 //! ## **Entities**
 //!
-//! [Entities](entity/index.html) are simple identifiers. However you can refer to them
-//! by attaching them [tags](entity/tag/index.html) and [groups](entity/group/index.html).
+//! [Entities](entity/index.html) are simple identifiers. However, you can refer to them
+//! by attaching them [tags](entity/index.html#identification-of-entities-using-tags)
+//! and [groups](entity/index.html#identification-of-entities-using-groups).
 //! All of these informations are contained in [MetaEntities](entity/struct.MetaEntity.html).
 //!
 //! ## **Components**
@@ -16,15 +17,17 @@
 //!
 //! ## **Systems**
 //!
-//! [Systems](system/index.html) have the only purpose of updating entities according to their components. Each system
-//! can process as many as components as they want and can communicate through 
-//! [commands](command/index.html) and [blackboard](blackboard/index.html).
+//! [Systems](system/index.html) have the only purpose of updating entities
+//! according to their components. Each system can process as many components as they want
+//! and can communicate through the [commands](command/index.html)
+//! and the [blackboard](blackboard/index.html).
 //! 
 //! ## **Space**
 //! 
-//! A [space](space/index.html) regroup an [EntityMapper](entity/struct.EntityMapper.html), 
-//! [ComponentMapper](entity/struct.ComponentMapper.html) and a [SystemMapper](system/struct.SystemMapper.html).
-//! Each space represent a independant part of your game world.
+//! A [space](space/index.html) regroups an [EntityMapper](entity/struct.EntityMapper.html), 
+//! a [ComponentMapper](component/struct.ComponentMapper.html)
+//! and a [SystemMapper](system/struct.SystemMapper.html).
+//! Each space represents an independent part of your game world.
 
 #![crate_name = "sparkle"]
 #![unstable]
