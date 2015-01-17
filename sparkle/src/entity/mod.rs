@@ -164,7 +164,7 @@ impl EntityMapper {
     }
 
     /// Returns an entity group as a vector.
-    pub fn get_group(&mut self, group: &str) -> Vec<Entity> {
+    pub fn get_group(&self, group: &str) -> Vec<Entity> {
         self.groups.get(group)
     }
 
@@ -394,7 +394,68 @@ impl Pool {
 mod tests {
     use super::*;
     use super::{EventQueue, EventKind, MetaEntityMap, Pool};
+
+    #[test]
+    fn mapper_nasty_test() {
+        use component::ComponentMapper;
+        
+        struct TestObserver {
+            changed: u8,
+            removed: u8
+        }
+        
+        impl EntityObserver for TestObserver {
+            fn notify_changed(&mut self, mentity: &MetaEntity) {
+                assert_eq!(mentity.entity, 0);
+                self.changed += 1;
+            }
+                
+            fn notify_removed(&mut self, mentity: &MetaEntity) {
+                assert_eq!(mentity.entity, 0);
+                assert!(mentity.groups.contains("group"));
+                assert_eq!(mentity.tag.as_ref().map(|t| t.as_slice()), Some("tag"));
+                assert!(mentity.components.is_empty());
+                self.removed += 1;
+            }
+        }
+        
+        let mut mapper = EntityMapper::new();
+        let entity = mapper.create_entity();
+        
+        mapper.set_group(entity, "group");
+        mapper.set_tag(entity, "tag");
+        
+        {
+            let mentity = mapper.get_mentity(entity);
+            assert!(mentity.groups.contains("group"));
+            assert_eq!(mapper.get_group("group").as_slice(), [entity]);
+            assert_eq!(mentity.tag.as_ref().map(|t| t.as_slice()), Some("tag"));
+            assert_eq!(mapper.get_tag("tag"), entity);
+        }
     
+        mapper.put_to_sleep(entity);
+        assert_eq!(mapper.get_mentity(entity).is_awake, false);
+        mapper.wake_up(entity);
+        assert!(mapper.get_mentity(entity).is_awake);
+        
+        mapper.remove_entity(entity);
+        
+        let mut cm = &mut ComponentMapper::new();
+        let mut obs = &mut TestObserver {
+            changed: 0,
+            removed: 0
+        };
+        
+        mapper.notify_events(cm, obs);
+        
+        assert_eq!(obs.changed, 1);
+        assert_eq!(obs.removed, 1);
+        assert!(mapper.mentities.mentities.is_empty());
+        assert!(mapper.mentities.events.events.is_empty());
+    }
+        
+        
+        
     #[test]
     fn event_queue_changed() {
         let mut queue = EventQueue::new();
