@@ -116,7 +116,7 @@ mod tests {
         let tag_map = TagMap::new();
         let tag = "tag";
         
-        assert_eq!(tag_map.get(tag), None);
+        assert!(tag_map.get(tag).is_none());
     }
     
     #[test]
@@ -127,8 +127,8 @@ mod tests {
         
         tag_map.insert(orc, tag);
         tag_map.remove(orc);
-        assert_eq!(tag_map.tags.get(tag), None);
-        assert_eq!(orc.tag, None);
+        assert!(tag_map.tags.get(tag).is_none());
+        assert!(orc.tag.is_none());
     }
     
     #[test]
@@ -137,7 +137,7 @@ mod tests {
         let orc = &mut MetaEntity::new(0);
         
         tag_map.remove(orc);
-        assert_eq!(orc.tag, None);
+        assert!(orc.tag.is_none());
     }
     
     #[test]
@@ -148,7 +148,7 @@ mod tests {
         
         tag_map.insert(orc, tag);
         private::forget(tag_map, orc);
-        assert_eq!(tag_map.tags.get(tag), None);
+        assert!(tag_map.tags.get(tag).is_none());
         assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(tag));
     }
     
@@ -158,6 +158,6 @@ mod tests {
         let orc = &mut MetaEntity::new(0);
         
         private::forget(tag_map, orc);
-        assert_eq!(orc.tag, None);
+        assert!(orc.tag.is_none());
     }
 }

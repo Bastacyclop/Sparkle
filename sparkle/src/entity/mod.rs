@@ -393,7 +393,7 @@ impl Pool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::{EventQueue, EventKind, Pool};
+    use super::{EventQueue, EventKind, MetaEntityMap, Pool};
     
     #[test]
     fn event_queue_changed() {
@@ -410,7 +410,7 @@ mod tests {
         queue.changed(0);
         queue.changed(0);
         assert_eq!(queue.events.pop_back(), Some((EventKind::Changed, 0)));
-        assert_eq!(queue.events.pop_back(), None);
+        assert!(queue.events.pop_back().is_none());
     }
     
     #[test]
@@ -422,13 +422,23 @@ mod tests {
     }
     
     #[test]
+    fn event_queue_removed_dup() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        queue.removed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+        assert!(queue.events.pop_back().is_none());
+    }
+    
+    #[test]
     fn event_queue_changed_when_removed() {
         let mut queue = EventQueue::new();
         
         queue.removed(0);
         queue.changed(0);
         assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
-        assert_eq!(queue.events.pop_back(), None);
+        assert!(queue.events.pop_back().is_none());
     }
     
     #[test]
@@ -449,12 +459,116 @@ mod tests {
         
         let drained: Vec<(EventKind, Entity)> = queue.drain().collect();
         assert_eq!(drained, expected);
-        assert_eq!(queue.events.len(), 0);
-        assert_eq!(queue.changed_set.len(), 0);
-        assert_eq!(queue.removed_set.len(), 0);
+        assert!(queue.events.is_empty());
+        assert!(queue.changed_set.is_empty());
+        assert!(queue.removed_set.is_empty());
     }
     
     
+    
+    #[test]
+    fn mentity_map_create() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.mentities.get(&entity).unwrap();
+        assert_eq!(meta_entity.entity, mentity_map.pool.next_id-1);
+        assert!(meta_entity.is_awake);
+        assert!(meta_entity.tag.is_none());
+        assert!(meta_entity.groups.is_empty());
+        assert!(meta_entity.components.is_empty());
+        
+        assert_eq!(mentity_map.events.events.pop_back(),
+                   Some((EventKind::Changed, meta_entity.entity)));
+    }
+
+    #[test]
+    fn mentity_map_regular_remove() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        mentity_map.remove(entity);
+        assert_eq!(mentity_map.events.events.pop_back(),
+                   Some((EventKind::Removed, entity)));
+    }
+    
+    #[test]
+    fn mentity_map_pointless_remove() {
+        let mut mentity_map = MetaEntityMap::new();
+        mentity_map.remove(0);
+    }
+
+    #[test]
+    fn mentity_map_set_awake() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        mentity_map.set_awake(entity, false);
+        assert!(!mentity_map.mentities.get(&entity).unwrap().is_awake);
+        mentity_map.set_awake(entity, true);
+        assert!(mentity_map.mentities.get(&entity).unwrap().is_awake);
+    }
+
+    #[test]
+    fn mentity_map_regular_get() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.get(entity);
+        assert_eq!(meta_entity.entity, entity);
+    }
+    
+    #[test]
+    #[should_fail]
+    fn mentity_map_wrong_get() {
+        let mentity_map = MetaEntityMap::new();        
+        mentity_map.get(0);   
+    }
+
+    #[test]
+    fn mentity_map_regular_get_mut() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.get_mut(entity);
+        assert_eq!(meta_entity.entity, entity);        
+    }
+    
+    #[test]
+    #[should_fail]
+    fn mentity_map_wrong_get_mut() {
+        let mut mentity_map = MetaEntityMap::new();
+        mentity_map.get_mut(0);  
+    }
+
+    #[test]
+    fn mentity_map_drain_events_with() {
+        let mut mentity_map = MetaEntityMap::new();
+        let changed_entity = mentity_map.create();
+        let removed_entity = mentity_map.create();
+        mentity_map.remove(removed_entity);
+        
+        let expected = [
+            (EventKind::Changed, changed_entity),
+            (EventKind::Changed, removed_entity),
+            (EventKind::Removed, removed_entity)
+        ];
+        
+        let mut expected_iter = expected.iter();
+        mentity_map.drain_events_with(|event| {
+            let expected_event = expected_iter.next().unwrap();
+            assert_eq!(event.0, expected_event.0);
+            assert_eq!(event.1.entity, expected_event.1);
+        });
+        
+        assert_eq!(mentity_map.mentities.get(&changed_entity).unwrap().entity, changed_entity);
+        assert!(mentity_map.mentities.get(&removed_entity).is_none());
+        assert!(mentity_map.events.events.is_empty());
+        assert_eq!(mentity_map.create(), removed_entity);
+        assert!(mentity_map.create() != changed_entity);
+    }
+
+
     
     #[test]
     fn pool_regular_get() {
