@@ -60,6 +60,7 @@ pub type Entity = usize;
 #[derive(PartialEq, Eq, Clone)]
 pub struct MetaEntity {
     pub entity: Entity,
+    pub is_awake: bool,
     pub tag: Option<String>,
     pub groups: HashSet<String>,
     pub components: BitvSet
@@ -70,6 +71,7 @@ impl MetaEntity {
     fn new(entity: Entity) -> MetaEntity {
         MetaEntity {
             entity: entity,
+            is_awake: true,
             tag: None,
             groups: HashSet::new(),
             components: BitvSet::new()
@@ -78,6 +80,7 @@ impl MetaEntity {
 
     /// Resets the `MetaEntity`.
     fn reset(mut self) -> MetaEntity {
+        self.is_awake = true;
         self.components.clear();
         self.tag = None;
         self.groups.clear();
@@ -119,6 +122,20 @@ impl EntityMapper {
             tag::private::forget(&mut self.tags, mentity);
         }
         self.mentities.remove(entity);
+    }
+
+    /// Enables an entity
+    ///
+    /// The entity will be updated by systems again.
+    pub fn wake_up(&mut self, entity: Entity) {
+        self.mentities.set_awake(entity, true);
+    }
+
+    /// Disables an entity
+    ///
+    /// The entity won't be updated by systems anymore.
+    pub fn put_to_sleep(&mut self, entity: Entity) {
+        self.mentities.set_awake(entity, false);
     }
 
     /// Returns a reference to the meta entity.
@@ -301,6 +318,11 @@ impl MetaEntityMap {
     /// The entity effective removal is delayed until then.
     fn remove(&mut self, entity: Entity) {
         self.events.removed(entity);
+    }
+
+    /// Enable or disable an entity.
+    fn set_awake(&mut self, entity: Entity, awake: bool) {
+        self.get_mut(entity).is_awake = awake;
     }
 
     /// Returns a reference to a meta entity.

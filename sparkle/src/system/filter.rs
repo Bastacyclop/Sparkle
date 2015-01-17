@@ -82,6 +82,11 @@ impl<Filter> EntityView<Filter>
     /// Updates the view with the given entity.
     pub fn update(&mut self, mentity: &MetaEntity) {
         let contains = self.entities.contains(&mentity.entity);
+        if contains && !mentity.is_awake {
+            self.entities.remove(&mentity.entity);
+            return;
+        }
+        
         let pass_filter = self.filter.pass(mentity);
 
         match (contains, pass_filter) {
