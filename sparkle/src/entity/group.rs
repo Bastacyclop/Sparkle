@@ -171,7 +171,7 @@ mod tests {
         assert_eq!(expected, entities);
     }
 
-     #[test]
+    #[test]
     fn forget() {
         let mut group_map = GroupMap::new();
         let group_name1 = "aGroup1";    
