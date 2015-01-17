@@ -33,26 +33,6 @@ pub fn plugin_registrar(reg: &mut plugin::Registry) {
 }
 
 #[macro_export]
-macro_rules! sparkle_default_system_filtering {
-    ($entities:ident, $filter:ident) => (
-        fn on_entity_changed(&mut self, mentity: &::sparkle::MetaEntity) {
-            let contains = $entities.contains(&mentity.entity);
-            let pass_filter = $filter.pass(mentity);
-
-            match (contains, pass_filter) {
-                (true, false) => { self.$entities.remove(&$mentity.entity); },
-                (false, true) => { self.$entities.insert($mentity.entity); },
-                _ => {}
-            }
-        }
-
-        fn on_entity_removed(&mut self, mentity: &::sparkle::MetaEntity) {
-            self.$entities.remove(&$mentity.entity);
-        }
-    )
-}
-
-#[macro_export]
 macro_rules! sparkle_get_component {
     ($store:expr, $entity:expr) => (
         match $store.get($entity) {

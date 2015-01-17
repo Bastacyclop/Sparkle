@@ -35,8 +35,7 @@
 #![feature(slicing_syntax, unboxed_closures)]
 #![feature(box_syntax)]
 
-pub use blackboard::{Blackboard, SharedBlackboard};
-pub use blackboard::BlackboardEntry;
+pub use blackboard::{Blackboard, SharedBlackboard, BlackboardEntry};
 pub use space::Space;
 
 pub use component::ComponentMapper;
@@ -44,7 +43,7 @@ pub use component::ComponentMapper;
 pub use entity::{Entity, MetaEntity, EntityMapper};
 
 pub use system::{System, SystemMapper,
-    EntityView, EntityFilter, StandardEntityFilter};
+    EntityView, StandardEntityView, EntityFilter, StandardEntityFilter};
 
 pub use command::{Command, CommandSender};
 
@@ -68,10 +67,10 @@ pub mod prelude {
     pub use {
         Blackboard, SharedBlackboard, BlackboardEntry,
         Space,
-        Entity, EntityMapper,
-        System, SystemMapper,
-        EntityView, EntityFilter, StandardEntityFilter,
         ComponentMapper,
-        Command
+        Entity, MetaEntity, EntityMapper,
+        System, SystemMapper,
+        EntityView, StandardEntityView, EntityFilter, StandardEntityFilter,
+        Command, CommandSender
     };
 }

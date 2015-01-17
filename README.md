@@ -57,16 +57,14 @@ A system is responsible for updating components in the world. Most of the time y
 
 ```rust
   struct PositionPrinter {
-      filter: Filter,
-      entities: HashSet<Entity>
+      view: StandardEntityView,
   }
   
   impl PositionPrinter {
       pub fn new() -> PositionPrinter {
           let filter = sparkle_filter!(require components: Position);
           PositionPrinter {
-              filter: filter,
-              entities: HashSet::new()
+              view: EntityView::new(filter)
           }
       }
   }
@@ -79,8 +77,8 @@ A system is responsible for updating components in the world. Most of the time y
           // while the macro ensures the store existence.
           let (position_store,) = sparkle_get_stores!(cm, Position);
           
-          for entity in self.entities() {
-              let position = position_store.get(entity);
+          for entity in self.view.iter() {
+              let position = position_store.get(entity).unwrap();
               println!("Position: {}, {}", position.x, position.y);
           }
       }
@@ -89,9 +87,13 @@ A system is responsible for updating components in the world. Most of the time y
           // Use this if you want an update every frame.
       }
       
-      // This macro implements methods that will manage self.entities
-      // according to self.filter
-      sparkle_default_system_filtering!()
+      fn on_entity_changed(&mut self, mentity: &MetaEntity) {
+          self.view.update(mentity);
+      }
+      
+      fn on_entity_removed(&mut self, mentity: &MetaEntity) {
+          self.view.remove(mentity);
+      }
   }
 ```
 
@@ -113,11 +115,11 @@ A space represents a part of your game world. In small projects one instance sho
   space.cm.insert(meta_entity, Position { x: 5, y: 8 });
   
   space.cm.get::<Position>(entity).x = 8;
-  ...
+  // ...
   
   space.sm.insert(|_cmd_sender, _blackboard| PositionPrinter::new());
   
-  ...
+  // ...
   space.update(dt) // This should be called every frame
   space.fixed_update() // And this at a fixed timestep
 ```
@@ -132,4 +134,4 @@ Sparkle is in a very early stage and we would appreciate feedback and contributi
 
 ## Documentation
 
-Coming...
+Documentation is available on [rust-ci](http://rust-ci.org/RustSparkle/Sparkle/doc/sparkle/index.html).

@@ -8,7 +8,7 @@ use command::CommandSender;
 use entity::{MetaEntity, EntityMapper, EntityObserver};
 use component::ComponentMapper;
 
-pub use self::filter::{EntityView, EntityFilter, StandardEntityFilter};
+pub use self::filter::{EntityView, StandardEntityView, EntityFilter, StandardEntityFilter};
 
 pub mod filter;
 
