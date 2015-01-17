@@ -36,7 +36,7 @@
 //! em.set_tag(julian, "hero");
 //! // ...
 //! // And somewhere else:
-//! let hero = em.get_tag("hero").expect("there's no hero :(");
+//! let hero = em.get_tag("hero");
 //! ```
 //!
 //! A tag is referred to by a name and can only tag one entity at a time.
@@ -170,8 +170,8 @@ impl EntityMapper {
 
     /// Sets an entity tag.
     ///
-    /// If the entity was already tagged, the previous tag will be overriden.
-    /// If the tag was already used, the previously tagged entity is returned.
+    /// If the entity was already tagged, the previous tag will be overriden and returned.
+    /// Panics if the tag was already used.
     pub fn set_tag(&mut self, entity: Entity, tag: &str) -> Option<String> {
         self.tags.insert(self.mentities.get_mut(entity), tag)
     }
@@ -190,7 +190,7 @@ impl EntityMapper {
 
     /// Returns the entity tagged by `tag`.
     ///
-    /// This method panic if the tag doesn't exist.
+    /// This method panics if the tag doesn't exist.
     pub fn get_tag(&self, tag: &str) -> Entity {
         self.tags.get(tag).expect(format!("Failed to find an entity with tag {}", tag).as_slice())
     }
