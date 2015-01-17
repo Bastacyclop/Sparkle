@@ -65,54 +65,54 @@ mod tests {
     use MetaEntity;
     
     #[test]
-    fn regular_insertion() {
+    fn insertion() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         let tag = "tag";
         
-        tag_map.insert(orc, tag);
-        assert_eq!(tag_map.tags.get(tag), Some(&orc.entity));
-        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(tag));
+        tag_map.insert(entity, tag);
+        assert_eq!(tag_map.tags.get(tag), Some(&entity.entity));
+        assert_eq!(entity.tag.as_ref().map(|t| t.as_slice()), Some(tag));
     }
     
     #[test]
     #[should_fail]
     fn double_tag_insertion() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
-        let troll = &mut MetaEntity::new(1);
+        let entity = &mut MetaEntity::new(0);
+        let other = &mut MetaEntity::new(1);
         
         let tag = "tag";
-        tag_map.insert(orc, tag);
-        tag_map.insert(troll, tag);
+        tag_map.insert(entity, tag);
+        tag_map.insert(other, tag);
     }
     
     #[test]
     fn double_entity_insertion() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         let tag = "tag";
         let new_tag = "gat";
         
-        tag_map.insert(orc, tag);
-        tag_map.insert(orc, new_tag);
-        assert_eq!(tag_map.tags.get(new_tag), Some(&orc.entity));
-        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(new_tag));
+        tag_map.insert(entity, tag);
+        tag_map.insert(entity, new_tag);
+        assert_eq!(tag_map.tags.get(new_tag), Some(&entity.entity));
+        assert_eq!(entity.tag.as_ref().map(|t| t.as_slice()), Some(new_tag));
         assert!(tag_map.tags.get(tag).is_none());
     }
     
     #[test]
-    fn get_some() {
+    fn get() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         let tag = "tag";
         
-        tag_map.insert(orc, tag);
-        assert_eq!(tag_map.get(tag), Some(orc.entity));
+        tag_map.insert(entity, tag);
+        assert_eq!(tag_map.get(tag), Some(entity.entity));
     }
     
     #[test]
-    fn get_none() {
+    fn get_nonexistent() {
         let tag_map = TagMap::new();
         let tag = "tag";
         
@@ -120,44 +120,44 @@ mod tests {
     }
     
     #[test]
-    fn regular_removal() {
+    fn removal() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         let tag = "tag";
         
-        tag_map.insert(orc, tag);
-        tag_map.remove(orc);
+        tag_map.insert(entity, tag);
+        tag_map.remove(entity);
         assert!(tag_map.tags.get(tag).is_none());
-        assert!(orc.tag.is_none());
+        assert!(entity.tag.is_none());
     }
     
     #[test]
-    fn pointless_removal() {
+    fn removal_nontagged() {
         let mut tag_map = TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         
-        tag_map.remove(orc);
-        assert!(orc.tag.is_none());
+        tag_map.remove(entity);
+        assert!(entity.tag.is_none());
     }
     
     #[test]
-    fn regular_forgetting() {
+    fn forgetting() {
         let mut tag_map = &mut TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         let tag = "tag";
         
-        tag_map.insert(orc, tag);
-        private::forget(tag_map, orc);
+        tag_map.insert(entity, tag);
+        private::forget(tag_map, entity);
         assert!(tag_map.tags.get(tag).is_none());
-        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(tag));
+        assert_eq!(entity.tag.as_ref().map(|t| t.as_slice()), Some(tag));
     }
     
     #[test]
-    fn pointless_forgetting() {
+    fn forgetting_nontagged() {
         let mut tag_map = &mut TagMap::new();
-        let orc = &mut MetaEntity::new(0);
+        let entity = &mut MetaEntity::new(0);
         
-        private::forget(tag_map, orc);
-        assert!(orc.tag.is_none());
+        private::forget(tag_map, entity);
+        assert!(entity.tag.is_none());
     }
 }

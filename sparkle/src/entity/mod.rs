@@ -393,68 +393,7 @@ impl Pool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::{EventQueue, EventKind, MetaEntityMap, Pool};
-
-    #[test]
-    fn mapper_nasty_test() {
-        use component::ComponentMapper;
-        
-        struct TestObserver {
-            changed: u8,
-            removed: u8
-        }
-        
-        impl EntityObserver for TestObserver {
-            fn notify_changed(&mut self, mentity: &MetaEntity) {
-                assert_eq!(mentity.entity, 0);
-                self.changed += 1;
-            }
-                
-            fn notify_removed(&mut self, mentity: &MetaEntity) {
-                assert_eq!(mentity.entity, 0);
-                assert!(mentity.groups.contains("group"));
-                assert_eq!(mentity.tag.as_ref().map(|t| t.as_slice()), Some("tag"));
-                assert!(mentity.components.is_empty());
-                self.removed += 1;
-            }
-        }
-        
-        let mut mapper = EntityMapper::new();
-        let entity = mapper.create_entity();
-        
-        mapper.set_group(entity, "group");
-        mapper.set_tag(entity, "tag");
-        
-        {
-            let mentity = mapper.get_mentity(entity);
-            assert!(mentity.groups.contains("group"));
-            assert_eq!(mapper.get_group("group").as_slice(), [entity]);
-            assert_eq!(mentity.tag.as_ref().map(|t| t.as_slice()), Some("tag"));
-            assert_eq!(mapper.get_tag("tag"), entity);
-        }
-    
-        mapper.put_to_sleep(entity);
-        assert_eq!(mapper.get_mentity(entity).is_awake, false);
-        mapper.wake_up(entity);
-        assert!(mapper.get_mentity(entity).is_awake);
-        
-        mapper.remove_entity(entity);
-        
-        let mut cm = &mut ComponentMapper::new();
-        let mut obs = &mut TestObserver {
-            changed: 0,
-            removed: 0
-        };
-        
-        mapper.notify_events(cm, obs);
-        
-        assert_eq!(obs.changed, 1);
-        assert_eq!(obs.removed, 1);
-        assert!(mapper.mentities.mentities.is_empty());
-        assert!(mapper.mentities.events.events.is_empty());
-    }
-        
-        
+    use super::{EventQueue, EventKind, MetaEntityMap, Pool};       
         
     #[test]
     fn event_queue_changed() {
@@ -544,7 +483,7 @@ mod tests {
     }
 
     #[test]
-    fn mentity_map_regular_remove() {
+    fn mentity_map_remove() {
         let mut mentity_map = MetaEntityMap::new();
         let entity = mentity_map.create();
         
@@ -554,7 +493,7 @@ mod tests {
     }
     
     #[test]
-    fn mentity_map_pointless_remove() {
+    fn mentity_map_remove_nonexistent() {
         let mut mentity_map = MetaEntityMap::new();
         mentity_map.remove(0);
     }
@@ -571,7 +510,7 @@ mod tests {
     }
 
     #[test]
-    fn mentity_map_regular_get() {
+    fn mentity_map_get() {
         let mut mentity_map = MetaEntityMap::new();
         let entity = mentity_map.create();
         
@@ -581,13 +520,13 @@ mod tests {
     
     #[test]
     #[should_fail]
-    fn mentity_map_wrong_get() {
+    fn mentity_map_get_nonexistent() {
         let mentity_map = MetaEntityMap::new();        
         mentity_map.get(0);   
     }
 
     #[test]
-    fn mentity_map_regular_get_mut() {
+    fn mentity_map_get_mut() {
         let mut mentity_map = MetaEntityMap::new();
         let entity = mentity_map.create();
         
@@ -597,7 +536,7 @@ mod tests {
     
     #[test]
     #[should_fail]
-    fn mentity_map_wrong_get_mut() {
+    fn mentity_map_get_mut_nonexistent() {
         let mut mentity_map = MetaEntityMap::new();
         mentity_map.get_mut(0);  
     }
@@ -632,7 +571,7 @@ mod tests {
 
     
     #[test]
-    fn pool_regular_get() {
+    fn pool_get() {
         let mut pool = Pool::new();
         for i in 0..10 {
             assert_eq!(pool.get().entity, i);
@@ -640,7 +579,7 @@ mod tests {
     }
     
     #[test]
-    fn pool_put_and_get_recycled() {
+    fn pool_reuse() {
         let mut pool = Pool::new();
         let recycled = pool.get();
         
