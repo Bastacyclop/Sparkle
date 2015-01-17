@@ -216,7 +216,7 @@ impl EntityMapper {
 type Event = (EventKind, Entity);
 
 /// The different kinds of entity-related events that can occur.
-#[derive(Copy, Show)]
+#[derive(Copy, PartialEq, Show)]
 enum EventKind {
     Changed,
     Removed
@@ -227,6 +227,7 @@ enum EventKind {
 /// Change events are protected against duplicates.
 struct EventQueue {
     changed_set: HashSet<Entity>,
+    removed_set: HashSet<Entity>,
     events: RingBuf<Event>
 }
 
@@ -235,6 +236,7 @@ impl EventQueue {
     fn new() -> EventQueue {
         EventQueue {
             changed_set: HashSet::new(),
+            removed_set: HashSet::new(),
             events: RingBuf::new()
         }
     }
@@ -242,18 +244,23 @@ impl EventQueue {
     /// Records the change of an entity, ignoring duplicates.
     fn changed(&mut self, entity: Entity) {
         if self.changed_set.insert(entity) {
-            self.events.push_back((EventKind::Changed, entity))
+            if !self.removed_set.contains(&entity) {
+                self.events.push_back((EventKind::Changed, entity))
+            }
         }
     }
 
     /// Records the removal of an entity. 
     fn removed(&mut self, entity: Entity) {
-        self.events.push_back((EventKind::Removed, entity))
+        if self.removed_set.insert(entity) {
+            self.events.push_back((EventKind::Removed, entity))
+        }
     }
 
     /// Drains all recorded events.
     fn drain(&mut self) -> EventDrain {
         self.changed_set.clear();
+        self.removed_set.clear();
         self.events.drain()
     }
 }
@@ -380,5 +387,92 @@ impl Pool {
     /// Puts an entity back in the pool.
     fn put(&mut self, entity: MetaEntity) {
         self.available.push(entity);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::{EventQueue, EventKind, Pool};
+    
+    #[test]
+    fn event_queue_changed() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Changed, 0)));
+    }
+    
+    #[test]
+    fn event_queue_changed_dup() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Changed, 0)));
+        assert_eq!(queue.events.pop_back(), None);
+    }
+    
+    #[test]
+    fn event_queue_removed() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+    }
+    
+    #[test]
+    fn event_queue_changed_when_removed() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+        assert_eq!(queue.events.pop_back(), None);
+    }
+    
+    #[test]
+    fn event_queue_drain() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        queue.removed(1);
+        queue.changed(2);
+        queue.changed(3);
+        
+        let expected = [
+            (EventKind::Changed, 0),
+            (EventKind::Removed, 1),
+            (EventKind::Changed, 2),
+            (EventKind::Changed, 3)
+        ];
+        
+        let drained: Vec<(EventKind, Entity)> = queue.drain().collect();
+        assert_eq!(drained, expected);
+        assert_eq!(queue.events.len(), 0);
+        assert_eq!(queue.changed_set.len(), 0);
+        assert_eq!(queue.removed_set.len(), 0);
+    }
+    
+    
+    
+    #[test]
+    fn pool_regular_get() {
+        let mut pool = Pool::new();
+        for i in 0..10 {
+            assert_eq!(pool.get().entity, i);
+        }
+    }
+    
+    #[test]
+    fn pool_put_and_get_recycled() {
+        let mut pool = Pool::new();
+        let recycled = pool.get();
+        
+        assert_eq!(recycled.entity, 0);
+        assert_eq!(pool.get().entity, 1);
+        pool.put(recycled);
+        assert_eq!(pool.get().entity, 0);
+        assert_eq!(pool.get().entity, 2);
     }
 }
