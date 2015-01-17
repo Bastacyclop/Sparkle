@@ -23,13 +23,17 @@ impl TagMap {
 
     /// Inserts an entity tag.
     ///
-    /// If the entity was already tagged, the previous tag will be overriden.
-    /// If the tag was already used, the previously tagged entity is returned.
-    pub fn insert(&mut self, mentity: &mut MetaEntity, tag: &str) -> Option<Entity> {
-        if let Some(previous_tag) = mem::replace(&mut mentity.tag, Some(tag.to_string())) {
-            self.tags.remove(&previous_tag);
+    /// If the entity was already tagged, the previous tag will be overriden and returned.
+    /// Panics if the tag was already used.
+    pub fn insert(&mut self, mentity: &mut MetaEntity, tag: &str) -> Option<String> {
+        let previous_tag = mem::replace(&mut mentity.tag, Some(tag.to_string()));
+        previous_tag.as_ref().map(|t| self.tags.remove(t));
+        
+        if let Some(already_tagged) = self.tags.insert(tag.to_string(), mentity.entity) {
+            panic!("the tag '{}' was already tagging entity {}", tag, already_tagged);
         }
-        self.tags.insert(tag.to_string(), mentity.entity)
+        
+        previous_tag
     }
 
     /// Removes the tag of an entity.
@@ -52,5 +56,108 @@ pub mod private {
     /// without touching the meta entity data.
     pub fn forget(tag_map: &mut TagMap, mentity: &MetaEntity) {
         mentity.tag.as_ref().map(|tag| tag_map.tags.remove(tag));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use MetaEntity;
+    
+    #[test]
+    fn regular_insertion() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let tag = "tag";
+        
+        tag_map.insert(orc, tag);
+        assert_eq!(tag_map.tags.get(tag), Some(&orc.entity));
+        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(tag));
+    }
+    
+    #[test]
+    #[should_fail]
+    fn double_tag_insertion() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let troll = &mut MetaEntity::new(1);
+        
+        let tag = "tag";
+        tag_map.insert(orc, tag);
+        tag_map.insert(troll, tag);
+    }
+    
+    #[test]
+    fn double_entity_insertion() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let tag = "tag";
+        let new_tag = "gat";
+        
+        tag_map.insert(orc, tag);
+        tag_map.insert(orc, new_tag);
+        assert_eq!(tag_map.tags.get(new_tag), Some(&orc.entity));
+        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(new_tag));
+        assert!(tag_map.tags.get(tag).is_none());
+    }
+    
+    #[test]
+    fn get_some() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let tag = "tag";
+        
+        tag_map.insert(orc, tag);
+        assert_eq!(tag_map.get(tag), Some(orc.entity));
+    }
+    
+    #[test]
+    fn get_none() {
+        let tag_map = TagMap::new();
+        let tag = "tag";
+        
+        assert_eq!(tag_map.get(tag), None);
+    }
+    
+    #[test]
+    fn regular_removal() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let tag = "tag";
+        
+        tag_map.insert(orc, tag);
+        tag_map.remove(orc);
+        assert_eq!(tag_map.tags.get(tag), None);
+        assert_eq!(orc.tag, None);
+    }
+    
+    #[test]
+    fn pointless_removal() {
+        let mut tag_map = TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        
+        tag_map.remove(orc);
+        assert_eq!(orc.tag, None);
+    }
+    
+    #[test]
+    fn regular_forgetting() {
+        let mut tag_map = &mut TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        let tag = "tag";
+        
+        tag_map.insert(orc, tag);
+        private::forget(tag_map, orc);
+        assert_eq!(tag_map.tags.get(tag), None);
+        assert_eq!(orc.tag.as_ref().map(|t| t.as_slice()), Some(tag));
+    }
+    
+    #[test]
+    fn pointless_forgetting() {
+        let mut tag_map = &mut TagMap::new();
+        let orc = &mut MetaEntity::new(0);
+        
+        private::forget(tag_map, orc);
+        assert_eq!(orc.tag, None);
     }
 }

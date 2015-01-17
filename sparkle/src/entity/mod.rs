@@ -172,12 +172,8 @@ impl EntityMapper {
     ///
     /// If the entity was already tagged, the previous tag will be overriden.
     /// If the tag was already used, the previously tagged entity is returned.
-    pub fn set_tag(&mut self, entity: Entity, tag: &str) -> Option<Entity> {
+    pub fn set_tag(&mut self, entity: Entity, tag: &str) -> Option<String> {
         self.tags.insert(self.mentities.get_mut(entity), tag)
-                 .map(|previously_tagged| {
-                     self.mentities.get_mut(previously_tagged).tag = None;
-                     previously_tagged
-                 })
     }
 
     /// Unsets an entity tag.
