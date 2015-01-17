@@ -53,7 +53,7 @@ Declaring a new component is as easy as following:
 
 ### Declare a System
 
-A system is responsible for updating components in the world. Most of the time you'll either want no filtering or the default implementation provided by the macro `sparkle_default_system_filtering!`:
+A system is responsible for updating components in the world. Most of the time you'll either use the `StandardEntityView` or no filtering system at all:
 
 ```rust
   struct PositionPrinter {
