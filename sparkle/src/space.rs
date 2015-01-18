@@ -11,7 +11,6 @@ use system::SystemMapper;
 /// It's also responsible of updates and command execution.
 pub struct Space {
     cmd_receiver: CommandReceiver<Space>,
-    pub blackboard: SharedBlackboard,
     pub em: EntityMapper,
     pub cm: ComponentMapper,
     pub sm: SystemMapper
@@ -24,7 +23,6 @@ impl Space {
 
         Space {
             cmd_receiver: receiver,
-            blackboard: blackboard.clone(),
             em: EntityMapper::new(),
             cm: ComponentMapper::new(),
             sm: SystemMapper::new(sender, blackboard)
