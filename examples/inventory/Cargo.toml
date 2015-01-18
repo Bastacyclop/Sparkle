@@ -1,0 +1,13 @@
+[package]
+
+name = "inventory"
+version = "0.0.1"
+authors = ["Thomas Koehler <basta.t.k+git@gmail.com>"]
+
+[dependencies.sparkle]
+
+path = "../../sparkle"
+
+[dependencies.sparkle_macros]
+
+path = "../../sparkle_macros"
