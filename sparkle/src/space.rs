@@ -1,4 +1,4 @@
-//! Essential object of the library.
+//! Convenient object of the library.
 
 use command::{self, CommandReceiver, Command};
 use blackboard::SharedBlackboard;
