@@ -7,8 +7,8 @@
 //!
 //! ```ignore
 //! let filter = sparkle_filter!(
-//!     require components: MandatoryComponentType
-//!     forbid groups: "forbidden_group", "another_forbidden_group"
+//!     require components: MandatoryComponentType, ...
+//!     forbid groups: "forbidden_group", "another_forbidden_group", ...
 //! );
 //! ```
 //!
