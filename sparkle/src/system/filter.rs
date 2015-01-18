@@ -41,11 +41,11 @@
 //!         }
 //!     }
 //!
-//!     fn on_entity_changed(&mut self, mentity: &MetaEntity) {
+//!     fn on_entity_changed(&mut self, _cm: &ComponentMapper, mentity: &MetaEntity) {
 //!         self.view.update(mentity);
 //!     }
 //!
-//!     fn on_entity_removed(&mut self, mentity: &MetaEntity) {
+//!     fn on_entity_removed(&mut self, _cm: &ComponentMapper, mentity: &MetaEntity) {
 //!         self.view.remove(mentity);
 //!     }
 //! }
