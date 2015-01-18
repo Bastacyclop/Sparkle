@@ -25,13 +25,13 @@ pub trait System: 'static {
     fn fixed_update(&mut self, _em: &mut EntityMapper, _component: &mut ComponentMapper) {}
 
     /// Called when an entity has been changed.
-    fn on_entity_changed(&mut self, _mentity: &MetaEntity) {}
+    fn on_entity_changed(&mut self, _cm: &ComponentMapper, _mentity: &MetaEntity) {}
 
     /// Called when an entity has been removed.
     ///
     /// For convenience, entity metadatas clearing is delayed
     /// until all systems have been notified.
-    fn on_entity_removed(&mut self, _mentity: &MetaEntity) {}
+    fn on_entity_removed(&mut self, _cm: &ComponentMapper, _mentity: &MetaEntity) {}
 }
 
 /// Maps systems using `TypeId`s as identifiers.
@@ -142,16 +142,16 @@ impl SystemMapper {
 
 impl EntityObserver for SystemMapper {
     /// Notifies systems that an entity has changed.
-    fn notify_changed(&mut self, mentity: &MetaEntity) {
+    fn notify_changed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
         for slot in self.slots.iter_mut() {
-            slot.system.on_entity_changed(mentity);
+            slot.system.on_entity_changed(cm, mentity);
         }
     }
 
     /// Notifies systems that an entity has been removed.
-    fn notify_removed(&mut self, mentity: &MetaEntity) {
+    fn notify_removed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
         for slot in self.slots.iter_mut() {
-            slot.system.on_entity_removed(mentity);
+            slot.system.on_entity_removed(cm, mentity);
         }
     }
 }

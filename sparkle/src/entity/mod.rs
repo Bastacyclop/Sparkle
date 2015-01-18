@@ -202,9 +202,9 @@ impl EntityMapper {
 
         mentities.drain_events_with(|(kind, mentity)| {
             match kind {
-                EventKind::Changed => obs.notify_changed(mentity),
+                EventKind::Changed => obs.notify_changed(cm, mentity),
                 EventKind::Removed => {
-                    obs.notify_removed(mentity);
+                    obs.notify_removed(cm, mentity);
                     ::component::private::forget(cm, mentity);
                 }
             }
@@ -271,9 +271,9 @@ type EventDrain<'a> = ring_buf::Drain<'a, Event>;
 #[doc(hidden)]
 pub trait EntityObserver {
     /// Notifies the observer that an entity was changed.
-    fn notify_changed(&mut self, mentity: &MetaEntity);
+    fn notify_changed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity);
     /// Notifies the observer that an entity was removed.
-    fn notify_removed(&mut self, mentity: &MetaEntity);
+    fn notify_removed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity);
 }
 
 macro_rules! get_mentity {
