@@ -87,11 +87,11 @@ A system is responsible for updating components in the world. Most of the time y
           // Use this if you want an update every frame.
       }
       
-      fn on_entity_changed(&mut self, mentity: &MetaEntity) {
+      fn on_entity_changed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
           self.view.update(mentity);
       }
       
-      fn on_entity_removed(&mut self, mentity: &MetaEntity) {
+      fn on_entity_removed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
           self.view.remove(mentity);
       }
   }
