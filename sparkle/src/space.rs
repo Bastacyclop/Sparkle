@@ -1,7 +1,6 @@
 //! Convenient object of the library.
 
 use command::{self, CommandReceiver, Command};
-use blackboard::SharedBlackboard;
 use component::ComponentMapper;
 use entity::EntityMapper;
 use system::SystemMapper;
@@ -18,14 +17,14 @@ pub struct Space {
 
 impl Space {
     /// Creates a new `Space`.
-    pub fn new(blackboard: SharedBlackboard) -> Space {
+    pub fn new() -> Space {
         let (sender, receiver) = command::stream();
 
         Space {
             cmd_receiver: receiver,
             em: EntityMapper::new(),
             cm: ComponentMapper::new(),
-            sm: SystemMapper::new(sender, blackboard)
+            sm: SystemMapper::new(sender)
         }
     }
 

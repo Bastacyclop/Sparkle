@@ -3,7 +3,6 @@
 use std::intrinsics::TypeId;
 
 use space::Space;
-use blackboard::SharedBlackboard;
 use command::CommandSender;
 use entity::{MetaEntity, EntityMapper, EntityObserver};
 use component::ComponentMapper;
@@ -38,18 +37,16 @@ pub trait System: 'static {
 pub struct SystemMapper {
     slots: Vec<SystemSlot>,
     cmd_sender: CommandSender<Space>,
-    blackboard: SharedBlackboard
 }
 
 impl SystemMapper {
     /// Creates an empty `SystemMapper`.
     ///
     /// The given `cmd_sender` and `blackboard` will be presented to each systems at insertion.
-    pub fn new(cmd_sender: CommandSender<Space>, blackboard: SharedBlackboard) -> SystemMapper {
+    pub fn new(cmd_sender: CommandSender<Space>) -> SystemMapper {
         SystemMapper {
             slots: Vec::new(),
-            cmd_sender: cmd_sender,
-            blackboard: blackboard
+            cmd_sender: cmd_sender
         }
     }
 
@@ -60,10 +57,10 @@ impl SystemMapper {
     ///
     /// The system will be awake.
     pub fn insert<F, S>(&mut self, builder: F)
-        where F: FnOnce(CommandSender<Space>, SharedBlackboard) -> S, S: System
+        where F: FnOnce(CommandSender<Space>) -> S, S: System
     {
         self.slots.push(SystemSlot::new(
-            builder(self.cmd_sender.clone(), self.blackboard.clone())
+            builder(self.cmd_sender.clone())
         ));
     }
 

@@ -104,8 +104,7 @@ A space represents a part of your game world. In small projects one instance sho
 ```rust
   use sparkle::prelude::*;
   
-  let blackboard = SharedBlackboard::new();
-  let space = Space::new(blackboard);
+  let space = Space::new();
   
   let entity = space.em.create_entity();
   space.em.set_tag(entity, "a_tag");
@@ -117,7 +116,7 @@ A space represents a part of your game world. In small projects one instance sho
   space.cm.get::<Position>(entity).x = 8;
   // ...
   
-  space.sm.insert(|_cmd_sender, _blackboard| PositionPrinter::new());
+  space.sm.insert(|_cmd_sender| PositionPrinter::new());
   
   // ...
   space.update(dt) // This should be called every frame
