@@ -55,7 +55,7 @@ use std::ops::{Deref};
 use std::collections::{HashSet, BitvSet};
 
 use entity::{Entity, MetaEntity};
-use component::{Component, ComponentIndex};
+use component::{Component, index_of};
 
 /// The standard `EntityView`, just an alias.
 pub type StandardEntityView = EntityView<StandardEntityFilter>;
@@ -137,19 +137,19 @@ impl StandardEntityFilter {
     }
 
     /// Adds a mandatory component type.
-    pub fn require_component<T>(&mut self)
-        where T: Component + ComponentIndex
+    pub fn require_component<C>(&mut self)
+        where C: Component
     {
-        let index = ComponentIndex::of(None::<T>);
-        self.mandatory_components.insert(index);
+        let type_index = index_of::<C>();
+        self.mandatory_components.insert(type_index);
     }
 
     /// Adds a forbidden component type.
-    pub fn forbid_component<T>(&mut self)
-        where T: Component + ComponentIndex
+    pub fn forbid_component<C>(&mut self)
+        where C: Component
     {
-        let index = ComponentIndex::of(None::<T>);
-        self.forbidden_components.insert(index);
+        let type_index = index_of::<C>();
+        self.forbidden_components.insert(type_index);
     }
 
     /// Adds a mandatory group.

@@ -4,18 +4,18 @@ use syntax::ptr::P;
 use syntax::ast::{MetaItem, Item};
 use syntax::ext::build::AstBuilder;
 use syntax::ext::deriving::generic::{TraitDef, MethodDef, combine_substructure};
-use syntax::ext::deriving::generic::ty::{Path, LifetimeBounds, Self, Literal};
+use syntax::ext::deriving::generic::ty::{Path, LifetimeBounds, Literal};
 use syntax::ext::base::{ItemDecorator, ExtCtxt};
-use std::sync::atomic::{AtomicUint, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 pub struct ComponentDecorator {
-    pub index_counter: AtomicUint
+    pub index_counter: AtomicUsize
 }
 
 impl ComponentDecorator {
     pub fn new() -> ComponentDecorator {
         ComponentDecorator {
-            index_counter: AtomicUint::new(0)
+            index_counter: AtomicUsize::new(0)
         }
     }
 }
@@ -30,25 +30,18 @@ impl ItemDecorator for ComponentDecorator {
         let inline = cx.meta_word(span, token::InternedString::new("inline"));
         let attrs = vec!(cx.attribute(span, inline));
 
-        let component_type_trait_def = TraitDef {
+        let component_trait_def = TraitDef {
             span: span,
             attributes: Vec::new(),
-            path: Path::new(vec!("sparkle", "component", "ComponentIndex")),
+            path: Path::new(vec!("sparkle", "component", "Component")),
             additional_bounds: Vec::new(),
             generics: LifetimeBounds::empty(),
             methods: vec!(
                 MethodDef {
-                    name: "of",
+                    name: "index_of",
                     generics: LifetimeBounds::empty(),
                     explicit_self: None,
-                    args: vec!(
-                        Literal(Path::new_(
-                            vec!("std", "option", "Option"),
-                            None,
-                            vec!(Box::new(Self)),
-                            true
-                        ))
-                    ),
+                    args: Vec::new(),
                     ret_ty: Literal(Path::new(vec!("usize"))),
                     attributes: attrs,
                     combine_substructure: combine_substructure(box |&: c, s, _sub| {
@@ -58,16 +51,6 @@ impl ItemDecorator for ComponentDecorator {
             )
         };
 
-        let component_trait_def = TraitDef {
-            span: span,
-            attributes: Vec::new(),
-            path: Path::new(vec!("sparkle", "component", "Component")),
-            additional_bounds: Vec::new(),
-            generics: LifetimeBounds::empty(),
-            methods: Vec::new()
-        };
-
-        component_type_trait_def.expand(cx, mitem, item, |p| push.call_mut((p,)));
         component_trait_def.expand(cx, mitem, item, |p| push.call_mut((p,)));
     }
 }
