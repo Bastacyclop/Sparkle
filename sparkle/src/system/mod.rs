@@ -38,8 +38,6 @@ pub struct SystemMapper {
 
 impl SystemMapper {
     /// Creates an empty `SystemMapper`.
-    ///
-    /// The given `cmd_sender` and `blackboard` will be presented to each systems at insertion.
     pub fn new() -> SystemMapper {
         SystemMapper {
             slots: Vec::new(),
@@ -48,10 +46,7 @@ impl SystemMapper {
 
     /// Inserts a system in the mapper.
     ///
-    /// The builder fonction receives a `CommandSender` and `Blackboard` access
-    /// which can be used for systems requiring them.
-    ///
-    /// The system will be awake.
+    /// The system will be awake by default.
     pub fn insert<S>(&mut self, system: S)
         where S: System
     {

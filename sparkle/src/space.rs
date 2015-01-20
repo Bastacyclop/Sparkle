@@ -18,7 +18,7 @@ pub struct Space {
 }
 
 impl Space {
-    /// Creates a new `Space`.
+    /// Creates a new `Space` and a `CommandSender`
     pub fn new() -> (Space, CommandSender<SpaceCommand>) {
         let (sender, receiver) = command::stream();
 
