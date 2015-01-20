@@ -1,6 +1,6 @@
 //! Convenient object of the library.
 
-use command::{self, CommandReceiver, Command};
+use command::{self, CommandReceiver, CommandSender, Command};
 use component::ComponentMapper;
 use entity::EntityMapper;
 use system::SystemMapper;
@@ -19,15 +19,16 @@ pub struct Space {
 
 impl Space {
     /// Creates a new `Space`.
-    pub fn new() -> Space {
+    pub fn new() -> (Space, CommandSender<SpaceCommand>) {
         let (sender, receiver) = command::stream();
 
-        Space {
+        (Space {
             cmd_receiver: receiver,
             em: EntityMapper::new(),
             cm: ComponentMapper::new(),
-            sm: SystemMapper::new(sender)
-        }
+            sm: SystemMapper::new()
+        },
+        sender)
     }
 
     /// Runs pending commands and updates systems according to the
