@@ -2,7 +2,7 @@
 
 use std::intrinsics::TypeId;
 
-use space::Space;
+use space::SpaceCommand;
 use command::CommandSender;
 use entity::{MetaEntity, EntityMapper, EntityObserver};
 use component::ComponentMapper;
@@ -36,14 +36,14 @@ pub trait System: 'static {
 /// Maps systems using `TypeId`s as identifiers.
 pub struct SystemMapper {
     slots: Vec<SystemSlot>,
-    cmd_sender: CommandSender<Space>,
+    cmd_sender: CommandSender<SpaceCommand>,
 }
 
 impl SystemMapper {
     /// Creates an empty `SystemMapper`.
     ///
     /// The given `cmd_sender` and `blackboard` will be presented to each systems at insertion.
-    pub fn new(cmd_sender: CommandSender<Space>) -> SystemMapper {
+    pub fn new(cmd_sender: CommandSender<SpaceCommand>) -> SystemMapper {
         SystemMapper {
             slots: Vec::new(),
             cmd_sender: cmd_sender
@@ -57,7 +57,7 @@ impl SystemMapper {
     ///
     /// The system will be awake.
     pub fn insert<F, S>(&mut self, builder: F)
-        where F: FnOnce(CommandSender<Space>) -> S, S: System
+        where F: FnOnce(CommandSender<SpaceCommand>) -> S, S: System
     {
         self.slots.push(SystemSlot::new(
             builder(self.cmd_sender.clone())

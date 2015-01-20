@@ -5,11 +5,13 @@ use component::ComponentMapper;
 use entity::EntityMapper;
 use system::SystemMapper;
 
+pub type SpaceCommand = Box<for<'a> Command<Args = &'a Space>>;
+
 /// Regroups the three essential mappers and the blackboard.
 ///
 /// It's also responsible of updates and command execution.
 pub struct Space {
-    cmd_receiver: CommandReceiver<Space>,
+    cmd_receiver: CommandReceiver<SpaceCommand>,
     pub em: EntityMapper,
     pub cm: ComponentMapper,
     pub sm: SystemMapper
