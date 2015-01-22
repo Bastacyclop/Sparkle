@@ -1,6 +1,6 @@
 //! The system related features.
 
-use std::intrinsics::TypeId;
+use std::any::TypeId;
 
 use entity::{MetaEntity, EntityMapper, EntityObserver};
 use component::ComponentMapper;
