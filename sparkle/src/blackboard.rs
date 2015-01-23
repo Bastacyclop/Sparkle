@@ -2,8 +2,9 @@
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry as HashMapEntry;
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
-use std::cell::RefCell;
+use std::cell::{Ref, RefMut, RefCell};
 use std::any::Any;
 
 /// Contains a value exposed by the `Blackboard`.
@@ -39,19 +40,32 @@ impl Blackboard {
     /// Tries to retrieve an entry from the blackboard with the given name.
     ///
     /// Returns `None` if the entry doesn't exist.
-    pub fn try_get<T: 'static>(&self, name: &str) -> Option<BlackboardEntry<T>> {
+    pub fn try_get<'a, T: 'static>(&'a self, name: &str) -> Option<Ref<'a, T>> {
         self.entries.get(name).and_then(|any_entry| any_entry.downcast_ref::<BlackboardEntry<T>>())
-                              .map(|entry| entry.clone())
+                              .map(|entry| entry.borrow())
     }
 
     /// Retrieves an entry from the blackboard with the given name.
     ///
     /// This method panics if the entry doesn't exist.
-    pub fn get<T: 'static>(&self, name: &str) -> BlackboardEntry<T> {
-        let any_entry = self.entries.get(name).expect(format!("missing entry {}.", name).as_slice());
-        let entry = any_entry.downcast_ref::<BlackboardEntry<T>>().expect("invalid entry type.");
+    pub fn get<'a, T: 'static>(&'a self, name: &str) -> Ref<'a, T> {
+        self.try_get(name).expect(format!("Failed to get {}", name).as_slice())
+    }
 
-        entry.clone()
+
+    /// Tries to retrieve a mutable entry from the blackboard with the given name.
+    ///
+    /// Returns `None` if the entry doesn't exist.
+    pub fn try_get_mut<'a, T: 'static>(&'a self, name: &str) -> Option<RefMut<'a, T>> {
+        self.entries.get(name).and_then(|any_entry| any_entry.downcast_ref::<BlackboardEntry<T>>())
+                              .map(|entry| entry.borrow_mut())
+    }
+
+    /// Retrieves a mutable entry from the blackboard with the given name.
+    ///
+    /// This method panics if the entry doesn't exist.
+    pub fn get_mut<'a, T: 'static>(&'a self, name: &str) -> RefMut<'a, T> {
+        self.try_get_mut(name).expect(format!("Failed to get {}", name).as_slice())
     }
 }
 
@@ -62,26 +76,21 @@ impl Blackboard {
 pub struct SharedBlackboard(Rc<RefCell<Blackboard>>);
 
 impl SharedBlackboard {
-    /// Creates an empty `SharedBlackboard`.
     pub fn new() -> SharedBlackboard {
         SharedBlackboard(Rc::new(RefCell::new(Blackboard::new())))
     }
+}
 
-    /// Behaves like [the original](struct.Blackboard.html#method.insert).
-    #[inline]
-    pub fn insert<T: 'static>(&mut self, name: &str, entry: T) {
-        self.0.borrow_mut().insert(name, entry);
+impl Deref for SharedBlackboard {
+    type Target = Rc<RefCell<Blackboard>>;
+
+    fn deref(&self) -> &Rc<RefCell<Blackboard>> {
+        &self.0
     }
+}
 
-    /// Behaves like [the original](struct.Blackboard.html#method.try_get).
-    #[inline]
-    pub fn try_get<T: 'static>(&self, name: &str) -> Option<BlackboardEntry<T>> {
-        self.0.borrow().try_get(name)
-    }
-
-    /// Behaves like [the original](struct.Blackboard.html#method.get).
-    #[inline]
-    pub fn get<T: 'static>(&self, name: &str) -> BlackboardEntry<T> {
-        self.0.borrow().get(name)
+impl DerefMut for SharedBlackboard { 
+    fn deref_mut(&mut self) -> &mut Rc<RefCell<Blackboard>> {
+        &mut self.0
     }
 }
