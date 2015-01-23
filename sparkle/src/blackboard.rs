@@ -37,7 +37,7 @@ impl Blackboard {
         }
     }
 
-    /// Tries to retrieve an entry from the blackboard with the given name.
+    /// Tries to retrieve a reference to an entry from the blackboard with the given name.
     ///
     /// Returns `None` if the entry doesn't exist.
     pub fn try_get<'a, T: 'static>(&'a self, name: &str) -> Option<Ref<'a, T>> {
@@ -45,15 +45,29 @@ impl Blackboard {
                               .map(|entry| entry.borrow())
     }
 
-    /// Retrieves an entry from the blackboard with the given name.
+    /// Retrieves a reference to an entry from the blackboard with the given name.
     ///
     /// This method panics if the entry doesn't exist.
     pub fn get<'a, T: 'static>(&'a self, name: &str) -> Ref<'a, T> {
         self.try_get(name).expect(format!("Failed to get {}", name).as_slice())
     }
 
+    /// Tries to retrieve an entry from the blackboard with the given name.
+    ///
+    /// Returns `None` if the entry doesn't exist.
+    pub fn try_get_entry<T: 'static>(&self, name: &str) -> Option<BlackboardEntry<T>> {
+        self.entries.get(name).and_then(|any_entry| any_entry.downcast_ref::<BlackboardEntry<T>>())
+                              .map(|entry| entry.clone())    
+    }
 
-    /// Tries to retrieve a mutable entry from the blackboard with the given name.
+    /// Retrieves an entry from the blackboard with the given name.
+    ///
+    /// This method panics if the entry doesn't exist.
+    pub fn get_entry<T: 'static>(&self, name: &str) -> BlackboardEntry<T> {
+        self.try_get_entry(name).expect(format!("Failed to get {}", name).as_slice())
+    }
+
+    /// Tries to retrieve a mutable reference to an entry from the blackboard with the given name.
     ///
     /// Returns `None` if the entry doesn't exist.
     pub fn try_get_mut<'a, T: 'static>(&'a self, name: &str) -> Option<RefMut<'a, T>> {
@@ -61,7 +75,7 @@ impl Blackboard {
                               .map(|entry| entry.borrow_mut())
     }
 
-    /// Retrieves a mutable entry from the blackboard with the given name.
+    /// Retrieves a mutable reference to an entry from the blackboard with the given name.
     ///
     /// This method panics if the entry doesn't exist.
     pub fn get_mut<'a, T: 'static>(&'a self, name: &str) -> RefMut<'a, T> {
