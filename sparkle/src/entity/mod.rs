@@ -573,7 +573,7 @@ mod tests {
     #[test]
     fn pool_get() {
         let mut pool = Pool::new();
-        for i in 0..10 {
+        for i in 0..10us {
             assert_eq!(pool.get().entity, i);
         }
     }
