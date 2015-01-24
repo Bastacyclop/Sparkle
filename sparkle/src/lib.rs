@@ -36,7 +36,7 @@
 #![feature(box_syntax)]
 
 pub use blackboard::{Blackboard, SharedBlackboard, BlackboardEntry};
-pub use space::Space;
+pub use space::{Space, SpaceCommand};
 
 pub use component::ComponentMapper;
 
@@ -66,7 +66,7 @@ pub mod blackboard;
 pub mod prelude {
     pub use {
         Blackboard, SharedBlackboard, BlackboardEntry,
-        Space,
+        Space, SpaceCommand,
         ComponentMapper,
         Entity, MetaEntity, EntityMapper,
         System, SystemMapper,
