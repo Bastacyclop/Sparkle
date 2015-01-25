@@ -45,7 +45,7 @@ pub use entity::{Entity, MetaEntity, EntityMapper};
 pub use system::{System, SystemMapper,
     EntityView, StandardEntityView, EntityFilter, StandardEntityFilter};
 
-pub use command::{Command, CommandSender};
+pub use command::{Command, CommandSender, CommandReceiver};
 
 pub mod entity;
 pub mod component;
@@ -71,6 +71,6 @@ pub mod prelude {
         Entity, MetaEntity, EntityMapper,
         System, SystemMapper,
         EntityView, StandardEntityView, EntityFilter, StandardEntityFilter,
-        Command, CommandSender
+        Command, CommandSender, CommandReceiver
     };
 }
