@@ -54,7 +54,7 @@
 use std::ops::{Deref};
 use std::collections::{HashSet, BitvSet};
 
-use entity::{Entity, MetaEntity};
+use entity::MetaEntity;
 use component::{Component, index_of};
 
 /// The standard `EntityView`, just an alias.
@@ -64,7 +64,7 @@ pub type StandardEntityView = EntityView<StandardEntityFilter>;
 pub struct EntityView<Filter>
     where Filter: EntityFilter
 {
-    entities: HashSet<Entity>,
+    entities: BitvSet,
     filter: Filter
 }
 
@@ -74,7 +74,7 @@ impl<Filter> EntityView<Filter>
     /// Creates a new `EntityView` with the given `EntityFilter`.
     pub fn new(filter: Filter) -> EntityView<Filter> {
         EntityView {
-            entities: HashSet::new(),
+            entities: BitvSet::new(),
             filter: filter
         }
     }
@@ -105,8 +105,8 @@ impl<Filter> EntityView<Filter>
 impl<Filter> Deref for EntityView<Filter>
     where Filter: EntityFilter
 {
-    type Target = HashSet<Entity>;
-    fn deref(&self) -> &HashSet<Entity> {
+    type Target = BitvSet;
+    fn deref(&self) -> &BitvSet {
         &self.entities
     }
 }
