@@ -8,16 +8,15 @@ use std::ops::Deref;
 use std::collections::{HashMap, HashSet};
 
 use sparkle::prelude::*;
-use sparkle::command::CommandReceiver;
 use sparkle::component;
 
-#[sparkle_component]
+#[component]
 struct InventoryItem {
     name: String,
     owner: Entity
 }
 
-#[sparkle_component]
+#[component]
 struct InventoryOwner {
     name: String
 }
@@ -45,7 +44,7 @@ impl InventoryView {
                 items.remove(&mentity.entity);
             }
             let item = cm.get::<InventoryItem>(mentity.entity);
-            let inventory = self.map.get_mut(&item.owner).expect("Unvalid item owner");
+            let inventory = self.map.get_mut(&item.owner).expect("unvalid item owner");
             inventory.insert(mentity.entity);
         }
     }
@@ -65,9 +64,10 @@ impl Deref for InventoryView {
     }
 }
 
-pub type InventoryCommand = Box<for<'a> Command<Args = (&'a mut InventoryView,
-                                                        &'a mut EntityMapper,
-                                                        &'a mut ComponentMapper)>>;
+type InventoryCommandArg<'a> = (&'a mut InventoryView,
+                                &'a mut EntityMapper,
+                                &'a mut ComponentMapper);
+type InventoryCommand = Box<for<'a> Command<Args = InventoryCommandArg<'a>>>;
 
 struct InventoryMaintainer {
     inventory_view: BlackboardEntry<InventoryView>,
@@ -77,7 +77,7 @@ struct InventoryMaintainer {
 impl InventoryMaintainer {
     fn new(blackboard: &Blackboard, query_recvr: CommandReceiver<InventoryCommand>) -> InventoryMaintainer {
         InventoryMaintainer {
-            inventory_view: blackboard.get("inventory_view"),
+            inventory_view: blackboard.get_entry("inventory_view"),
             query_recvr: query_recvr
         }
     }
@@ -106,12 +106,8 @@ struct CreateItem {
 }
 
 impl<'a> Command for CreateItem {
-    type Args = (&'a mut InventoryView,
-                 &'a mut EntityMapper,
-                 &'a mut ComponentMapper);
-    fn run(&mut self, args: (&'a mut InventoryView,
-                             &'a mut EntityMapper,
-                             &'a mut ComponentMapper)) {
+    type Args = InventoryCommandArg<'a>;
+    fn run(&mut self, args: InventoryCommandArg<'a>) {
         let (view, em, cm) = args;
         
         let mitem = em.get_mentity_mut(self.item_e);
@@ -126,16 +122,12 @@ struct SetItemOwner {
 }
 
 impl<'a> Command for SetItemOwner {
-    type Args = (&'a mut InventoryView,
-                 &'a mut EntityMapper,
-                 &'a mut ComponentMapper);
-    fn run(&mut self, args: (&'a mut InventoryView,
-                             &'a mut EntityMapper,
-                             &'a mut ComponentMapper)) {
+    type Args = InventoryCommandArg<'a>;
+    fn run(&mut self, args: InventoryCommandArg<'a>) {
         let (view, em, cm) = args;
         
         {
-            let mut item = cm.get_mut::<InventoryItem>(self.item_e);
+            let item = cm.get_mut::<InventoryItem>(self.item_e);
             item.owner = self.owner_e;
         }
         let mitem = em.get_mentity(self.item_e);
@@ -150,14 +142,14 @@ struct InventoryDisplayer {
 impl InventoryDisplayer {
     fn new(blackboard: &Blackboard) -> InventoryDisplayer {
         InventoryDisplayer {
-            inventory_view: blackboard.get("inventory_view")
+            inventory_view: blackboard.get_entry("inventory_view")
         }
     }
 }
 
 impl System for InventoryDisplayer {
     fn update(&mut self, _em: &mut EntityMapper, cm: &mut ComponentMapper, _dt: f32) {
-        println!("===== Inventories: =====");
+        println!("======= Inventories: =======");
         for (&owner, items) in self.inventory_view.borrow().iter() {
             let owner = cm.get::<InventoryOwner>(owner);
             println!("{} owns:", owner.name);
@@ -166,7 +158,7 @@ impl System for InventoryDisplayer {
                 println!("  - {}", item.name);
             }
         }
-        println!("========================");
+        println!("============================");
     }
 }
 
@@ -214,7 +206,7 @@ fn main() {
     
     space.update(0.);
     
-    // bob steals joe's crowbar
+    println!("* bob steals joe's crowbar *");
     inventory_cmd_sender.send(Box::new(SetItemOwner { item_e: crowbar, owner_e: bob }));
     
     space.update(0.);

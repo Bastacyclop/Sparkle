@@ -18,8 +18,26 @@ pub fn index_of<C>() -> usize
     <C as Component>::index_of()
 }
 
-// FIXME: must find a better way to do this
-type StoreWrapper = (Box<AnyStore>, TraitObject);
+// FIXME: find a better way to do this
+struct StoreWrapper(Box<AnyStore>, TraitObject);
+
+impl StoreWrapper {
+    fn new<C, S>(store: S) -> StoreWrapper
+        where C: Component, S: ComponentStore<C>
+    {
+        let boxed = Box::new(store);
+        let to = unsafe { mem::transmute(&*boxed as &ComponentStore<C>) };
+        StoreWrapper(boxed, to)
+    }
+    
+    unsafe fn downcast_ref<'a, C>(&'a self) -> &'a ComponentStore<C> {
+        mem::transmute(self.1)
+    }
+    
+    unsafe fn downcast_mut<'a, C>(&'a mut self) -> &'a mut ComponentStore<C> {
+        mem::transmute(self.1)
+    }
+}
 
 /// A component mapper.
 ///
@@ -31,7 +49,6 @@ pub struct ComponentMapper {
 
 impl ComponentMapper {
     /// Creates a new `ComponentMapper`.
-    #[doc(hidden)]
     pub fn new() -> ComponentMapper {
         ComponentMapper {
             stores: VecMap::new()
@@ -51,15 +68,15 @@ impl ComponentMapper {
         self.get_store_mut::<C>().insert(mentity.entity, component);
     }
 
-    pub fn use_store<C: Component, S: ComponentStore<C>>(&mut self, store: S) {
+    pub fn use_store<C, S>(&mut self, store: S)
+        where C: Component, S: ComponentStore<C>
+    {
         let type_index = index_of::<C>();
 
         if !self.stores.contains_key(&type_index) {
-            let boxed = Box::new(store);
-            let to: TraitObject = unsafe { mem::transmute(&*boxed as &ComponentStore<C>) };
-            self.stores.insert(type_index, (boxed, to));
+            self.stores.insert(type_index, StoreWrapper::new(store));
         } else {
-            panic!("The store is already assigned");
+            panic!("the store is already assigned");
         }
     }
 
@@ -70,9 +87,8 @@ impl ComponentMapper {
         let type_index = index_of::<C>();
 
         if !self.stores.contains_key(&type_index) {
-            let boxed = Box::new(DefaultStore::new());
-            let to: TraitObject = unsafe { mem::transmute(&*boxed as &ComponentStore<C>) };
-            self.stores.insert(type_index, (boxed, to));
+            let default = DefaultStore::<C>::new();
+            self.stores.insert(type_index, StoreWrapper::new(default));
         }
     }
 
@@ -91,7 +107,7 @@ impl ComponentMapper {
     pub fn get<C>(&self, entity: Entity) -> &C
         where C: Component
     {
-        self.try_get::<C>(entity).expect("Failed to get the component")
+        self.try_get::<C>(entity).expect("failed to get the component")
     }
 
     /// Try to returns a mutable reference to an entity's component, if it exists.
@@ -109,7 +125,7 @@ impl ComponentMapper {
     pub fn get_mut<C>(&mut self, entity: Entity) -> &mut C
         where C: Component
     {
-        self.try_get_mut::<C>(entity).expect("Failed to get the component")
+        self.try_get_mut::<C>(entity).expect("failed to get the component")
     }
 
     /// Try to returns a reference to a component store, if it exists.
@@ -118,9 +134,8 @@ impl ComponentMapper {
         where C: Component
     {
         let type_index = index_of::<C>();
-        self.stores.get(&type_index).map(|store| {
-            let to = store.1;
-            unsafe { mem::transmute(to) }
+        self.stores.get(&type_index).map(|store| unsafe {
+             store.downcast_ref()
         })
     }
 
@@ -131,7 +146,7 @@ impl ComponentMapper {
     pub fn get_store<C>(&self) -> &ComponentStore<C>
         where C: Component
     {
-        self.try_get_store::<C>().expect("Failed to get the store")
+        self.try_get_store::<C>().expect("failed to get the store")
     }
 
     /// Try to returns a mutable reference to a component store, if it exists.
@@ -140,9 +155,8 @@ impl ComponentMapper {
         where C: Component
     {
         let type_index = index_of::<C>();
-        self.stores.get_mut(&type_index).map(|store| {
-            let to = store.1;
-            unsafe { mem::transmute(to) }
+        self.stores.get_mut(&type_index).map(|store| unsafe {
+             store.downcast_mut()
         })
     }
 
@@ -153,7 +167,7 @@ impl ComponentMapper {
     pub fn get_store_mut<C>(&mut self) -> &mut ComponentStore<C>
         where C: Component
     {
-        self.try_get_store_mut::<C>().expect("Failed to get the store")
+        self.try_get_store_mut::<C>().expect("failed to get the store")
     }
 
     /// Detaches a component from an entity and removes it from the map.
@@ -235,7 +249,7 @@ impl<C> ComponentStore<C> for DefaultStore<C>
 
     #[inline]
     fn get(&self, entity: Entity) -> &C {
-        self.try_get(entity).expect("Failed to get component")
+        self.try_get(entity).expect("failed to get component")
     }
 
     #[inline]
@@ -245,7 +259,7 @@ impl<C> ComponentStore<C> for DefaultStore<C>
 
     #[inline]
     fn get_mut(&mut self, entity: Entity) -> &mut C {
-        self.try_get_mut(entity).expect("Failed to get component")
+        self.try_get_mut(entity).expect("failed to get component")
     }
 }
 
@@ -259,7 +273,7 @@ pub mod private {
     pub fn forget(mapper: &mut ComponentMapper, mentity: &MetaEntity) {
         for type_index in mentity.components.iter() {
             mapper.stores.get_mut(&type_index)
-                            .map(|mut store| store.0.remove(mentity.entity));
+                         .map(|mut store| store.0.remove(mentity.entity));
         }
     }
 }

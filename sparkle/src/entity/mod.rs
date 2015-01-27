@@ -98,7 +98,6 @@ pub struct EntityMapper {
 
 impl EntityMapper {
     /// Creates a new `EntityMapper`.
-    #[doc(hidden)]
     pub fn new() -> EntityMapper {
         EntityMapper {
             mentities: MetaEntityMap::new(),

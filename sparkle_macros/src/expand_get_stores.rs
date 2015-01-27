@@ -14,25 +14,28 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
         None => return DummyResult::any(sp)
     };
 
-    let mut ensure_stmts = Vec::new();
+    let mut stmts = Vec::new();
     for component_ident in component_idents.iter() {
-        ensure_stmts.push(quote_stmt!(cx,
+        stmts.push(quote_stmt!(cx,
             $cm.ensure::<$component_ident>();
         ));
     }
+    
+    stmts.push(quote_stmt!(cx, 
+        let raw_mapper: *mut ComponentMapper = &mut *$cm;
+    ));
 
     let mut tuple_exprs = Vec::new();
     for component_ident in component_idents.iter() {
         tuple_exprs.push(quote_expr!(cx,
             unsafe {
-                let cm_ref_cpy = mem::transmute_copy::<_, &mut sparkle::ComponentMapper>($cm);
-                cm_ref_cpy.get_store_mut::<$component_ident>()
+                (*raw_mapper).get_store_mut::<$component_ident>()
             }
         ));
     }
     let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
 
-    let result_block = cx.block(sp, ensure_stmts, Some(tuple_expr));
+    let result_block = cx.block(sp, stmts, Some(tuple_expr));
     let result_expr = cx.expr_block(result_block);
 
     return MacExpr::new(result_expr);

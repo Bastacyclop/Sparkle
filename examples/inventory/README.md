@@ -5,20 +5,21 @@ After a [reddit feedback](http://www.reddit.com/r/rust/comments/2srrx0/another_e
 ## Expected Output
 
 ````
-===== Inventories: =====
+======= Inventories: =======
 joe owns:
   - food
   - crowbar
 bob owns:
   - boots
   - hat
-========================
-===== Inventories: =====
+============================
+* bob steals joe's crowbar *
+======= Inventories: =======
 joe owns:
   - food
 bob owns:
   - crowbar
   - boots
   - hat
-========================
+============================
 ````
