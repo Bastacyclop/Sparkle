@@ -7,7 +7,7 @@ use entity::{Entity, MetaEntity};
 
 /// The trait for components.
 ///
-/// You shouldn't implement this manually, instead use the `#[sparkle_component]` macro.
+/// You shouldn't implement this manually, instead use the `#[component]` macro.
 pub trait Component: 'static {
     fn index_of() -> usize;
 }
@@ -55,9 +55,9 @@ impl ComponentMapper {
         }
     }
 
-    /// Attaches a component to an entity and inserts it into the map.
+    /// Attaches a component to an entity and inserts it into the mapper.
     ///
-    /// If necessary, a new component store is created.
+    /// If necessary, a default component store is created.
     pub fn insert<C>(&mut self, mentity: &mut MetaEntity, component: C)
         where C: Component
     {
@@ -68,6 +68,10 @@ impl ComponentMapper {
         self.get_store_mut::<C>().insert(mentity.entity, component);
     }
 
+    /// Uses the given component store for a certain type of components.
+    ///
+    /// This should be done when setting up the mapper, before it's actually used.
+    /// Panics if another store is already used for this type of components.
     pub fn use_store<C, S>(&mut self, store: S)
         where C: Component, S: ComponentStore<C>
     {
@@ -76,11 +80,13 @@ impl ComponentMapper {
         if !self.stores.contains_key(&type_index) {
             self.stores.insert(type_index, StoreWrapper::new(store));
         } else {
-            panic!("the store is already assigned");
+            panic!("a store is already used for this type of components");
         }
     }
 
-    /// Ensures a default component store presence.
+    /// Ensures that some store is used for this type of components.
+    ///
+    /// If necessary, a default component store is created.
     pub fn ensure<C>(&mut self)
         where C: Component
     {
@@ -92,7 +98,7 @@ impl ComponentMapper {
         }
     }
 
-    /// Try to returns a reference to an entity's component, if it exists.
+    /// Tries to return a reference to an entity's component, if it exists.
     #[inline]
     pub fn try_get<C>(&self, entity: Entity) -> Option<&C>
         where C: Component
@@ -102,7 +108,7 @@ impl ComponentMapper {
 
     /// Returns a reference to an entity's component.
     ///
-    /// This method panic if the entity doesn't have the requested component.
+    /// Panics if the entity doesn't have the requested component.
     #[inline]
     pub fn get<C>(&self, entity: Entity) -> &C
         where C: Component
@@ -110,7 +116,7 @@ impl ComponentMapper {
         self.try_get::<C>(entity).expect("failed to get the component")
     }
 
-    /// Try to returns a mutable reference to an entity's component, if it exists.
+    /// Tries to return a mutable reference to an entity's component, if it exists.
     #[inline]
     pub fn try_get_mut<C>(&mut self, entity: Entity) -> Option<&mut C>
         where C: Component
@@ -118,9 +124,9 @@ impl ComponentMapper {
         self.try_get_store_mut::<C>().and_then(|store| store.try_get_mut(entity))
     }
 
-    /// Try to returns a mutable reference to an entity's component, if it exists.
+    /// Tries to return a mutable reference to an entity's component, if it exists.
     ///
-    /// This method panic if the entity doesn't have the requested component.
+    /// Panics if the entity doesn't have the requested component.
     #[inline]
     pub fn get_mut<C>(&mut self, entity: Entity) -> &mut C
         where C: Component
@@ -128,7 +134,7 @@ impl ComponentMapper {
         self.try_get_mut::<C>(entity).expect("failed to get the component")
     }
 
-    /// Try to returns a reference to a component store, if it exists.
+    /// Tries to return a reference to a component store, if it exists.
     #[inline]
     pub fn try_get_store<C>(&self) -> Option<&ComponentStore<C>>
         where C: Component
@@ -141,7 +147,7 @@ impl ComponentMapper {
 
     /// Returns a reference to a component store, if it exists.
     ///
-    /// This method panic if the store doesn't exist.
+    /// Panics if the store doesn't exist.
     #[inline]
     pub fn get_store<C>(&self) -> &ComponentStore<C>
         where C: Component
@@ -149,7 +155,7 @@ impl ComponentMapper {
         self.try_get_store::<C>().expect("failed to get the store")
     }
 
-    /// Try to returns a mutable reference to a component store, if it exists.
+    /// Tries to return a mutable reference to a component store, if it exists.
     #[inline]
     pub fn try_get_store_mut<C>(&mut self) -> Option<&mut ComponentStore<C>>
         where C: Component
@@ -162,7 +168,7 @@ impl ComponentMapper {
 
     /// Returns a mutable reference to a component store, if it exists.
     ///
-    /// This method panic if the store doesn't exist.
+    /// Panics if the store doesn't exist.
     #[inline]
     pub fn get_store_mut<C>(&mut self) -> &mut ComponentStore<C>
         where C: Component
@@ -170,7 +176,7 @@ impl ComponentMapper {
         self.try_get_store_mut::<C>().expect("failed to get the store")
     }
 
-    /// Detaches a component from an entity and removes it from the map.
+    /// Detaches a component from an entity and removes it from the mapper.
     pub fn remove<C>(&mut self, mentity: &mut MetaEntity)
         where C: Component
     {
@@ -180,7 +186,7 @@ impl ComponentMapper {
         self.get_store_mut::<C>().remove(mentity.entity);
     }
 
-    /// Detaches all components from an entity and removes them from the map.
+    /// Detaches all components from an entity and removes them from the mapper.
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {
         for (type_index, store) in self.stores.iter_mut() {
             mentity.components.remove(&type_index);
@@ -189,16 +195,33 @@ impl ComponentMapper {
     }
 }
 
+/// A store of components of the same type.
 pub trait ComponentStore<C>: 'static
     where C: Component
 {
+    /// Inserts an entity's component into the store.
     fn insert(&mut self, entity: Entity, component: C);
+    /// Removes an entity's component from the store.
     fn remove(&mut self, entity: Entity);
-
-    fn get(&self, component: Entity) -> &C;
-    fn get_mut(&mut self, entity: Entity) -> &mut C;
+    /// Tries to return a reference to an entity's component.
     fn try_get(&self, entity: Entity) -> Option<&C>;
+    /// Tries to return a mutable reference to an entity's component.
     fn try_get_mut(&mut self, entity: Entity) -> Option<&mut C>;
+    
+    /// Returns a reference to an entity's component.
+    ///
+    /// Panics if the entity doesn't have the requested component.
+    #[inline]
+    fn get(&self, entity: Entity) -> &C {
+        self.try_get(entity).expect("failed to get component")
+    }
+    /// Returns a mutable reference to an entity's component.
+    ///
+    /// Panics if the entity doesn't have the requested component.
+    #[inline]
+    fn get_mut(&mut self, entity: Entity) -> &mut C {
+        self.try_get_mut(entity).expect("failed to get component")
+    }
 }
 
 /// A `ComponentStore` of any component type.
@@ -215,7 +238,7 @@ impl<S, C> AnyStore for S
     }
 }
 
-/// A store of components of the same type.
+/// The default `ComponentStore`.
 ///
 /// Basically a vector of components where
 /// each index corresponds to an `Entity`.
@@ -224,6 +247,7 @@ pub struct DefaultStore<C>(VecMap<C>) where C: Component;
 impl<C> DefaultStore<C>
     where C: Component
 {
+    /// Creates a new `DefaultStore`.
     pub fn new() -> DefaultStore<C> {
         DefaultStore(VecMap::new())
     }
@@ -248,18 +272,8 @@ impl<C> ComponentStore<C> for DefaultStore<C>
     }
 
     #[inline]
-    fn get(&self, entity: Entity) -> &C {
-        self.try_get(entity).expect("failed to get component")
-    }
-
-    #[inline]
     fn try_get_mut(&mut self, entity: Entity) -> Option<&mut C> {
         self.0.get_mut(&entity)
-    }
-
-    #[inline]
-    fn get_mut(&mut self, entity: Entity) -> &mut C {
-        self.try_get_mut(entity).expect("failed to get component")
     }
 }
 
