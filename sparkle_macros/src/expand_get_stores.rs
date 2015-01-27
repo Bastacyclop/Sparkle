@@ -24,7 +24,10 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
     let mut tuple_exprs = Vec::new();
     for component_ident in component_idents.iter() {
         tuple_exprs.push(quote_expr!(cx,
-            $cm.get_store_mut::<$component_ident>()
+            unsafe {
+                let cm_ref_cpy = mem::transmute_copy::<_, &mut sparkle::ComponentMapper>($cm);
+                cm_ref_cpy.get_store_mut::<$component_ident>()
+            }
         ));
     }
     let tuple_expr = cx.expr_tuple(sp, tuple_exprs);

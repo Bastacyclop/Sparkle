@@ -33,7 +33,7 @@
 #![unstable]
 #![allow(unstable)]
 #![feature(slicing_syntax, unboxed_closures)]
-#![feature(box_syntax)]
+#![feature(box_syntax, old_impl_check)]
 
 pub use blackboard::{Blackboard, SharedBlackboard, BlackboardEntry};
 pub use space::{Space, SpaceCommand};
