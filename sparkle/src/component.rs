@@ -1,6 +1,7 @@
 //! The component related features.
 
 use std::collections::VecMap;
+use std::any::TypeId;
 use std::raw::TraitObject;
 use std::mem;
 use entity::{Entity, MetaEntity};
@@ -221,6 +222,35 @@ pub trait ComponentStore<C>: 'static
     #[inline]
     fn get_mut(&mut self, entity: Entity) -> &mut C {
         self.try_get_mut(entity).expect("failed to get component")
+    }
+
+    #[doc(hidden)]
+    fn get_type_id(&self) -> TypeId {
+        TypeId::of::<Self>()
+    }
+}
+
+impl<C> ComponentStore<C> 
+    where C: Component
+{
+    pub fn downcast_ref<S: 'static>(&self) -> Option<&S> {
+        if self.get_type_id() == TypeId::of::<S>() {
+            unsafe {
+                let to: TraitObject = mem::transmute(self);
+                return Some(mem::transmute(to.data))
+            }
+        }
+        None
+    }
+
+    pub fn downcast_mut<S: 'static>(&mut self) -> Option<&mut S> {
+        if self.get_type_id() == TypeId::of::<S>() {
+            unsafe {
+                let to: TraitObject = mem::transmute(self);
+                return Some(mem::transmute(to.data))
+            }
+        }
+        None
     }
 }
 
