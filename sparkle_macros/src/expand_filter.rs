@@ -40,59 +40,31 @@ pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 
             }
         }
 
-        if !parser.token.is_ident() {
-            cx.span_err(sp, "expected ident `components` or `groups`");
+        if !parser.eat(&token::Colon) {
+            cx.span_err(sp, "expected token `:`");
             return DummyResult::any(sp);
         }
 
-        let filter_category_indent = parser.parse_ident();
-        let interned_filter_category = token::get_ident(filter_category_indent);
-        let filter_category = interned_filter_category.get();
-
-        match filter_category {
-            "components" => {
-                if !parser.eat(&token::Colon) {
-                    cx.span_err(sp, "expected token `:`");
-                    return DummyResult::any(sp);
-                }
-
-                loop {
-                    if !parser.token.is_ident() {
-                        cx.span_err(sp, "expected component type");
-                        return DummyResult::any(sp);
-                    }
-
-                    let component_type = parser.parse_ident();
-                    components.get_mut(filter_type).map(|v| v.push(component_type));
-
-                    if !parser.eat(&token::Comma) {
-                        break;
-                    }
-                }
-            }
-            "groups" => {
-                if !parser.eat(&token::Colon) {
-                    cx.span_err(sp, "expected token `:`");
-                    return DummyResult::any(sp);
-                }
-
-                loop {
-                    if !parser.token.can_begin_expr() {
-                        cx.span_err(sp, "expected group string");
-                        return DummyResult::any(sp);
-                    }
-
-                    let group = parser.parse_expr();
-                    groups.get_mut(filter_type).map(move |v| v.push(group));
-
-                    if !parser.eat(&token::Comma) {
-                        break;
-                    }
-                }
-            }
-            _ => {
-                cx.span_err(sp, "expected ident `components` or `groups`");
+        loop {
+            if !parser.token.is_ident()  && !parser.token.can_begin_expr() {
+                cx.span_err(sp, "expected component type or expression");
                 return DummyResult::any(sp);
+            }
+
+            if parser.token.is_ident() {
+                let component_type = parser.parse_ident();
+                components.get_mut(filter_type).map(|v| v.push(component_type));
+
+                if !parser.eat(&token::Comma) {
+                    break;
+                }    
+            } else {
+                let group = parser.parse_expr();
+                groups.get_mut(filter_type).map(move |v| v.push(group));
+
+                if !parser.eat(&token::Comma) {
+                    break;
+                }    
             }
         }
     }
