@@ -75,7 +75,7 @@ A system is responsible for updating components in the world. Most of the time y
           // Note that you can also use try_get_store directly,
           // but it will return None if the store doesn't exist,
           // while the macro ensures the store existence.
-          let (position_store,) = sparkle_get_stores!(cm, Position);
+          let position_store = sparkle_get_stores!(cm, Position);
           
           for entity in self.view.iter() {
               let position = position_store.get(entity).unwrap();
