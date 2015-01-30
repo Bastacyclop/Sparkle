@@ -62,7 +62,7 @@ A system is responsible for updating components in the world. Most of the time y
   
   impl PositionPrinter {
       pub fn new() -> PositionPrinter {
-          let filter = sparkle_filter!(require components: Position);
+          let filter = sparkle_filter!(require: Position);
           PositionPrinter {
               view: EntityView::new(filter)
           }
