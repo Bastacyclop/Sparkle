@@ -7,8 +7,8 @@
 //!
 //! ```ignore
 //! let filter = sparkle_filter!(
-//!     require components: MandatoryComponentType, ...
-//!     forbid groups: "forbidden_group", "another_forbidden_group", ...
+//!     require: MandatoryComponentType, "mandatory_group" ...
+//!     forbid: "forbidden_group", ForbiddenComponentType, ...
 //! );
 //! ```
 //!
@@ -25,7 +25,7 @@
 //!
 //! impl RenderSystem {
 //!     fn new() -> RenderSystem {
-//!         let filter = sparkle_filter!(require components: Drawable);
+//!         let filter = sparkle_filter!(require: Drawable);
 //!         RenderSystem {
 //!             view: EntityView::new(filter)
 //!         }
