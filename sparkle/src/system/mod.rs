@@ -4,6 +4,7 @@ use std::any::TypeId;
 
 use entity::{MetaEntity, EntityMapper, EntityObserver};
 use component::ComponentMapper;
+use command::{self, Command, CommandSender, CommandReceiver};
 
 pub use self::filter::{EntityView, StandardEntityView, EntityFilter, StandardEntityFilter};
 
@@ -31,9 +32,15 @@ pub trait System: 'static {
     fn on_entity_removed(&mut self, _cm: &ComponentMapper, _mentity: &MetaEntity) {}
 }
 
+pub type InterSystemCommand = Box<for<'a> Command<Args = (&'a mut EntityMapper, 
+                                                          &'a mut ComponentMapper)>>;
+pub type Sender = CommandSender<InterSystemCommand>;
+pub type Receiver = CommandReceiver<InterSystemCommand>;
+
 /// Maps systems using `TypeId`s as identifiers.
 pub struct SystemMapper {
     slots: Vec<SystemSlot>,
+    commands: (Sender, Receiver)
 }
 
 impl SystemMapper {
@@ -41,7 +48,14 @@ impl SystemMapper {
     pub fn new() -> SystemMapper {
         SystemMapper {
             slots: Vec::new(),
+            commands: command::stream()
         }
+    }
+
+    /// Returns a CommandSender whose commands will be 
+    /// executed between each system update.
+    pub fn get_command_sender(&self) -> Sender {
+        self.commands.0.clone()
     }
 
     /// Inserts a system in the mapper.
@@ -118,12 +132,20 @@ impl SystemMapper {
     {
         for i in range(0, self.slots.len()) {
             em.notify_events(cm, self);
+            self.process_commands(em, cm);
+
             let slot = &mut self.slots[i];
             if slot.is_awake {
                 func(slot, em, cm);
             }
         }
     }
+
+    fn process_commands(&mut self, em: &mut EntityMapper, cm: &mut ComponentMapper) {
+        while let Some(mut command) = self.commands.1.recv() {
+            command.run((em, cm));
+        }
+    } 
 }
 
 impl EntityObserver for SystemMapper {
