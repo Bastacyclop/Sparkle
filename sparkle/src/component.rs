@@ -1,191 +1,323 @@
+//! The component related features.
+
 use std::collections::VecMap;
-use std::ops::{Deref, DerefMut};
-use std::cell::{RefCell, Ref, RefMut};
+use std::any::TypeId;
 use std::raw::TraitObject;
 use std::mem;
 use entity::{Entity, MetaEntity};
 
-pub trait Component: 'static {}
-
-// FIXME: Change this to a more generic trait
-pub trait ComponentIndex: Component {
-    fn of(_: Option<Self>) -> usize;
+/// The trait for components.
+///
+/// You shouldn't implement this manually, instead use the `#[component]` macro.
+pub trait Component: 'static {
+    fn index_of() -> usize;
 }
 
-pub type ComponentStore<C> = RefCell<VecMap<C>>;
+pub fn index_of<C>() -> usize
+    where C: Component 
+{
+    <C as Component>::index_of()
+}
 
+// FIXME: find a better way to do this
+struct StoreWrapper(Box<AnyStore>, TraitObject);
+
+impl StoreWrapper {
+    fn new<C, S>(store: S) -> StoreWrapper
+        where C: Component, S: ComponentStore<C>
+    {
+        let boxed = Box::new(store);
+        let to = unsafe { mem::transmute(&*boxed as &ComponentStore<C>) };
+        StoreWrapper(boxed, to)
+    }
+    
+    unsafe fn downcast_ref<'a, C>(&'a self) -> &'a ComponentStore<C> {
+        mem::transmute(self.1)
+    }
+    
+    unsafe fn downcast_mut<'a, C>(&'a mut self) -> &'a mut ComponentStore<C> {
+        mem::transmute(self.1)
+    }
+}
+
+/// A component mapper.
+///
+/// Basically a vector of component stores where
+/// each index corresponds to a specific component type.
 pub struct ComponentMapper {
-    stores: VecMap<Box<AnyStore>>
+    stores: VecMap<StoreWrapper>
 }
 
 impl ComponentMapper {
+    /// Creates a new `ComponentMapper`.
     pub fn new() -> ComponentMapper {
         ComponentMapper {
             stores: VecMap::new()
         }
     }
 
+    /// Attaches a component to an entity and inserts it into the mapper.
+    ///
+    /// If necessary, a default component store is created.
     pub fn insert<C>(&mut self, mentity: &mut MetaEntity, component: C)
-        where C: Component + ComponentIndex
+        where C: Component
     {
-        let type_index = ComponentIndex::of(None::<C>);
+        let type_index = index_of::<C>();
         mentity.components.insert(type_index);
 
         self.ensure::<C>();
-        self.get_store_mut::<C>().unwrap().insert(mentity.entity, component);
+        self.get_store_mut::<C>().insert(mentity.entity, component);
     }
 
-    pub fn ensure<C>(&mut self)
-        where C: Component + ComponentIndex
+    /// Uses the given component store for a certain type of components.
+    ///
+    /// This should be done when setting up the mapper, before it's actually used.
+    /// Panics if another store is already used for this type of components.
+    pub fn use_store<C, S>(&mut self, store: S)
+        where C: Component, S: ComponentStore<C>
     {
-        let type_index = ComponentIndex::of(None::<C>);
+        let type_index = index_of::<C>();
 
         if !self.stores.contains_key(&type_index) {
-            let empty: Box<ComponentStore<C>> = Box::new(RefCell::new(VecMap::new()));
-            self.stores.insert(type_index, empty);
+            self.stores.insert(type_index, StoreWrapper::new(store));
+        } else {
+            panic!("a store is already used for this type of components");
         }
     }
 
-    #[inline]
-    pub fn get<'a, C>(&'a self, entity: Entity) -> Option<ComponentRef<'a, C>>
-        where C: Component + ComponentIndex
+    /// Ensures that some store is used for this type of components.
+    ///
+    /// If necessary, a default component store is created.
+    pub fn ensure<C>(&mut self)
+        where C: Component
     {
-        self.get_store::<C>().map(|store| {
-            ComponentRef {
-                entity: entity,
-                inner_ref: store
-            }
+        let type_index = index_of::<C>();
+
+        if !self.stores.contains_key(&type_index) {
+            let default = DefaultStore::<C>::new();
+            self.stores.insert(type_index, StoreWrapper::new(default));
+        }
+    }
+
+    /// Tries to return a reference to an entity's component, if it exists.
+    #[inline]
+    pub fn try_get<C>(&self, entity: Entity) -> Option<&C>
+        where C: Component
+    {
+        self.try_get_store::<C>().and_then(|store| store.try_get(entity))
+    }
+
+    /// Returns a reference to an entity's component.
+    ///
+    /// Panics if the entity doesn't have the requested component.
+    #[inline]
+    pub fn get<C>(&self, entity: Entity) -> &C
+        where C: Component
+    {
+        self.try_get::<C>(entity).expect("failed to get the component")
+    }
+
+    /// Tries to return a mutable reference to an entity's component, if it exists.
+    #[inline]
+    pub fn try_get_mut<C>(&mut self, entity: Entity) -> Option<&mut C>
+        where C: Component
+    {
+        self.try_get_store_mut::<C>().and_then(|store| store.try_get_mut(entity))
+    }
+
+    /// Tries to return a mutable reference to an entity's component, if it exists.
+    ///
+    /// Panics if the entity doesn't have the requested component.
+    #[inline]
+    pub fn get_mut<C>(&mut self, entity: Entity) -> &mut C
+        where C: Component
+    {
+        self.try_get_mut::<C>(entity).expect("failed to get the component")
+    }
+
+    /// Tries to return a reference to a component store, if it exists.
+    #[inline]
+    pub fn try_get_store<C>(&self) -> Option<&ComponentStore<C>>
+        where C: Component
+    {
+        let type_index = index_of::<C>();
+        self.stores.get(&type_index).map(|store| unsafe {
+             store.downcast_ref()
         })
     }
 
+    /// Returns a reference to a component store, if it exists.
+    ///
+    /// Panics if the store doesn't exist.
     #[inline]
-    pub fn get_mut<'a, C>(&'a self, entity: Entity) -> Option<ComponentRefMut<'a, C>>
-        where C: Component + ComponentIndex
+    pub fn get_store<C>(&self) -> &ComponentStore<C>
+        where C: Component
     {
-        self.get_store_mut::<C>().map(|store| {
-            ComponentRefMut {
-                entity: entity,
-                inner_mut: store
-            }
+        self.try_get_store::<C>().expect("failed to get the store")
+    }
+
+    /// Tries to return a mutable reference to a component store, if it exists.
+    #[inline]
+    pub fn try_get_store_mut<C>(&mut self) -> Option<&mut ComponentStore<C>>
+        where C: Component
+    {
+        let type_index = index_of::<C>();
+        self.stores.get_mut(&type_index).map(|store| unsafe {
+             store.downcast_mut()
         })
     }
 
+    /// Returns a mutable reference to a component store, if it exists.
+    ///
+    /// Panics if the store doesn't exist.
     #[inline]
-    pub fn get_store<'a, C>(&'a self) -> Option<Ref<'a, VecMap<C>>>
-        where C: Component + ComponentIndex
+    pub fn get_store_mut<C>(&mut self) -> &mut ComponentStore<C>
+        where C: Component
     {
-        let type_index = ComponentIndex::of(None::<C>);
-        self.stores.get(&type_index).map(|store| store.downcast_ref().borrow())
+        self.try_get_store_mut::<C>().expect("failed to get the store")
     }
 
-    #[inline]
-    pub fn get_store_mut<'a, C>(&'a self) -> Option<RefMut<'a, VecMap<C>>>
-        where C: Component + ComponentIndex
-    {
-        let type_index = ComponentIndex::of(None::<C>);
-        self.stores.get(&type_index).map(|store| store.downcast_ref().borrow_mut())
-    }
-
+    /// Detaches a component from an entity and removes it from the mapper.
     pub fn remove<C>(&mut self, mentity: &mut MetaEntity)
-        where C: Component + ComponentIndex
+        where C: Component
     {
-        let type_index = ComponentIndex::of(None::<C>);
+        let type_index = index_of::<C>();
         mentity.components.remove(&type_index);
 
-        self.get_store_mut::<C>().map(|mut store| store.remove(&mentity.entity));
+        self.get_store_mut::<C>().remove(mentity.entity);
     }
 
+    /// Detaches all components from an entity and removes them from the mapper.
     pub fn remove_all(&mut self, mentity: &mut MetaEntity) {
         for (type_index, store) in self.stores.iter_mut() {
             mentity.components.remove(&type_index);
-            store.remove(&mentity.entity);
+            store.0.remove(mentity.entity);
         }
     }
 }
 
-trait AnyStore: 'static {
-    fn get_type_index(&self) -> usize;
-    fn remove(&mut self, entity: &Entity);
-}
-
-impl<C> AnyStore for ComponentStore<C>
-    where C: Component + ComponentIndex
+/// A store of components of the same type.
+pub trait ComponentStore<C>: 'static
+    where C: Component
 {
-    fn get_type_index(&self) -> usize {
-        ComponentIndex::of(None::<C>)
-    }
-
-    fn remove(&mut self, entity: &Entity) {
-        self.borrow_mut().remove(entity);
-    }
-}
-
-impl AnyStore {
+    /// Inserts an entity's component into the store.
+    fn insert(&mut self, entity: Entity, component: C);
+    /// Removes an entity's component from the store.
+    fn remove(&mut self, entity: Entity);
+    /// Tries to return a reference to an entity's component.
+    fn try_get(&self, entity: Entity) -> Option<&C>;
+    /// Tries to return a mutable reference to an entity's component.
+    fn try_get_mut(&mut self, entity: Entity) -> Option<&mut C>;
+    
+    /// Returns a reference to an entity's component.
+    ///
+    /// Panics if the entity doesn't have the requested component.
     #[inline]
-    pub fn downcast_ref<'a, C>(&'a self) -> &'a ComponentStore<C>
-        where C: Component + ComponentIndex
-    {
-        debug_assert_eq!(self.get_type_index(), ComponentIndex::of(None::<C>));
+    fn get(&self, entity: Entity) -> &C {
+        self.try_get(entity).expect("failed to get component")
+    }
+    /// Returns a mutable reference to an entity's component.
+    ///
+    /// Panics if the entity doesn't have the requested component.
+    #[inline]
+    fn get_mut(&mut self, entity: Entity) -> &mut C {
+        self.try_get_mut(entity).expect("failed to get component")
+    }
 
-        unsafe {
-            let to: TraitObject = mem::transmute(self);
-            mem::transmute(to.data)
+    #[doc(hidden)]
+    fn get_type_id(&self) -> TypeId {
+        TypeId::of::<Self>()
+    }
+}
+
+impl<C> ComponentStore<C> 
+    where C: Component
+{
+    pub fn downcast_ref<S: 'static>(&self) -> Option<&S> {
+        if self.get_type_id() == TypeId::of::<S>() {
+            unsafe {
+                let to: TraitObject = mem::transmute(self);
+                return Some(mem::transmute(to.data))
+            }
         }
+        None
+    }
+
+    pub fn downcast_mut<S: 'static>(&mut self) -> Option<&mut S> {
+        if self.get_type_id() == TypeId::of::<S>() {
+            unsafe {
+                let to: TraitObject = mem::transmute(self);
+                return Some(mem::transmute(to.data))
+            }
+        }
+        None
     }
 }
 
-pub struct ComponentRef<'a, C>
-    where C: Component + ComponentIndex
-{
-    entity: Entity,
-    inner_ref: Ref<'a, VecMap<C>>
+/// A `ComponentStore` of any component type.
+trait AnyStore: 'static {
+    fn remove(&mut self, entity: Entity);
 }
 
-impl<'a, C> Deref for ComponentRef<'a, C>
-    where C: Component + ComponentIndex
+#[old_impl_check]
+impl<S, C> AnyStore for S
+    where C: Component, S: ComponentStore<C>
 {
-    type Target = C;
-
-    fn deref(&self) -> &C {
-        self.inner_ref.get(&self.entity).expect("Failed to find component")
+    fn remove(&mut self, entity: Entity) {
+        self.remove(entity);
     }
 }
 
-pub struct ComponentRefMut<'a, C>
-    where C: Component + ComponentIndex
-{
-    entity: Entity,
-    inner_mut: RefMut<'a, VecMap<C>>
-}
+/// The default `ComponentStore`.
+///
+/// Basically a vector of components where
+/// each index corresponds to an `Entity`.
+pub struct DefaultStore<C>(VecMap<C>) where C: Component;
 
-impl<'a, C> Deref for ComponentRefMut<'a, C>
-    where C: Component + ComponentIndex
+impl<C> DefaultStore<C>
+    where C: Component
 {
-    type Target = C;
-
-    fn deref(&self) -> &C {
-        self.inner_mut.get(&self.entity).expect("Failed to find component")
+    /// Creates a new `DefaultStore`.
+    pub fn new() -> DefaultStore<C> {
+        DefaultStore(VecMap::new())
     }
 }
 
-impl<'a, C> DerefMut for ComponentRefMut<'a, C>
-    where C: Component + ComponentIndex
+impl<C> ComponentStore<C> for DefaultStore<C>
+    where C: Component
 {
-    fn deref_mut(&mut self) -> &mut C {
-        self.inner_mut.get_mut(&self.entity).expect("Failed to find component")
+    #[inline]
+    fn insert(&mut self, entity: Entity, component: C) {
+        self.0.insert(entity, component);
+    }
+
+    #[inline]
+    fn remove(&mut self, entity: Entity) {
+        self.0.remove(&entity);
+    }
+
+    #[inline]
+    fn try_get(&self, entity: Entity) -> Option<&C> {
+        self.0.get(&entity)
+    }
+
+    #[inline]
+    fn try_get_mut(&mut self, entity: Entity) -> Option<&mut C> {
+        self.0.get_mut(&entity)
     }
 }
-
 
 #[doc(hidden)]
 pub mod private {
     use super::ComponentMapper;
     use entity::MetaEntity;
 
+    /// Forgets an entity, removing it from the `ComponentMapper`
+    /// without touching the meta entity data.
     pub fn forget(mapper: &mut ComponentMapper, mentity: &MetaEntity) {
         for type_index in mentity.components.iter() {
             mapper.stores.get_mut(&type_index)
-                            .map(|mut store| store.remove(&mentity.entity));
+                         .map(|mut store| store.0.remove(mentity.entity));
         }
     }
 }

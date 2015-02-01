@@ -9,28 +9,47 @@ use syntax::ext::build::AstBuilder;
 #[doc(hidden)]
 pub fn expand(cx: &mut ExtCtxt, sp: Span, tts: &[TokenTree]) -> Box<MacResult + 'static> {
 
-    let (cm, component_idents) = match parse_args(cx, sp, tts) {
+    let (cm, mut component_idents) = match parse_args(cx, sp, tts) {
         Some(result) => result,
         None => return DummyResult::any(sp)
     };
 
-    let mut ensure_stmts = Vec::new();
+    let mut stmts = Vec::new();
     for component_ident in component_idents.iter() {
-        ensure_stmts.push(quote_stmt!(cx,
+        stmts.push(quote_stmt!(cx,
             $cm.ensure::<$component_ident>();
         ));
     }
+    
+    stmts.push(quote_stmt!(cx, 
+        let raw_mapper: *mut ComponentMapper = &mut *$cm;
+    ));
 
-    let mut tuple_exprs = Vec::new();
-    for component_ident in component_idents.iter() {
-        tuple_exprs.push(quote_expr!(cx,
-            $cm.get_store_mut::<$component_ident>().unwrap()
-        ));
+    let result_expr;
+    if component_idents.len() > 1 {
+        let mut tuple_exprs = Vec::new();
+        for component_ident in component_idents.iter() {
+            tuple_exprs.push(quote_expr!(cx,
+                unsafe {
+                    (*raw_mapper).get_store_mut::<$component_ident>()
+                }
+            ));
+        }
+
+        let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
+        let result_block = cx.block(sp, stmts, Some(tuple_expr));
+        result_expr = cx.expr_block(result_block);
+    } else {
+        let component_ident = component_idents.pop();
+        let get_store_expr = quote_expr!(cx, 
+            unsafe {
+                (*raw_mapper).get_store_mut::<$component_ident>()
+            }
+        );
+
+        let result_block = cx.block(sp, stmts, Some(get_store_expr));
+        result_expr = cx.expr_block(result_block);
     }
-    let tuple_expr = cx.expr_tuple(sp, tuple_exprs);
-
-    let result_block = cx.block(sp, ensure_stmts, Some(tuple_expr));
-    let result_expr = cx.expr_block(result_block);
 
     return MacExpr::new(result_expr);
 }

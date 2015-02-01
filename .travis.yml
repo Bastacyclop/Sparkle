@@ -1,1 +1,14 @@
 language: rust
+env:
+  global:
+    - secure: AZzOBFofEZelStX7+ctmkRJS5/cdOSXehQ4Sdw+z640rfqPB8xTTJ5nHaP7gDWZVjutL0reVPyqX5EC8V/tEzAH+oSnk1bPmuCohUCwKlb34rhQyUXN9Y8EEWYers+DHy/CawVBCe1D4ZQchcB+oHvwzStkTChYuQrkjWq0ozhM=
+script:
+  - cd sparkle
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo doc --no-deps --verbose
+  - cd ..
+after_success:
+  - cp -R sparkle/target/doc doc
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
+  - rm -r doc

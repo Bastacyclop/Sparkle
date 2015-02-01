@@ -1,4 +1,4 @@
-Sparkle
+Sparkle [![Build Status](https://travis-ci.org/RustSparkle/Sparkle.svg?branch=master)](https://travis-ci.org/RustSparkle/Sparkle)
 =======
 
 Sparkle is another Entity Component System (ECS) written in Rust. It has been highly inspirated
@@ -44,7 +44,7 @@ and these in your main file:
 Declaring a new component is as easy as following:
 
 ```rust
-  #[sparkle_component]
+  #[component]
   struct Position {
       pub x: i32,
       pub y: i32
@@ -53,20 +53,18 @@ Declaring a new component is as easy as following:
 
 ### Declare a System
 
-A system is responsible for updating components in the world. Most of the time you'll either want no filtering or the default implementation provided by the macro `sparkle_default_system_filtering!`:
+A system is responsible for updating components in the world. Most of the time you'll either use the `StandardEntityView` or no filtering system at all:
 
 ```rust
   struct PositionPrinter {
-      filter: Filter,
-      entities: HashSet<Entity>
+      view: StandardEntityView,
   }
   
   impl PositionPrinter {
       pub fn new() -> PositionPrinter {
-          let filter = sparkle_filter!(require components: Position);
+          let filter = sparkle_filter!(require: Position);
           PositionPrinter {
-              filter: filter,
-              entities: HashSet::new()
+              view: EntityView::new(filter)
           }
       }
   }
@@ -74,11 +72,12 @@ A system is responsible for updating components in the world. Most of the time y
   impl System for PositionPrinter {
       fn fixed_update(_em: &mut EntityMapper, cm: &mut ComponentMapper) {
           // This line safely retrieves component stores.
-          // Note that you can also use get_store directly but it will panic if the
-          // store doesn't exist.
-          let (position_store,) = sparkle_get_stores!(cm, Position);
+          // Note that you can also use try_get_store directly,
+          // but it will return None if the store doesn't exist,
+          // while the macro ensures the store existence.
+          let position_store = sparkle_get_stores!(cm, Position);
           
-          for entity in self.entities() {
+          for entity in self.view.iter() {
               let position = position_store.get(entity).unwrap();
               println!("Position: {}, {}", position.x, position.y);
           }
@@ -88,8 +87,13 @@ A system is responsible for updating components in the world. Most of the time y
           // Use this if you want an update every frame.
       }
       
-      // This macro implements methods that will manage self.entities according to self.filter
-      sparkle_default_system_filtering!()
+      fn on_entity_changed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
+          self.view.update(mentity);
+      }
+      
+      fn on_entity_removed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity) {
+          self.view.remove(mentity);
+      }
   }
 ```
 
@@ -100,8 +104,7 @@ A space represents a part of your game world. In small projects one instance sho
 ```rust
   use sparkle::prelude::*;
   
-  let blackboard = SharedBlackboard::new();
-  let space = Space::new(blackboard);
+  let (_cmd_sender, space) = Space::new();
   
   let entity = space.em.create_entity();
   space.em.set_tag(entity, "a_tag");
@@ -111,11 +114,11 @@ A space represents a part of your game world. In small projects one instance sho
   space.cm.insert(meta_entity, Position { x: 5, y: 8 });
   
   space.cm.get::<Position>(entity).x = 8;
-  ...
+  // ...
   
-  space.sm.insert(|_cmd_sender, _blackboard| PositionPrinter::new());
+  space.sm.insert(PositionPrinter::new());
   
-  ...
+  // ...
   space.update(dt) // This should be called every frame
   space.fixed_update() // And this at a fixed timestep
 ```
@@ -130,4 +133,4 @@ Sparkle is in a very early stage and we would appreciate feedback and contributi
 
 ## Documentation
 
-Coming...
+Documentation is available on [rust-ci](http://rust-ci.org/RustSparkle/Sparkle/doc/sparkle/index.html).

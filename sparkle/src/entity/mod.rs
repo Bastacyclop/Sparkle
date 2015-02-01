@@ -1,35 +1,86 @@
+//! The entity related features.
+//!
+//! ## Simple entity manipulation
+//!
+//! Creating and removing entities is pretty simple:
+//!
+//! ````ignore
+//! let entity = em.create_entity();
+//! // ...
+//! em.remove_entity(entity);
+//! ````
+//!
+//! ## Identification of entities using groups
+//!
+//! Groups are useful to identify a category of entities.
+//! For example, you could have a group of allies:
+//!
+//! ````ignore
+//! em.set_group(wise_mage, "allies");
+//! em.set_group(bold_dwarf, "allies");
+//! // ...
+//! // And somewhere else:
+//! let allies = em.get_group("allies");
+//! // Though you'll probably prefer using system filters than that function.
+//! ````
+//! 
+//! A group is referred to by a name and can contain multiple entities.
+//! Likewise, an entity can belong to multiple groups.
+//!
+//! ## Identification of entities using tags
+//!
+//! Tags are useful to identify a specific entity.
+//! For example, you could tag the hero of your game:
+//!
+//! ```ignore
+//! em.set_tag(julian, "hero");
+//! // ...
+//! // And somewhere else:
+//! let hero = em.get_tag("hero");
+//! ```
+//!
+//! A tag is referred to by a name and can only tag one entity at a time.
+//! Furthermore, an entity can only have one tag at a time.
+
 use std::collections::{VecMap, RingBuf, HashSet, BitvSet};
 use std::collections::ring_buf;
 
 use component::ComponentMapper;
 
-pub use self::group::GroupMap;
-pub use self::tag::TagMap;
+use self::group::GroupMap;
+use self::tag::TagMap;
 
-pub mod group;
-pub mod tag;
+mod group;
+mod tag;
 
+/// A plain entity identifier.
 pub type Entity = usize;
 
+/// An entity and its features.
 #[derive(PartialEq, Eq, Clone)]
 pub struct MetaEntity {
     pub entity: Entity,
+    pub is_awake: bool,
     pub tag: Option<String>,
     pub groups: HashSet<String>,
     pub components: BitvSet
 }
 
 impl MetaEntity {
-    pub fn new(entity: Entity) -> MetaEntity {
+    /// Creates a bare `MetaEntity`.
+    fn new(entity: Entity) -> MetaEntity {
         MetaEntity {
             entity: entity,
+            is_awake: true,
             tag: None,
             groups: HashSet::new(),
             components: BitvSet::new()
         }
     }
 
-    pub fn reset(mut self) -> MetaEntity {
+    /// Resets the `MetaEntity`.
+    fn reset(mut self) -> MetaEntity {
+        self.is_awake = true;
         self.components.clear();
         self.tag = None;
         self.groups.clear();
@@ -38,6 +89,7 @@ impl MetaEntity {
     }
 }
 
+/// An entity mapper using plain `Entity` identifiers, tags and groups.
 pub struct EntityMapper {
     mentities: MetaEntityMap,
     groups: GroupMap,
@@ -45,6 +97,7 @@ pub struct EntityMapper {
 }
 
 impl EntityMapper {
+    /// Creates a new `EntityMapper`.
     pub fn new() -> EntityMapper {
         EntityMapper {
             mentities: MetaEntityMap::new(),
@@ -53,10 +106,14 @@ impl EntityMapper {
         }
     }
 
+    /// Creates a new entity.
     pub fn create_entity(&mut self) -> Entity {
         self.mentities.create()
     }
 
+    /// Removes an entity.
+    ///
+    /// The removal event is recorded and will be notified before any system update.
     pub fn remove_entity(&mut self, entity: Entity) {
         {
             let mentity = self.mentities.get(entity);
@@ -66,46 +123,87 @@ impl EntityMapper {
         self.mentities.remove(entity);
     }
 
+    /// Enables an entity
+    ///
+    /// The entity will be updated by systems again.
+    pub fn wake_up(&mut self, entity: Entity) {
+        self.mentities.set_awake(entity, true);
+    }
+
+    /// Disables an entity
+    ///
+    /// The entity won't be updated by systems anymore.
+    pub fn put_to_sleep(&mut self, entity: Entity) {
+        self.mentities.set_awake(entity, false);
+    }
+
+    /// Returns a reference to the meta entity.
     pub fn get_mentity(&self, entity: Entity) -> &MetaEntity {
         self.mentities.get(entity)
     }
 
+    /// Returns a mutable reference to the meta entity.
     pub fn get_mentity_mut(&mut self, entity: Entity) -> &mut MetaEntity {
         self.mentities.get_mut(entity)
     }
 
+    /// Inserts an entity into a group.
     pub fn set_group(&mut self, entity: Entity, group: &str) {
         self.groups.insert_in(self.mentities.get_mut(entity), group);
     }
 
-    pub fn unset_group(&mut self,  entity: Entity, group: &str) {
+    /// Removes an entity from a group.
+    pub fn unset_group(&mut self, entity: Entity, group: &str) {
         self.groups.remove_from(self.mentities.get_mut(entity), group);
     }
+    
+    /// Clears an entity groups.
+    pub fn clear_entity_groups(&mut self, entity: Entity) {
+        self.groups.clear_entity(self.mentities.get_mut(entity));
+    }
 
-    pub fn get_group(&mut self, group: &str) -> Vec<Entity> {
+    /// Returns an entity group as a vector.
+    pub fn get_group(&self, group: &str) -> Vec<Entity> {
         self.groups.get(group)
     }
 
-    pub fn set_tag(&mut self, tag: &str, entity: Entity) {
-        self.tags.insert(self.mentities.get_mut(entity), tag);
+    /// Sets an entity tag.
+    ///
+    /// If the entity was already tagged, the previous tag will be overriden and returned.
+    /// Panics if the tag was already used.
+    pub fn set_tag(&mut self, entity: Entity, tag: &str) -> Option<String> {
+        self.tags.insert(self.mentities.get_mut(entity), tag)
     }
 
+    /// Unsets an entity tag.
     pub fn unset_tag(&mut self, entity: Entity) {
         self.tags.remove(self.mentities.get_mut(entity))
     }
 
-    pub fn get_tag(&self, tag: &str) -> Option<Entity> {
+    /// Returns the entity tagged by `tag` if it exists.
+    ///
+    /// This method returns `None` if the tag doesn't exist.
+    pub fn try_get_tag(&self, tag: &str) -> Option<Entity> {
         self.tags.get(tag)
     }
 
+    /// Returns the entity tagged by `tag`.
+    ///
+    /// This method panics if the tag doesn't exist.
+    pub fn get_tag(&self, tag: &str) -> Entity {
+        self.tags.get(tag).expect(format!("Failed to find an entity with tag {}", tag).as_slice())
+    }
+
+    /// Notify all entity events that occurred to an observer.
+    #[doc(hidden)]
     pub fn notify_events<O>(&mut self, cm: &mut ComponentMapper, obs: &mut O) where O: EntityObserver {
         let EntityMapper { ref mut mentities, .. } = *self;
 
         mentities.drain_events_with(|(kind, mentity)| {
             match kind {
-                EventKind::Changed => obs.notify_changed(mentity),
+                EventKind::Changed => obs.notify_changed(cm, mentity),
                 EventKind::Removed => {
-                    obs.notify_removed(mentity);
+                    obs.notify_removed(cm, mentity);
                     ::component::private::forget(cm, mentity);
                 }
             }
@@ -113,48 +211,68 @@ impl EntityMapper {
     }
 }
 
+/// An event that occurred to a certain entity.
 type Event = (EventKind, Entity);
 
-#[derive(Copy, Show)]
+/// The different kinds of entity-related events that can occur.
+#[derive(Copy, PartialEq, Show)]
 enum EventKind {
     Changed,
     Removed
 }
 
+/// A queue recording entity-related events.
+///
+/// Change events are protected against duplicates.
 struct EventQueue {
     changed_set: HashSet<Entity>,
+    removed_set: HashSet<Entity>,
     events: RingBuf<Event>
 }
 
 impl EventQueue {
+    /// Creates an empty `EventQueue`.
     fn new() -> EventQueue {
         EventQueue {
             changed_set: HashSet::new(),
+            removed_set: HashSet::new(),
             events: RingBuf::new()
         }
     }
 
+    /// Records the change of an entity, ignoring duplicates.
     fn changed(&mut self, entity: Entity) {
         if self.changed_set.insert(entity) {
-            self.events.push_back((EventKind::Changed, entity))
+            if !self.removed_set.contains(&entity) {
+                self.events.push_back((EventKind::Changed, entity))
+            }
         }
     }
 
+    /// Records the removal of an entity. 
     fn removed(&mut self, entity: Entity) {
-        self.events.push_back((EventKind::Removed, entity))
+        if self.removed_set.insert(entity) {
+            self.events.push_back((EventKind::Removed, entity))
+        }
     }
 
+    /// Drains all recorded events.
     fn drain(&mut self) -> EventDrain {
         self.changed_set.clear();
+        self.removed_set.clear();
         self.events.drain()
     }
 }
 
 type EventDrain<'a> = ring_buf::Drain<'a, Event>;
 
+/// Observes entity-related events.
+#[doc(hidden)]
 pub trait EntityObserver {
-    fn notify_changed(&mut self, mentity: &MetaEntity);
-    fn notify_removed(&mut self, mentity: &MetaEntity);
+    /// Notifies the observer that an entity was changed.
+    fn notify_changed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity);
+    /// Notifies the observer that an entity was removed.
+    fn notify_removed(&mut self, cm: &ComponentMapper, mentity: &MetaEntity);
 }
 
 macro_rules! get_mentity {
@@ -171,6 +289,7 @@ macro_rules! get_mentity_mut {
     )
 }
 
+/// A map of meta entities.
 struct MetaEntityMap {
     pool: Pool,
     mentities: VecMap<MetaEntity>,
@@ -178,6 +297,7 @@ struct MetaEntityMap {
 }
 
 impl MetaEntityMap {
+    /// Creates a new map of meta entities.
     fn new() -> MetaEntityMap {
         MetaEntityMap {
             pool: Pool::new(),
@@ -186,6 +306,7 @@ impl MetaEntityMap {
         }
     }
 
+    /// Creates a new entity.
     fn create(&mut self) -> Entity {
         let meta_entity = self.pool.get();
         let entity = meta_entity.entity;
@@ -195,19 +316,33 @@ impl MetaEntityMap {
         entity
     }
 
+    /// Removes an entity.
+    ///
+    /// The removal event is recorded and will be treated later.  
+    /// The entity effective removal is delayed until then.
     fn remove(&mut self, entity: Entity) {
         self.events.removed(entity);
     }
 
+    /// Enable or disable an entity.
+    fn set_awake(&mut self, entity: Entity, awake: bool) {
+        self.get_mut(entity).is_awake = awake;
+    }
+
+    /// Returns a reference to a meta entity.
     fn get(&self, entity: Entity) -> &MetaEntity {
         get_mentity!(self.mentities, entity)
     }
 
+    /// Returns a mutable reference to a meta entity.
     fn get_mut(&mut self, entity: Entity) -> &mut MetaEntity {
         self.events.changed(entity);
         get_mentity_mut!(self.mentities, entity)
     }
 
+    /// Drains the entity-related events, applying `func` for each event.
+    ///
+    /// In case of a removal event, this is where the effective removal occurs.
     fn drain_events_with<'a, F>(&'a mut self, mut func: F)
         where F: for<'b> FnMut((EventKind, &'b MetaEntity))
     {
@@ -221,12 +356,16 @@ impl MetaEntityMap {
     }
 }
 
+/// A pool from where we can draw bare entities.
+///
+/// A drawn entity can be put back in to be recycled.
 struct Pool {
     available: Vec<MetaEntity>,
     next_id: usize
 }
 
 impl Pool {
+    /// Creates an empty `Pool`.
     fn new() -> Pool {
         Pool {
             available: Vec::new(),
@@ -234,6 +373,7 @@ impl Pool {
         }
     }
 
+    /// Retrieves a bare entity from the pool.
     fn get(&mut self) -> MetaEntity {
         self.available.pop().unwrap_or_else(|| {
             let id = self.next_id;
@@ -243,7 +383,209 @@ impl Pool {
         }).reset()
     }
 
+    /// Puts an entity back in the pool.
     fn put(&mut self, entity: MetaEntity) {
         self.available.push(entity);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::{EventQueue, EventKind, MetaEntityMap, Pool};       
+        
+    #[test]
+    fn event_queue_changed() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Changed, 0)));
+    }
+    
+    #[test]
+    fn event_queue_changed_dup() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Changed, 0)));
+        assert!(queue.events.pop_back().is_none());
+    }
+    
+    #[test]
+    fn event_queue_removed() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+    }
+    
+    #[test]
+    fn event_queue_removed_dup() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        queue.removed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+        assert!(queue.events.pop_back().is_none());
+    }
+    
+    #[test]
+    fn event_queue_changed_when_removed() {
+        let mut queue = EventQueue::new();
+        
+        queue.removed(0);
+        queue.changed(0);
+        assert_eq!(queue.events.pop_back(), Some((EventKind::Removed, 0)));
+        assert!(queue.events.pop_back().is_none());
+    }
+    
+    #[test]
+    fn event_queue_drain() {
+        let mut queue = EventQueue::new();
+        
+        queue.changed(0);
+        queue.removed(1);
+        queue.changed(2);
+        queue.changed(3);
+        
+        let expected = [
+            (EventKind::Changed, 0),
+            (EventKind::Removed, 1),
+            (EventKind::Changed, 2),
+            (EventKind::Changed, 3)
+        ];
+        
+        let drained: Vec<(EventKind, Entity)> = queue.drain().collect();
+        assert_eq!(drained, expected);
+        assert!(queue.events.is_empty());
+        assert!(queue.changed_set.is_empty());
+        assert!(queue.removed_set.is_empty());
+    }
+    
+    
+    
+    #[test]
+    fn mentity_map_create() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.mentities.get(&entity).unwrap();
+        assert_eq!(meta_entity.entity, mentity_map.pool.next_id-1);
+        assert!(meta_entity.is_awake);
+        assert!(meta_entity.tag.is_none());
+        assert!(meta_entity.groups.is_empty());
+        assert!(meta_entity.components.is_empty());
+        
+        assert_eq!(mentity_map.events.events.pop_back(),
+                   Some((EventKind::Changed, meta_entity.entity)));
+    }
+
+    #[test]
+    fn mentity_map_remove() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        mentity_map.remove(entity);
+        assert_eq!(mentity_map.events.events.pop_back(),
+                   Some((EventKind::Removed, entity)));
+    }
+    
+    #[test]
+    fn mentity_map_remove_nonexistent() {
+        let mut mentity_map = MetaEntityMap::new();
+        mentity_map.remove(0);
+    }
+
+    #[test]
+    fn mentity_map_set_awake() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        mentity_map.set_awake(entity, false);
+        assert!(!mentity_map.mentities.get(&entity).unwrap().is_awake);
+        mentity_map.set_awake(entity, true);
+        assert!(mentity_map.mentities.get(&entity).unwrap().is_awake);
+    }
+
+    #[test]
+    fn mentity_map_get() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.get(entity);
+        assert_eq!(meta_entity.entity, entity);
+    }
+    
+    #[test]
+    #[should_fail]
+    fn mentity_map_get_nonexistent() {
+        let mentity_map = MetaEntityMap::new();        
+        mentity_map.get(0);   
+    }
+
+    #[test]
+    fn mentity_map_get_mut() {
+        let mut mentity_map = MetaEntityMap::new();
+        let entity = mentity_map.create();
+        
+        let meta_entity = mentity_map.get_mut(entity);
+        assert_eq!(meta_entity.entity, entity);        
+    }
+    
+    #[test]
+    #[should_fail]
+    fn mentity_map_get_mut_nonexistent() {
+        let mut mentity_map = MetaEntityMap::new();
+        mentity_map.get_mut(0);  
+    }
+
+    #[test]
+    fn mentity_map_drain_events_with() {
+        let mut mentity_map = MetaEntityMap::new();
+        let changed_entity = mentity_map.create();
+        let removed_entity = mentity_map.create();
+        mentity_map.remove(removed_entity);
+        
+        let expected = [
+            (EventKind::Changed, changed_entity),
+            (EventKind::Changed, removed_entity),
+            (EventKind::Removed, removed_entity)
+        ];
+        
+        let mut expected_iter = expected.iter();
+        mentity_map.drain_events_with(|event| {
+            let expected_event = expected_iter.next().unwrap();
+            assert_eq!(event.0, expected_event.0);
+            assert_eq!(event.1.entity, expected_event.1);
+        });
+        
+        assert_eq!(mentity_map.mentities.get(&changed_entity).unwrap().entity, changed_entity);
+        assert!(mentity_map.mentities.get(&removed_entity).is_none());
+        assert!(mentity_map.events.events.is_empty());
+        assert_eq!(mentity_map.create(), removed_entity);
+        assert!(mentity_map.create() != changed_entity);
+    }
+
+
+    
+    #[test]
+    fn pool_get() {
+        let mut pool = Pool::new();
+        for i in 0..10us {
+            assert_eq!(pool.get().entity, i);
+        }
+    }
+    
+    #[test]
+    fn pool_reuse() {
+        let mut pool = Pool::new();
+        let recycled = pool.get();
+        
+        assert_eq!(recycled.entity, 0);
+        assert_eq!(pool.get().entity, 1);
+        pool.put(recycled);
+        assert_eq!(pool.get().entity, 0);
+        assert_eq!(pool.get().entity, 2);
     }
 }
